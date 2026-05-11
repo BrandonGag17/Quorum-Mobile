@@ -1,12 +1,14 @@
-import { useEffect, useState } from 'react'
-import { useNavigation, useRoute } from '@react-navigation/native'
-import { View, Text, TouchableOpacity } from 'react-native'
+import React, { useEffect, useState } from 'react'
+import { View, Text, Button } from 'react-native'
+import { useRoute, useNavigation } from '@react-navigation/native'
 import supabase from '../supabaseClient'
 
 function InicioGrupo() {
-    const navigation = useNavigation()
     const route = useRoute()
+    const navigation = useNavigation()
+
     const { id } = route.params
+
     const [evento, setEvento] = useState(null)
 
     useEffect(() => {
@@ -24,12 +26,14 @@ function InicioGrupo() {
             .single()
 
         if (error) return
+
         setEvento(data)
     }
 
     return (
         <View>
             <Text>Próximas juntadas</Text>
+
             {evento ? (
                 <View>
                     <Text>{evento.nombre}</Text>
@@ -37,9 +41,13 @@ function InicioGrupo() {
             ) : (
                 <Text>No hay juntadas próximas</Text>
             )}
-            <TouchableOpacity onPress={() => navigation.navigate('ProponerJuntada', { id })}>
-                <Text>Proponer Juntada</Text>
-            </TouchableOpacity>
+
+            <Button
+                title="Proponer Juntada"
+                onPress={() =>
+                    navigation.navigate('ProponerJuntada', { id })
+                }
+            />
         </View>
     )
 }

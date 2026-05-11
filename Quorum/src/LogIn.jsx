@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useNavigation } from '@react-navigation/native'
-import { View, Text, TextInput, TouchableOpacity, Image } from 'react-native'
-import supabase from '../supabaseClient'
+import { View, Text, TextInput, TouchableOpacity } from 'react-native'
+import supabase from './supabaseClient'
 
 function LogIn() {
     const navigation = useNavigation()
@@ -19,7 +19,7 @@ function LogIn() {
         if (error) {
             setMensaje('Error: ' + error.message)
         } else {
-            navigation.navigate('Inicio')
+            navigation.navigate('InicioGrupo')
         }
 
         setCargando(false)
@@ -59,7 +59,6 @@ function LogIn() {
             <Text>o</Text>
 
             <TouchableOpacity onPress={handleGoogle}>
-                <Image source={require('../../public/img/Logos/google.webp')} style={{ width: 20, height: 20 }} />
                 <Text>Continuar con Google</Text>
             </TouchableOpacity>
 
