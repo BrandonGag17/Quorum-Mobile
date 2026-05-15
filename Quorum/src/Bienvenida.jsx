@@ -1,7 +1,7 @@
 import { useNavigation } from '@react-navigation/native'
 import { View, Text, TouchableOpacity } from 'react-native'
 
-function Index() {
+function Bienvenida() {
     const navigation = useNavigation()
 
     return (
@@ -20,4 +20,4 @@ function Index() {
     )
 }
 
-export default Index    
+export default Bienvenida    

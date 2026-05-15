@@ -19,7 +19,7 @@ function LogIn() {
         if (error) {
             setMensaje('Error: ' + error.message)
         } else {
-            navigation.navigate('InicioGrupo')
+            navigation.navigate('Inicio')
         }
 
         setCargando(false)

@@ -6,7 +6,7 @@ import Bienvenida from './src/Bienvenida'
 import LogIn from './src/LogIn'
 // import Inicio from './src/Inicio'
 // import Configuracion from './src/Configuracion'
-import InicioGrupo from './src/InicioGrupo'
+import Inicio from './src/Inicio'
 // import ProponerJuntada from './src/ProponerJuntada'
 // import DetallePerfil from './src/DetallePerfil'
 
@@ -21,7 +21,7 @@ export default function App() {
         <Stack.Screen name="LogIn" component={LogIn} />
         {/* <Stack.Screen name="Inicio" component={Inicio} /> */}
         {/* <Stack.Screen name="Configuracion" component={Configuracion} /> */}
-        <Stack.Screen name="InicioGrupo" component={InicioGrupo} />
+        <Stack.Screen name="Inicio" component={Inicio} />
         {/* <Stack.Screen name="ProponerJuntada" component={ProponerJuntada} /> */}
         {/* <Stack.Screen name="DetallePerfil" component={DetallePerfil} /> */}
       </Stack.Navigator>
