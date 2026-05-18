@@ -1,7 +1,8 @@
 import { NavigationContainer } from '@react-navigation/native'
 import { createNativeStackNavigator } from '@react-navigation/native-stack'
+import { useFonts } from 'expo-font';
 
-import Bienvenida from './src/Bienvenida'
+import Introduccion from './src/Introduccion'
 // import SignUp from './src/SignUp'
 import LogIn from './src/LogIn'
 // import Inicio from './src/Inicio'
@@ -13,10 +14,17 @@ import Inicio from './src/Inicio'
 const Stack = createNativeStackNavigator()
 
 export default function App() {
+  const [fontsLoaded] = useFonts({
+    'Utendo': require('./assets/fonts/Utendo-Regular.ttf'),
+    'CashMarket': require('./assets/fonts/CashMarket-BoldRounded.ttf')
+  });
+
+  if (!fontsLoaded) return null;
+
   return (
     <NavigationContainer>
-      <Stack.Navigator initialRouteName="Bienvenida">
-        <Stack.Screen name="Bienvenida" component={Bienvenida} />
+      <Stack.Navigator initialRouteName="Introduccion">
+        <Stack.Screen name="Introduccion" component={Introduccion} />
         {/* <Stack.Screen name="SignUp" component={SignUp} /> */}
         <Stack.Screen name="LogIn" component={LogIn} />
         {/* <Stack.Screen name="Inicio" component={Inicio} /> */}

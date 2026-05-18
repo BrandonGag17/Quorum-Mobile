@@ -1,15 +1,12 @@
 import { useNavigation } from '@react-navigation/native'
-import { StyleSheet, Text, View, Image, TouchableOpacity } from 'react-native'
-import Navbar from './Navbar.jsx'
+import { StyleSheet, View, Text, Image } from 'react-native'
 
-function Bienvenida() {
+export default function Navbar() {
     const navigation = useNavigation()
 
     return (
-        <View style={styles.inicio}>
-            <Text>Isologo</Text>
-            <Text>Quórum</Text>
-            <Text>Juntarse como nunca antes</Text>
+        <View style={styles.carga}>
+            <Text style={styles.titulo}>Quórum</Text>
 
             <TouchableOpacity onPress={() => navigation.navigate('LogIn')}>
                 <Text>Iniciar sesión</Text>
@@ -17,17 +14,12 @@ function Bienvenida() {
             <TouchableOpacity onPress={() => navigation.navigate('LogIn')}>
                 <Text>Registrarse</Text>
             </TouchableOpacity>
-
-            <Navbar />
         </View>
     )
 }
 
 const styles = StyleSheet.create({
-    inicio: {
-        flex: 1,
-        backgroundColor: '#0D0E2A',
+    titulo: {
+        fontFamily: 'CashMarket',
     }
 })
-
-export default Bienvenida    
