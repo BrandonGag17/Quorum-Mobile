@@ -2,9 +2,8 @@ import { NavigationContainer } from '@react-navigation/native'
 import { createNativeStackNavigator } from '@react-navigation/native-stack'
 import { useFonts } from 'expo-font';
 
-import Bienvenida from './src/Bienvenida'
-import LogIn from './src/LogIn'
-import Inicio from './src/Inicio'
+import Introduccion from './src/Autenticacion/Introduccion'
+import IniciarSesion from './src/Autenticacion/IniciarSesion'
 
 const Stack = createNativeStackNavigator()
 
@@ -18,10 +17,9 @@ export default function App() {
 
   return (
     <NavigationContainer>
-      <Stack.Navigator initialRouteName="Bienvenida">
-        <Stack.Screen name="Bienvenida" component={Bienvenida} />
-        <Stack.Screen name="LogIn" component={LogIn} />
-        <Stack.Screen name="Inicio" component={Inicio} />
+      <Stack.Navigator initialRouteName="Introduccion">
+        <Stack.Screen name="Introduccion" component={Introduccion} />
+        <Stack.Screen name="IniciarSesion" component={IniciarSesion} />
       </Stack.Navigator>
     </NavigationContainer>
   )

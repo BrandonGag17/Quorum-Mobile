@@ -46,18 +46,6 @@ function Inicio() {
                 )}
             />
 
-            <TouchableOpacity>
-                <Text>inicio</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity>
-                <Text>recomendaciones</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity>
-                <Text>configuracion</Text>
-            </TouchableOpacity>
-
             <Modal
                 visible={mostrarModal}
                 transparent={true}
