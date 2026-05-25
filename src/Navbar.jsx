@@ -1,5 +1,5 @@
 import { StyleSheet, Text, View } from 'react-native'
-import { IconHomeFilled, IconCompassFilled, IconSettingsFilled } from '@tabler/icons-react-native';
+import { IconHomeFilled, IconCompassFilled, IconSettingsFilled, IconBellFilled } from '@tabler/icons-react-native';
 
 export default function Navbar() {
     return (
@@ -11,6 +11,10 @@ export default function Navbar() {
             <View style={styles.navItem}>
                 <IconCompassFilled color="#FFFFFF" size={28} />
                 <Text style={styles.navText}>Explorar</Text>
+            </View>
+            <View style={styles.navItem}>
+                <IconBellFilled color="#FFFFFF" size={28} />
+                <Text style={styles.navText}>Notificaciones</Text>
             </View>
             <View style={styles.navItem}>
                 <IconSettingsFilled color="#FFFFFF" size={28} />
@@ -30,7 +34,6 @@ const styles = StyleSheet.create({
         justifyContent: 'space-around',
         alignItems: 'center',
         height: 70,
-        backgroundColor: '#2B206E',
         borderTopLeftRadius: 25,
         borderTopRightRadius: 25,
     },

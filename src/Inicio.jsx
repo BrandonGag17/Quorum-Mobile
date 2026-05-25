@@ -40,7 +40,7 @@ function Inicio() {
                 data={grupos}
                 keyExtractor={(item) => item.id_grupo.toString()}
                 renderItem={({ item }) => (
-                    <TouchableOpacity onPress={() => {}}>
+                    <TouchableOpacity onPress={() => { }}>
                         <Text>{item.grupo ? item.grupo.nombre : 'Sin nombre'} {item.grupo ? item.grupo.descripcion : ''}</Text>
                     </TouchableOpacity>
                 )}
@@ -65,7 +65,7 @@ function Inicio() {
             >
                 <TouchableOpacity onPress={() => setMostrarModal(false)}>
                     <View>
-                        <TouchableOpacity onPress={() => {}}>
+                        <TouchableOpacity onPress={() => { }}>
                             <View>
                                 <TouchableOpacity onPress={() => setMostrarModal(false)}>
                                     <Text>X</Text>
