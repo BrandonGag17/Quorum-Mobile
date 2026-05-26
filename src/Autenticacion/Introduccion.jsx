@@ -13,7 +13,7 @@ function Introduccion() {
             <TouchableOpacity onPress={() => navigation.navigate('IniciarSesion')}>
                 <Text style={styles.botones}>Iniciar sesión</Text>
             </TouchableOpacity>
-            <TouchableOpacity onPress={() => navigation.navigate('IniciarSesion')}>
+            <TouchableOpacity onPress={() => navigation.navigate('Registrarse')}>
                 <Text style={styles.botones}>Registrarse</Text>
             </TouchableOpacity>
         </View>
