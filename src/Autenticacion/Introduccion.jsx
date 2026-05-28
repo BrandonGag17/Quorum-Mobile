@@ -1,8 +1,36 @@
+import { useEffect, useState, useRef } from 'react'
 import { useNavigation } from '@react-navigation/native'
-import { StyleSheet, Text, View, Image, TouchableOpacity, TextInput } from 'react-native'
+import { StyleSheet, Text, View, Image, TouchableOpacity, Animated } from 'react-native'
 
 function Introduccion() {
     const navigation = useNavigation()
+    const [isLoading, setIsLoading] = useState(true)
+    const fadeAnim = useRef(new Animated.Value(0)).current
+
+    useEffect(() => {
+        Animated.timing(fadeAnim, {
+            toValue: 1,
+            duration: 600,
+            useNativeDriver: true,
+        }).start()
+
+        const timer = setTimeout(() => {
+            setIsLoading(false)
+        }, 3000)
+
+        return () => clearTimeout(timer)
+    }, [])
+
+    if (isLoading) {
+        return (
+            <View style={styles.inicio}>
+                <Animated.Image
+                    source={require('../../assets/img/Logos/IsotipoSinFondo.png')}
+                    style={[styles.logo, { opacity: fadeAnim }]}
+                />
+            </View>
+        )
+    }
 
     return (
         <View style={styles.inicio}>

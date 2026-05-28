@@ -1,8 +1,11 @@
 import { View, Text, StyleSheet, TextInput, TouchableOpacity } from 'react-native'
-import Checkbox from 'expo-checkbox';
-import { IconMailFilled, IconLockFilled } from '@tabler/icons-react-native'
+import Checkbox from 'expo-checkbox'
+import { IconMailFilled, IconLockFilled, IconUserFilled } from '@tabler/icons-react-native'
+import { useState } from 'react';
 
 function Registrarse() {
+    const [isChecked, setChecked] = useState(false)
+
     return (
         <View style={styles.fondo}>
             <Text style={styles.titulo}>Registrarse</Text>
@@ -11,8 +14,9 @@ function Registrarse() {
                 <IconMailFilled color="#FFFFFF" size={28} />
                 <Text style={styles.texto}>Email</Text>
             </View>
+            <TextInput style={styles.input} placeholder="tuusuario123" />
             <View style={styles.iconoTexto}>
-                <IconMailFilled color="#FFFFFF" size={28} />
+                <IconUserFilled color="#FFFFFF" size={28} />
                 <Text style={styles.texto}>Nombre de usuario</Text>
             </View>
             <TextInput style={styles.input} placeholder="tu@gmail.com" />
@@ -22,8 +26,10 @@ function Registrarse() {
             </View>
             <TextInput style={styles.input} placeholder="*******" />
 
-            <Checkbox value={isChecked} onValueChange={setChecked} />
-            <Text style={styles.texto}>Acepto los términos y condiciones</Text>
+            <View style={styles.checkbox}>
+                <Checkbox value={isChecked} onValueChange={setChecked} />
+                <Text style={styles.texto}>Acepto los términos y condiciones</Text>
+            </View>
 
             <TouchableOpacity onPress={() => navigation.navigate('Registrarse2')}>
                 <Text style={styles.botones}>Continuar</Text>
@@ -74,6 +80,13 @@ const styles = StyleSheet.create({
         backgroundColor: '#2A2A2E',
         padding: 15,
         color: 'white',
+        marginBottom: 20,
+        marginTop: 10,
+    },
+    checkbox: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 10,
         marginBottom: 20,
         marginTop: 10
     }
