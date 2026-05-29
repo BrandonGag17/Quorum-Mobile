@@ -5,6 +5,8 @@ import { useFonts } from 'expo-font'
 import Introduccion from './src/Autenticacion/Introduccion'
 import IniciarSesion from './src/Autenticacion/IniciarSesion'
 import Registrarse from './src/Autenticacion/Registrarse'
+import Registrarse2 from './src/Autenticacion/Registrarse2'
+import Registrarse3 from './src/Autenticacion/Registrarse3'
 import Inicio from './src/Inicio'
 
 const Stack = createNativeStackNavigator()
@@ -35,6 +37,16 @@ export default function App() {
         <Stack.Screen
           name="Registrarse"
           component={Registrarse}
+        />
+        
+        <Stack.Screen
+          name="Registrarse2"
+          component={Registrarse2}
+        />
+
+        <Stack.Screen
+          name="Registrarse3"
+          component={Registrarse3}
         />
 
         <Stack.Screen

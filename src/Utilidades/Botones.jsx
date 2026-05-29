@@ -1,12 +1,20 @@
 import { StyleSheet, Text, TouchableOpacity } from 'react-native'
 import { useNavigation } from '@react-navigation/native'
 
-function Button({ nombre, view }) {
-
+function Button({ nombre, view, onPress }) {
     const navigation = useNavigation()
 
+    const handlePress = () => {
+        if (onPress) {
+            onPress()
+        }
+
+        if (view) {
+            navigation.navigate(view)
+        }
+    }
     return (
-        <TouchableOpacity onPress={() => navigation.navigate(view)}>
+        <TouchableOpacity onPress={handlePress}>
             <Text style={styles.botones}>{nombre}</Text>
         </TouchableOpacity>
     )
