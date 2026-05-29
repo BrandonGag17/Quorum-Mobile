@@ -1,7 +1,40 @@
 import { View, Text, StyleSheet, TextInput, TouchableOpacity } from 'react-native'
 import { IconMailFilled, IconLockFilled } from '@tabler/icons-react-native'
+import { useNavigation } from '@react-navigation/native'
+import { useState } from 'react'
+import Button from '../Utilidades/Botones'
+import supabase from '../supabaseClient'
 
 function IniciarSesion() {
+    const navigation = useNavigation()
+    const [email, setEmail] = useState('')
+    const [password, setPassword] = useState('')
+    const [mensaje, setMensaje] = useState('')
+    const [cargando, setCargando] = useState(false)
+
+    const handleSubmit = async () => {
+        setCargando(true)
+        setMensaje('')
+
+        const { error } = await supabase.auth.signInWithPassword({ email, password })
+
+        if (error) {
+            setMensaje('Error: ' + error.message)
+        } else {
+            navigation.navigate('Inicio')
+        }
+
+        setCargando(false)
+    }
+
+    const handleGoogle = async () => {
+        const { error } = await supabase.auth.signInWithOAuth({
+            provider: 'google',
+            options: { redirectTo: 'http://localhost:5173/inicio' }
+        })
+        if (error) setMensaje('Error: ' + error.message)
+    }
+
     return (
         <View style={styles.fondo}>
             <Text style={styles.titulo}>Iniciar sesión</Text>
@@ -10,16 +43,20 @@ function IniciarSesion() {
                 <IconMailFilled color="#FFFFFF" size={28} />
                 <Text style={styles.texto}>Email</Text>
             </View>
-            <TextInput style={styles.input} placeholder="tu@gmail.com" />
+            <TextInput style={styles.input} placeholder="tu@gmail.com" value={email} onChangeText={setEmail} keyboardType="email-address" autoCapitalize="none" />
             <View style={styles.iconoTexto}>
                 <IconLockFilled color="#FFFFFF" size={28} />
                 <Text style={styles.texto}>Contraseña</Text>
             </View>
-            <TextInput style={styles.input} placeholder="*******" />
+            <TextInput style={styles.input} placeholder="*******" value={password} onChangeText={setPassword} secureTextEntry />
 
-            <TouchableOpacity onPress={() => navigation.navigate('IniciarSesion')}>
-                <Text style={styles.botones}>Iniciar sesión</Text>
+            <Button nombre={cargando ? 'Cargando...' : 'Iniciar sesión'} view="Inicio" onPress={handleSubmit} disabled={cargando} />
+
+            <TouchableOpacity onPress={handleGoogle}>
+                <Text style={styles.botonGoogle}>Continuar con Google</Text>
             </TouchableOpacity>
+
+            {mensaje ? <Text>{mensaje}</Text> : null}
         </View>
     )
 }
@@ -37,16 +74,6 @@ const styles = StyleSheet.create({
         fontSize: 40,
         textAlign: 'center',
         marginBottom: 30
-    },
-    botones: {
-        fontFamily: 'Utendo',
-        textAlign: 'center',
-        color: 'white',
-        fontSize: 25,
-        padding: 10,
-        margin: 10,
-        backgroundColor: '#A846E9',
-        borderRadius: 15
     },
     iconoTexto: {
         flexDirection: 'row',
@@ -68,6 +95,16 @@ const styles = StyleSheet.create({
         color: 'white',
         marginBottom: 20,
         marginTop: 10
+    },
+    botonGoogle: {
+        fontFamily: 'Utendo',
+        textAlign: 'center',
+        color: 'black',
+        fontSize: 22.5,
+        padding: 10,
+        margin: 10,
+        backgroundColor: '#ffffff',
+        borderRadius: 15
     }
 })
 

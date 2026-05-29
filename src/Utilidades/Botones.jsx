@@ -1,8 +1,9 @@
-import { useEffect, useState, useRef } from 'react'
+import { StyleSheet, Text, TouchableOpacity } from 'react-native'
 import { useNavigation } from '@react-navigation/native'
-import { StyleSheet, Text, View, Image, TouchableOpacity, Animated } from 'react-native'
 
 function Button({ nombre, view }) {
+
+    const navigation = useNavigation()
 
     return (
         <TouchableOpacity onPress={() => navigation.navigate(view)}>
@@ -12,32 +13,6 @@ function Button({ nombre, view }) {
 }
 
 const styles = StyleSheet.create({
-    inicio: {
-        flex: 1,
-        backgroundColor: '#15151C',
-        padding: 25,
-        justifyContent: 'center'
-    },
-    logo: {
-        width: 200,
-        height: 200,
-        resizeMode: 'contain',
-        alignSelf: 'center'
-    },
-    titulo: {
-        fontFamily: 'CashMarket',
-        color: 'white',
-        fontSize: 35,
-        textAlign: 'center',
-        marginBottom: 10
-    },
-    subtitulo: {
-        fontFamily: 'Utendo',
-        color: 'white',
-        fontSize: 20,
-        textAlign: 'center',
-        marginBottom: 10
-    },
     botones: {
         fontFamily: 'Utendo',
         textAlign: 'center',

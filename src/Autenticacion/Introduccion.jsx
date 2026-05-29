@@ -1,9 +1,8 @@
 import { useEffect, useState, useRef } from 'react'
-import { useNavigation } from '@react-navigation/native'
-import { StyleSheet, Text, View, Image, TouchableOpacity, Animated } from 'react-native'
+import { StyleSheet, Text, View, Image, Animated } from 'react-native'
+import Button from '../Utilidades/Botones'
 
 function Introduccion() {
-    const navigation = useNavigation()
     const [isLoading, setIsLoading] = useState(true)
     const fadeAnim = useRef(new Animated.Value(0)).current
 
@@ -38,12 +37,8 @@ function Introduccion() {
             <Text style={styles.titulo}>Quórum</Text>
             <Text style={styles.subtitulo}>Juntarse como nunca antes</Text>
 
-            <TouchableOpacity onPress={() => navigation.navigate('IniciarSesion')}>
-                <Text style={styles.botones}>Iniciar sesión</Text>
-            </TouchableOpacity>
-            <TouchableOpacity onPress={() => navigation.navigate('Registrarse')}>
-                <Text style={styles.botones}>Registrarse</Text>
-            </TouchableOpacity>
+            <Button nombre="Iniciar sesión" view="IniciarSesion" />
+            <Button nombre="Registrarse" view="Registrarse" />
         </View>
     )
 }
@@ -74,16 +69,6 @@ const styles = StyleSheet.create({
         fontSize: 20,
         textAlign: 'center',
         marginBottom: 10
-    },
-    botones: {
-        fontFamily: 'Utendo',
-        textAlign: 'center',
-        color: 'white',
-        fontSize: 22.5,
-        padding: 10,
-        margin: 10,
-        backgroundColor: '#A846E9',
-        borderRadius: 15
     }
 })
 
