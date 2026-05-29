@@ -56,22 +56,22 @@ const styles = StyleSheet.create({
         justifyContent: 'center'
     },
     logo: {
-        width: 250,
-        height: 250,
+        width: 200,
+        height: 200,
         resizeMode: 'contain',
         alignSelf: 'center'
     },
     titulo: {
         fontFamily: 'CashMarket',
         color: 'white',
-        fontSize: 40,
+        fontSize: 35,
         textAlign: 'center',
         marginBottom: 10
     },
     subtitulo: {
         fontFamily: 'Utendo',
         color: 'white',
-        fontSize: 25,
+        fontSize: 20,
         textAlign: 'center',
         marginBottom: 10
     },
@@ -79,7 +79,7 @@ const styles = StyleSheet.create({
         fontFamily: 'Utendo',
         textAlign: 'center',
         color: 'white',
-        fontSize: 25,
+        fontSize: 22.5,
         padding: 10,
         margin: 10,
         backgroundColor: '#A846E9',
