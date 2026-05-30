@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet } from 'react-native'
+import { View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native'
 import Checkbox from 'expo-checkbox'
 import { IconMailFilled, IconLockFilled, IconUserFilled } from '@tabler/icons-react-native'
 import { useState } from 'react'
@@ -29,6 +29,14 @@ function Registrarse() {
         setCargando(false)
     }
 
+    const handleGoogle = async () => {
+        const { error } = await supabase.auth.signInWithOAuth({
+            provider: 'google',
+            options: { redirectTo: 'http://localhost:5173/inicio' }
+        })
+        if (error) setMensaje('Error: ' + error.message)
+    }
+
     return (
         <View style={styles.fondo}>
             <Text style={styles.titulo}>Registrarse</Text>
@@ -45,6 +53,17 @@ function Registrarse() {
             </View>
 
             <Button nombre={cargando ? 'Cargando...' : 'Continuar'} view="Registrarse2" onPress={handleSubmit} disabled={cargando} />
+
+            <View style={styles.separador}>
+                <View style={styles.linea} />
+                <Text style={styles.textoSeparador}>o</Text>
+                <View style={styles.linea} />
+            </View>
+
+            <TouchableOpacity style={styles.botonGoogle} onPress={handleGoogle}>
+                <Image source={require('../../assets/img/Iconos/Google.png')} style={styles.googleLogo} />
+                <Text style={styles.textoGoogle}>Continuar con Google</Text>
+            </TouchableOpacity>
 
         </View>
     )
@@ -70,11 +89,46 @@ const styles = StyleSheet.create({
         gap: 10,
         marginBottom: 20,
         marginTop: 10,
-        justifyContent: 'center'
     },
     texto: {
         fontFamily: 'Utendo',
         fontSize: 16
+    },
+    botonGoogle: {
+        padding: 10,
+        margin: 10,
+        backgroundColor: '#ffffff',
+        borderRadius: 15,
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    googleLogo: {
+        width: 28,
+        height: 28,
+        marginRight: 15
+    },
+    textoGoogle: {
+        fontFamily: 'Utendo',
+        textAlign: 'center',
+        color: 'black',
+        fontSize: 22.5,
+    },
+    separador: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginVertical: 10,
+    },
+    linea: {
+        flex: 1,
+        height: 1,
+        backgroundColor: '#4F4F55',
+    },
+    textoSeparador: {
+        color: '#A0A0A0',
+        marginHorizontal: 15,
+        fontFamily: 'Utendo',
+        fontSize: 16,
     }
 })
 

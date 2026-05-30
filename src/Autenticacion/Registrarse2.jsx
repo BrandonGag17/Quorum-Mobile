@@ -35,7 +35,7 @@ function Registrarse2() {
 
             <Input label="Nombre:" value={nombre} onChangeText={setNombre} /* Icon={IconMailFilled} *//>
 
-            <Input label="Apellllido:" value={apellido} onChangeText={setApellido} /*Icon={IconUserFilled}*/ />
+            <Input label="Apellido:" value={apellido} onChangeText={setApellido} /*Icon={IconUserFilled}*/ />
 
             <Button nombre={cargando ? 'Cargando...' : 'Continuar'} onPress={handleSubmit} disabled={cargando}/>
         </View>

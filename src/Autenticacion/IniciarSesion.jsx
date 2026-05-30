@@ -1,8 +1,9 @@
-import { View, Text, StyleSheet, TextInput, TouchableOpacity } from 'react-native'
+import { View, Text, StyleSheet, TextInput, TouchableOpacity, Image } from 'react-native'
 import { IconMailFilled, IconLockFilled } from '@tabler/icons-react-native'
 import { useNavigation } from '@react-navigation/native'
 import { useState } from 'react'
 import Button from '../Utilidades/Botones'
+import Input from '../Utilidades/Input'
 import supabase from '../supabaseClient'
 
 function IniciarSesion() {
@@ -39,21 +40,21 @@ function IniciarSesion() {
         <View style={styles.fondo}>
             <Text style={styles.titulo}>Iniciar sesión</Text>
 
-            <View style={styles.iconoTexto}>
-                <IconMailFilled color="#FFFFFF" size={28} />
-                <Text style={styles.texto}>Email</Text>
-            </View>
-            <TextInput style={styles.input} placeholder="tu@gmail.com" value={email} onChangeText={setEmail} keyboardType="email-address" autoCapitalize="none" />
-            <View style={styles.iconoTexto}>
-                <IconLockFilled color="#FFFFFF" size={28} />
-                <Text style={styles.texto}>Contraseña</Text>
-            </View>
-            <TextInput style={styles.input} placeholder="*******" value={password} onChangeText={setPassword} secureTextEntry />
+            <Input label="Email:" placeholder="tu@gmail.com" value={email} onChangeText={setEmail} keyboardType="email-address" autoCapitalize="none" Icon={IconMailFilled} />
+            <Input label="Contraseña:" placeholder="********" value={password} onChangeText={setPassword} secureTextEntry Icon={IconLockFilled} />
+            <Text style={styles.olvido}>¿Olvidaste tu contraseña?</Text>
 
             <Button nombre={cargando ? 'Cargando...' : 'Iniciar sesión'} view="Inicio" onPress={handleSubmit} disabled={cargando} />
 
-            <TouchableOpacity onPress={handleGoogle}>
-                <Text style={styles.botonGoogle}>Continuar con Google</Text>
+            <View style={styles.separador}>
+                <View style={styles.linea} />
+                <Text style={styles.textoSeparador}>o</Text>
+                <View style={styles.linea} />
+            </View>
+
+            <TouchableOpacity style={styles.botonGoogle} onPress={handleGoogle}>
+                <Image source={require('../../assets/img/Iconos/Google.png')} style={styles.googleLogo} />
+                <Text style={styles.textoGoogle}>Continuar con Google</Text>
             </TouchableOpacity>
 
             {mensaje ? <Text>{mensaje}</Text> : null}
@@ -86,25 +87,48 @@ const styles = StyleSheet.create({
         fontSize: 20,
         marginTop: 5
     },
-    input: {
-        borderRadius: 15,
-        borderColor: '#4F4F55',
-        borderWidth: 2,
-        backgroundColor: '#2A2A2E',
-        padding: 15,
-        color: 'white',
-        marginBottom: 20,
-        marginTop: 10
-    },
     botonGoogle: {
+        padding: 10,
+        margin: 10,
+        backgroundColor: '#ffffff',
+        borderRadius: 15,
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    googleLogo: {
+        width: 28,
+        height: 28,
+        marginRight: 15
+    },
+    textoGoogle: {
         fontFamily: 'Utendo',
         textAlign: 'center',
         color: 'black',
         fontSize: 22.5,
-        padding: 10,
-        margin: 10,
-        backgroundColor: '#ffffff',
-        borderRadius: 15
+    },
+    separador: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginVertical: 10,
+    },
+    linea: {
+        flex: 1,
+        height: 1,
+        backgroundColor: '#4F4F55',
+    },
+    textoSeparador: {
+        color: '#A0A0A0',
+        marginHorizontal: 15,
+        fontFamily: 'Utendo',
+        fontSize: 16,
+    },
+    olvido: {
+        alignItems: 'flex-end',
+        color: '#A846E9',
+        textDecorationLine: 'underline',
+        textAlign: 'right',
+        marginBottom: 20
     }
 })
 
