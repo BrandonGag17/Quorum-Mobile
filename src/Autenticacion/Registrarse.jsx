@@ -1,39 +1,70 @@
-import { View, Text, StyleSheet, TextInput, TouchableOpacity } from 'react-native'
+import { View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native'
 import Checkbox from 'expo-checkbox'
 import { IconMailFilled, IconLockFilled, IconUserFilled } from '@tabler/icons-react-native'
-import { useState } from 'react';
+import { useState } from 'react'
+import Button from '../Utilidades/Botones'
+import Input from '../Utilidades/Input'
+import supabase from '../supabaseClient'
 
 function Registrarse() {
     const [isChecked, setChecked] = useState(false)
+    const [email, setEmail] = useState('')
+    const [usuario, setUsuario] = useState('')
+    const [password, setPassword] = useState('')
+    const [mensaje, setMensaje] = useState('')
+    const [cargando, setCargando] = useState(false)
+
+    const handleSubmit = async () => {
+        setCargando(true)
+        setMensaje('')
+
+        const { error } = await supabase.auth.signInWithPassword({ email, password })
+
+        if (error) {
+            setMensaje('Error: ' + error.message)
+        } else {
+            navigation.navigate('Inicio')
+        }
+
+        setCargando(false)
+    }
+
+    const handleGoogle = async () => {
+        const { error } = await supabase.auth.signInWithOAuth({
+            provider: 'google',
+            options: { redirectTo: 'http://localhost:5173/inicio' }
+        })
+        if (error) setMensaje('Error: ' + error.message)
+    }
 
     return (
         <View style={styles.fondo}>
             <Text style={styles.titulo}>Registrarse</Text>
 
-            <View style={styles.iconoTexto}>
-                <IconMailFilled color="#FFFFFF" size={28} />
-                <Text style={styles.texto}>Email</Text>
-            </View>
-            <TextInput style={styles.input} placeholder="tuusuario123" />
-            <View style={styles.iconoTexto}>
-                <IconUserFilled color="#FFFFFF" size={28} />
-                <Text style={styles.texto}>Nombre de usuario</Text>
-            </View>
-            <TextInput style={styles.input} placeholder="tu@gmail.com" />
-            <View style={styles.iconoTexto}>
-                <IconLockFilled color="#FFFFFF" size={28} />
-                <Text style={styles.texto}>Contraseña</Text>
-            </View>
-            <TextInput style={styles.input} placeholder="*******" />
+            <Input label="Email:" placeholder="tu@gmail.com" value={email} onChangeText={setEmail} Icon={IconMailFilled} />
+
+            <Input label="Nombre de usuario:" placeholder="tuusuario123" value={usuario} onChangeText={setUsuario} Icon={IconUserFilled} />
+
+            <Input label="Contraseña:" placeholder="*******" value={password} onChangeText={setPassword} secureTextEntry={true} Icon={IconLockFilled} />
 
             <View style={styles.checkbox}>
                 <Checkbox value={isChecked} onValueChange={setChecked} />
-                <Text style={styles.texto}>Acepto los términos y condiciones</Text>
+                <Text style={[styles.texto, { color: '#FFFFFF' }]}> Acepto los términos y condiciones</Text>
             </View>
 
-            <TouchableOpacity onPress={() => navigation.navigate('Registrarse2')}>
-                <Text style={styles.botones}>Continuar</Text>
+            <Button nombre={cargando ? 'Cargando...' : 'Continuar'} view="Registrarse2" onPress={handleSubmit} disabled={cargando} />
+
+            <View style={styles.separador}>
+                <View style={styles.linea} />
+                <Text style={styles.textoSeparador}>o</Text>
+                <View style={styles.linea} />
+            </View>
+
+            <TouchableOpacity style={styles.botonGoogle} onPress={handleGoogle}>
+                <Image source={require('../../assets/img/Iconos/Google.png')} style={styles.googleLogo} />
+                <Text style={styles.textoGoogle}>Continuar con Google</Text>
             </TouchableOpacity>
+
         </View>
     )
 }
@@ -52,43 +83,52 @@ const styles = StyleSheet.create({
         textAlign: 'center',
         marginBottom: 30
     },
-    botones: {
-        fontFamily: 'Utendo',
-        textAlign: 'center',
-        color: 'white',
-        fontSize: 25,
-        padding: 10,
-        margin: 10,
-        backgroundColor: '#A846E9',
-        borderRadius: 15
-    },
-    iconoTexto: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 10,
-    },
-    texto: {
-        color: 'white',
-        fontFamily: 'Utendo',
-        fontSize: 20,
-        marginTop: 5
-    },
-    input: {
-        borderRadius: 15,
-        borderColor: '#4F4F55',
-        borderWidth: 2,
-        backgroundColor: '#2A2A2E',
-        padding: 15,
-        color: 'white',
-        marginBottom: 20,
-        marginTop: 10,
-    },
     checkbox: {
         flexDirection: 'row',
         alignItems: 'center',
         gap: 10,
         marginBottom: 20,
-        marginTop: 10
+        marginTop: 10,
+    },
+    texto: {
+        fontFamily: 'Utendo',
+        fontSize: 16
+    },
+    botonGoogle: {
+        padding: 10,
+        margin: 10,
+        backgroundColor: '#ffffff',
+        borderRadius: 15,
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    googleLogo: {
+        width: 28,
+        height: 28,
+        marginRight: 15
+    },
+    textoGoogle: {
+        fontFamily: 'Utendo',
+        textAlign: 'center',
+        color: 'black',
+        fontSize: 22.5,
+    },
+    separador: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginVertical: 10,
+    },
+    linea: {
+        flex: 1,
+        height: 1,
+        backgroundColor: '#4F4F55',
+    },
+    textoSeparador: {
+        color: '#A0A0A0',
+        marginHorizontal: 15,
+        fontFamily: 'Utendo',
+        fontSize: 16,
     }
 })
 
