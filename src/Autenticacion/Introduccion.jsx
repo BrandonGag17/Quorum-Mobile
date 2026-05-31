@@ -1,10 +1,12 @@
 import { useEffect, useState, useRef } from 'react'
 import { StyleSheet, Text, View, Image, Animated } from 'react-native'
 import Button from '../Utilidades/Botones'
+import { useNavigation } from '@react-navigation/native'
 
 function Introduccion() {
     const [isLoading, setIsLoading] = useState(true)
     const fadeAnim = useRef(new Animated.Value(0)).current
+    const navigation = useNavigation()
 
     useEffect(() => {
         const timer = setTimeout(() => {
@@ -19,7 +21,8 @@ function Introduccion() {
             <View style={styles.inicio}>
                 <Animated.Image
                     source={require('../../assets/img/Logos/IsotipoSinFondo.png')}
-                    style={[styles.logo]}
+                    style={styles.logo}
+                    resizeMode="contain"
                 />
             </View>
         )
@@ -27,12 +30,12 @@ function Introduccion() {
 
     return (
         <View style={styles.inicio}>
-            <Image source={require('../../assets/img/Logos/IsotipoSinFondo.png')} style={styles.logo} />
+            <Image source={require('../../assets/img/Logos/IsotipoSinFondo.png')} style={styles.logo} resizeMode="contain" />
             <Text style={styles.titulo}>Quórum</Text>
             <Text style={styles.subtitulo}>Juntarse como nunca antes</Text>
 
-            <Button nombre="Iniciar sesión" view="IniciarSesion" />
-            <Button nombre="Registrarse" view="Registrarse" />
+            <Button nombre="Iniciar sesión" onPress={() => navigation.navigate('IniciarSesion')} />
+            <Button nombre="Registrarse" onPress={() => navigation.navigate('Registrarse')} />
         </View>
     )
 }
@@ -47,7 +50,6 @@ const styles = StyleSheet.create({
     logo: {
         width: 200,
         height: 200,
-        resizeMode: 'contain',
         alignSelf: 'center'
     },
     titulo: {

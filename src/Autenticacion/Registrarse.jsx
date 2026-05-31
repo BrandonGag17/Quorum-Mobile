@@ -22,8 +22,6 @@ function Registrarse() {
 
         if (error) {
             setMensaje('Error: ' + error.message)
-        } else {
-            navigation.navigate('Inicio')
         }
 
         setCargando(false)
@@ -52,7 +50,7 @@ function Registrarse() {
                 <Text style={[styles.texto, { color: '#FFFFFF' }]}> Acepto los términos y condiciones</Text>
             </View>
 
-            <Button nombre={cargando ? 'Cargando...' : 'Continuar'} view="Registrarse2" onPress={handleSubmit} disabled={cargando} />
+            <Button nombre={cargando ? 'Cargando...' : 'Continuar'} onPress={() => navigation.navigate('Registrarse2')} disabled={cargando} />
 
             <View style={styles.separador}>
                 <View style={styles.linea} />

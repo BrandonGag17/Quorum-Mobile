@@ -37,7 +37,7 @@ function Registrarse2() {
 
             <Input label="Apellido:" value={apellido} onChangeText={setApellido} /*Icon={IconUserFilled}*/ />
 
-            <Button nombre={cargando ? 'Cargando...' : 'Continuar'} onPress={handleSubmit} disabled={cargando}/>
+            <Button nombre={cargando ? 'Cargando...' : 'Continuar'} onPress={() => navigation.navigate('Registrarse3')} disabled={cargando}/>
         </View>
 
     )

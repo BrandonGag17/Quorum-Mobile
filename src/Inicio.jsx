@@ -13,18 +13,30 @@ function Inicio() {
     }, [])
 
     async function cargarGrupos() {
-        const { data: { user } } = await supabase.auth.getUser()
-        if (!user) {
-            navigation.replace('LogIn')
+        const { data: { session } } =
+            await supabase.auth.getSession()
+
+        console.log("SESSION:", session)
+
+        if (!session) {
+            navigation.replace('IniciarSesion')
             return
         }
+
+        const user = session.user
+
+        console.log("USER:", user)
 
         const { data, error } = await supabase
             .from('usuario_grupo')
             .select('id_grupo, grupo(*)')
             .eq('id_usuario', user.id)
 
-        if (error) return
+        if (error) {
+            console.error(error)
+            return
+        }
+
         setGrupos(data)
     }
 
@@ -64,6 +76,14 @@ function Inicio() {
                     </View>
                 </TouchableOpacity>
             </Modal>
+
+            <TouchableOpacity
+                onPress={async () => {
+                    await supabase.auth.signOut()
+                }}
+            >
+                <Text>Cerrar sesión</Text>
+            </TouchableOpacity>
         </View>
     )
 }

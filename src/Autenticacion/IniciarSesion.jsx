@@ -21,8 +21,8 @@ function IniciarSesion() {
 
         if (error) {
             setMensaje('Error: ' + error.message)
-        } else {
-            navigation.navigate('Inicio')
+            setCargando(false)
+            return
         }
 
         setCargando(false)
@@ -44,7 +44,7 @@ function IniciarSesion() {
             <Input label="Contraseña:" placeholder="********" value={password} onChangeText={setPassword} secureTextEntry Icon={IconLockFilled} />
             <Text style={styles.olvido}>¿Olvidaste tu contraseña?</Text>
 
-            <Button nombre={cargando ? 'Cargando...' : 'Iniciar sesión'} view="Inicio" onPress={handleSubmit} disabled={cargando} />
+            <Button nombre={cargando ? 'Cargando...' : 'Iniciar sesión'} onPress={handleSubmit} disabled={cargando} />
 
             <View style={styles.separador}>
                 <View style={styles.linea} />
@@ -53,7 +53,7 @@ function IniciarSesion() {
             </View>
 
             <TouchableOpacity style={styles.botonGoogle} onPress={handleGoogle}>
-                <Image source={require('../../assets/img/Iconos/Google.png')} style={styles.googleLogo} />
+                <Image source={require('../../assets/img/Iconos/Google.png')} style={styles.googleLogo} resizeMode="contain" />
                 <Text style={styles.textoGoogle}>Continuar con Google</Text>
             </TouchableOpacity>
 

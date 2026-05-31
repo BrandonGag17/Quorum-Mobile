@@ -19,8 +19,6 @@ function Registrarse3() {
 
         try {
             // backend después
-
-            navigation.navigate('Inicio') // o la pantalla final
         } catch (error) {
             setMensaje(error.message)
         } finally {
