@@ -1,7 +1,11 @@
 import { StyleSheet, Text, View, TouchableOpacity } from 'react-native'
+import { useNavigation } from '@react-navigation/native'
 import Navbar from './Utilidades/Navbar'
+import supabase from './supabaseClient'
 
 export default function Configuracion() {
+    const navigation = useNavigation()
+
     return (
         <View style={styles.fondo}>
             <TouchableOpacity

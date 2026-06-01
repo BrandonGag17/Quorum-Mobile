@@ -88,7 +88,7 @@ const styles = StyleSheet.create({
     },
 
     activo: {
-        backgroundColor: '#B514F6',
+        backgroundColor: '#4D1568',
     },
 
     navText: {

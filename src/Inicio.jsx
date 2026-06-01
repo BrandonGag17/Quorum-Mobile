@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
-import { View, Text, TouchableOpacity, Modal, FlatList, StyleSheet } from 'react-native'
+import { View, Text, TouchableOpacity, Modal, FlatList, StyleSheet, TextInput } from 'react-native'
 import { useNavigation } from '@react-navigation/native'
+import { IconSearch, IconFolderFilled, IconCalendarWeekFilled } from '@tabler/icons-react-native'
 import supabase from './supabaseClient'
 import Navbar from './Utilidades/Navbar'
 
@@ -8,6 +9,7 @@ function Inicio() {
     const navigation = useNavigation()
     const [grupos, setGrupos] = useState([])
     const [mostrarModal, setMostrarModal] = useState(false)
+    const [busqueda, setBusqueda] = useState('')
 
     useEffect(() => {
         cargarGrupos()
@@ -38,13 +40,26 @@ function Inicio() {
 
     return (
         <View style={styles.fondo}>
-            <Text style={styles.test}>Grupos</Text>
+            <Text style={styles.titulo}>Quórum</Text>
 
-            <TouchableOpacity onPress={() => setMostrarModal(true)}>
-                <Text style={styles.test}>+</Text>
-            </TouchableOpacity>
+            <View style={styles.buscador}>
+                <IconSearch size={22} color="#808080" />
 
-            <FlatList
+                <TextInput
+                    style={styles.inputBuscador}
+                    placeholder="Buscar grupos"
+                    placeholderTextColor="#808080"
+                    value={busqueda}
+                    onChangeText={setBusqueda}
+                />
+            </View>
+
+            <View style={styles.tituloSeparador}>
+                <IconCalendarWeekFilled size={25} color="#ffffff" />
+                <Text style={styles.textoTitulo}>Proximas juntadas</Text>
+            </View>
+
+            {/*<FlatList
                 data={grupos}
                 keyExtractor={(item) => item.id_grupo.toString()}
                 renderItem={({ item }) => (
@@ -52,9 +67,18 @@ function Inicio() {
                         <Text>{item.grupo ? item.grupo.nombre : 'Sin nombre'} {item.grupo ? item.grupo.descripcion : ''}</Text>
                     </TouchableOpacity>
                 )}
-            />
-            
-            <Modal
+            />*/}
+
+            <View style={styles.tituloSeparador}>
+                <IconFolderFilled size={25} color="#ffffff" />
+                <Text style={styles.textoTitulo}>Grupos</Text>
+            </View>
+
+            <TouchableOpacity onPress={() => setMostrarModal(true)}>
+                <Text style={styles.test}>+</Text>
+            </TouchableOpacity>
+
+            {/*<Modal
                 visible={mostrarModal}
                 transparent={true}
                 onRequestClose={() => setMostrarModal(false)}
@@ -66,12 +90,11 @@ function Inicio() {
                                 <TouchableOpacity onPress={() => setMostrarModal(false)}>
                                     <Text>X</Text>
                                 </TouchableOpacity>
-                                <Text>Crear grupo (por implementar)</Text>
                             </View>
                         </TouchableOpacity>
                     </View>
                 </TouchableOpacity>
-            </Modal>
+            </Modal>*/}
 
             <Navbar pantallaActual="Inicio" />
         </View>
@@ -86,8 +109,40 @@ const styles = StyleSheet.create({
         padding: 25,
         paddingBottom: 90
     },
-    test: {
-        color: 'white'
+    titulo: {
+        color: 'white',
+        fontFamily: 'CashMarket',
+        fontSize: 30
+    },
+    buscador: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: '#FFFFFF',
+        borderRadius: 15,
+        paddingHorizontal: 15,
+        height: 50,
+        marginBottom: 30,
+        marginTop: 20,
+        borderWidth: 2,
+        borderColor: '#d9d9d9',
+    },
+    inputBuscador: {
+        flex: 1,
+        color: '#15151C',
+        fontFamily: 'Utendo',
+        marginLeft: 10,
+        fontSize: 16,
+    },
+    tituloSeparador: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginBottom: 20
+    },
+    textoTitulo: {
+        color: 'white',
+        marginLeft: 10,
+        fontFamily: 'CashMarket',
+        fontSize: 20
     }
 })
 
