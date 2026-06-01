@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react'
-import { View, Text, TouchableOpacity, Modal, FlatList } from 'react-native'
+import { View, Text, TouchableOpacity, Modal, FlatList, StyleSheet } from 'react-native'
 import { useNavigation } from '@react-navigation/native'
 import supabase from './supabaseClient'
+import Navbar from './Utilidades/Navbar'
 
 function Inicio() {
     const navigation = useNavigation()
@@ -13,10 +14,7 @@ function Inicio() {
     }, [])
 
     async function cargarGrupos() {
-        const { data: { session } } =
-            await supabase.auth.getSession()
-
-        console.log("SESSION:", session)
+        const { data: { session } } = await supabase.auth.getSession()
 
         if (!session) {
             navigation.replace('IniciarSesion')
@@ -24,8 +22,6 @@ function Inicio() {
         }
 
         const user = session.user
-
-        console.log("USER:", user)
 
         const { data, error } = await supabase
             .from('usuario_grupo')
@@ -41,11 +37,11 @@ function Inicio() {
     }
 
     return (
-        <View>
-            <Text>Grupos</Text>
+        <View style={styles.fondo}>
+            <Text style={styles.test}>Grupos</Text>
 
             <TouchableOpacity onPress={() => setMostrarModal(true)}>
-                <Text>+</Text>
+                <Text style={styles.test}>+</Text>
             </TouchableOpacity>
 
             <FlatList
@@ -57,6 +53,10 @@ function Inicio() {
                     </TouchableOpacity>
                 )}
             />
+
+            <TouchableOpacity onPress={async () => { await supabase.auth.signOut() }}>
+                <Text style={styles.test}>Cerrar sesión</Text>
+            </TouchableOpacity>
 
             <Modal
                 visible={mostrarModal}
@@ -77,15 +77,22 @@ function Inicio() {
                 </TouchableOpacity>
             </Modal>
 
-            <TouchableOpacity
-                onPress={async () => {
-                    await supabase.auth.signOut()
-                }}
-            >
-                <Text>Cerrar sesión</Text>
-            </TouchableOpacity>
+            <Navbar />
         </View>
     )
+
 }
+
+const styles = StyleSheet.create({
+    fondo: {
+        flex: 1,
+        backgroundColor: '#15151C',
+        padding: 25,
+        paddingBottom: 90
+    },
+    test: {
+        color: 'white'
+    }
+})
 
 export default Inicio
