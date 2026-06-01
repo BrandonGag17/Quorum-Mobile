@@ -5,19 +5,19 @@ export default function Navbar() {
     return (
         <View style={styles.navbar}>
             <View style={styles.navItem}>
-                <IconHomeFilled color="#FFFFFF" size={28} />
+                <IconHomeFilled color="#FFFFFF" size={30} />
                 <Text style={styles.navText}>Inicio</Text>
             </View>
             <View style={styles.navItem}>
-                <IconCompassFilled color="#FFFFFF" size={28} />
+                <IconCompassFilled color="#FFFFFF" size={30} />
                 <Text style={styles.navText}>Explorar</Text>
             </View>
             <View style={styles.navItem}>
-                <IconBellFilled color="#FFFFFF" size={28} />
+                <IconBellFilled color="#FFFFFF" size={30} />
                 <Text style={styles.navText}>Notificaciones</Text>
             </View>
             <View style={styles.navItem}>
-                <IconSettingsFilled color="#FFFFFF" size={28} />
+                <IconSettingsFilled color="#FFFFFF" size={30} />
                 <Text style={styles.navText}>Ajustes</Text>
             </View>
         </View>
@@ -45,7 +45,7 @@ const styles = StyleSheet.create({
     },
     navText: {
         color: '#FFFFFF',
-        fontSize: 11,
+        fontSize: 12,
         textAlign: 'center',
         fontFamily: 'Utendo',
     }

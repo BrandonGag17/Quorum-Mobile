@@ -17,12 +17,15 @@ function IniciarSesion() {
         setCargando(true)
         setMensaje('')
 
-        const { error } = await supabase.auth.signInWithPassword({ email, password })
+        const { error } = await supabase.auth.signInWithPassword({
+            email,
+            password
+        })
 
         if (error) {
             setMensaje('Error: ' + error.message)
-            setCargando(false)
-            return
+        } else {
+            navigation.replace('Inicio')
         }
 
         setCargando(false)

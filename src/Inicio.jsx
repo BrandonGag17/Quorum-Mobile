@@ -54,7 +54,12 @@ function Inicio() {
                 )}
             />
 
-            <TouchableOpacity onPress={async () => { await supabase.auth.signOut() }}>
+            <TouchableOpacity
+                onPress={async () => {
+                    await supabase.auth.signOut()
+                    navigation.replace('Introduccion')
+                }}
+            >
                 <Text style={styles.test}>Cerrar sesión</Text>
             </TouchableOpacity>
 
