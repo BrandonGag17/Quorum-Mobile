@@ -1,25 +1,62 @@
-import { StyleSheet, Text, View } from 'react-native'
-import { IconHomeFilled, IconCompassFilled, IconSettingsFilled, IconBellFilled } from '@tabler/icons-react-native';
+import { StyleSheet, Text, View, TouchableOpacity } from 'react-native'
+import { useNavigation } from '@react-navigation/native'
+import {
+    IconHomeFilled,
+    IconCompassFilled,
+    IconSettingsFilled,
+    IconBellFilled
+} from '@tabler/icons-react-native'
 
-export default function Navbar() {
+export default function Navbar({ pantallaActual }) {
+    const navigation = useNavigation()
+
     return (
         <View style={styles.navbar}>
-            <View style={styles.navItem}>
+
+            <TouchableOpacity
+                style={[
+                    styles.navItem,
+                    pantallaActual === 'Inicio' && styles.activo
+                ]}
+                onPress={() => navigation.navigate('Inicio')}
+            >
                 <IconHomeFilled color="#FFFFFF" size={30} />
                 <Text style={styles.navText}>Inicio</Text>
-            </View>
-            <View style={styles.navItem}>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+                style={[
+                    styles.navItem,
+                    pantallaActual === 'Recomendaciones' && styles.activo
+                ]}
+                onPress={() => navigation.navigate('Recomendaciones')}
+            >
                 <IconCompassFilled color="#FFFFFF" size={30} />
                 <Text style={styles.navText}>Explorar</Text>
-            </View>
-            <View style={styles.navItem}>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+                style={[
+                    styles.navItem,
+                    pantallaActual === 'Notificaciones' && styles.activo
+                ]}
+                onPress={() => navigation.navigate('Notificaciones')}
+            >
                 <IconBellFilled color="#FFFFFF" size={30} />
                 <Text style={styles.navText}>Notificaciones</Text>
-            </View>
-            <View style={styles.navItem}>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+                style={[
+                    styles.navItem,
+                    pantallaActual === 'Configuracion' && styles.activo
+                ]}
+                onPress={() => navigation.navigate('Configuracion')}
+            >
                 <IconSettingsFilled color="#FFFFFF" size={30} />
                 <Text style={styles.navText}>Ajustes</Text>
-            </View>
+            </TouchableOpacity>
+
         </View>
     )
 }
@@ -33,16 +70,27 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'space-around',
         alignItems: 'center',
-        height: 70,
+        height: 80,
+        paddingHorizontal: 10,
+        backgroundColor: '#15151C',
         borderTopLeftRadius: 25,
         borderTopRightRadius: 25,
     },
+
     navItem: {
         flex: 1,
         alignItems: 'center',
         justifyContent: 'center',
         gap: 3,
+        marginHorizontal: 3,
+        height: 55,
+        borderRadius: 15,
     },
+
+    activo: {
+        backgroundColor: '#B514F6',
+    },
+
     navText: {
         color: '#FFFFFF',
         fontSize: 12,

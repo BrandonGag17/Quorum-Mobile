@@ -53,16 +53,7 @@ function Inicio() {
                     </TouchableOpacity>
                 )}
             />
-
-            <TouchableOpacity
-                onPress={async () => {
-                    await supabase.auth.signOut()
-                    navigation.replace('Introduccion')
-                }}
-            >
-                <Text style={styles.test}>Cerrar sesión</Text>
-            </TouchableOpacity>
-
+            
             <Modal
                 visible={mostrarModal}
                 transparent={true}
@@ -82,7 +73,7 @@ function Inicio() {
                 </TouchableOpacity>
             </Modal>
 
-            <Navbar />
+            <Navbar pantallaActual="Inicio" />
         </View>
     )
 

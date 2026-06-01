@@ -9,6 +9,9 @@ import Registrarse from './src/Autenticacion/Registrarse'
 import Registrarse2 from './src/Autenticacion/Registrarse2'
 import Registrarse3 from './src/Autenticacion/Registrarse3'
 import Inicio from './src/Inicio'
+import Recomendaciones from './src/Recomendaciones'
+import Notificaciones from './src/Notificaciones'
+import Configuracion from './src/Configuracion'
 
 const Stack = createNativeStackNavigator()
 
@@ -59,6 +62,21 @@ export default function App() {
         <Stack.Screen
           name="Inicio"
           component={Inicio}
+        />
+
+        <Stack.Screen
+          name="Recomendaciones"
+          component={Recomendaciones}
+        />
+
+        <Stack.Screen
+          name="Notificaciones"
+          component={Notificaciones}
+        />
+
+        <Stack.Screen
+          name="Configuracion"
+          component={Configuracion}
         />
       </Stack.Navigator>
     </NavigationContainer>
