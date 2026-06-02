@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { View, Text, TouchableOpacity, Modal, FlatList, StyleSheet, TextInput } from 'react-native'
+import { View, Text, TouchableOpacity, Image, FlatList, StyleSheet, TextInput } from 'react-native'
 import { useNavigation } from '@react-navigation/native'
 import { IconSearch, IconFolderFilled, IconCalendarWeekFilled } from '@tabler/icons-react-native'
 import supabase from './supabaseClient'
@@ -59,15 +59,26 @@ function Inicio() {
                 <Text style={styles.textoTitulo}>Proximas juntadas</Text>
             </View>
 
-            {/*<FlatList
+            <FlatList
                 data={grupos}
                 keyExtractor={(item) => item.id_grupo.toString()}
                 renderItem={({ item }) => (
-                    <TouchableOpacity onPress={() => { }}>
-                        <Text>{item.grupo ? item.grupo.nombre : 'Sin nombre'} {item.grupo ? item.grupo.descripcion : ''}</Text>
+                    <TouchableOpacity style={styles.grupoCard}>
+                        <Image
+                            source={{
+                                uri: item.grupo?.foto_perfil
+                            }}
+                            style={styles.fotoGrupo}
+                        />
+
+                        <View style={styles.grupoInfo}>
+                            <Text style={styles.grupoNombre}>
+                                {item.grupo?.nombre}
+                            </Text>
+                        </View>
                     </TouchableOpacity>
                 )}
-            />*/}
+            />
 
             <View style={styles.tituloSeparador}>
                 <IconFolderFilled size={25} color="#ffffff" />
@@ -143,6 +154,9 @@ const styles = StyleSheet.create({
         marginLeft: 10,
         fontFamily: 'CashMarket',
         fontSize: 20
+    },
+    test: {
+        color: 'white'
     }
 })
 

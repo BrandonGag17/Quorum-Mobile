@@ -14,7 +14,16 @@ export default function Configuracion() {
                     navigation.replace('Introduccion')
                 }}
             >
-                <Text style={styles.test}>Cerrar sesión</Text>
+                <Text>Cerrar sesión</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+                onPress={async () => {
+                    await supabase.auth.signOut()
+                    navigation.replace('Introduccion')
+                }}
+            >
+                <Text style={styles.botones}>Cerrar sesión</Text>
             </TouchableOpacity>
 
             <Navbar pantallaActual="Configuracion" />
@@ -29,7 +38,14 @@ const styles = StyleSheet.create({
         padding: 25,
         paddingBottom: 90
     },
-    test: {
-        color: 'white'
+    botones: {
+        fontFamily: 'Utendo',
+        textAlign: 'center',
+        color: 'white',
+        fontSize: 20,
+        padding: 8,
+        margin: 10,
+        backgroundColor: '#e91010',
+        borderRadius: 15
     }
 })
