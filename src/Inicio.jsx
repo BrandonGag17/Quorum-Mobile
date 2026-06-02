@@ -65,10 +65,9 @@ function Inicio() {
                 renderItem={({ item }) => (
                     <TouchableOpacity style={styles.grupoCard}>
                         <Image
-                            source={{
-                                uri: item.grupo?.foto_perfil
-                            }}
+                            source={require('../assets/img/Logos/IsotipoSinFondo.png')}
                             style={styles.fotoGrupo}
+                            resizeMode="contain"
                         />
 
                         <View style={styles.grupoInfo}>
