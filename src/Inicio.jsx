@@ -71,16 +71,20 @@ function Inicio() {
                     <TouchableOpacity style={styles.grupoCard} onPress={() => navigation.navigate('Grupo', {
                         idGrupo: item.id_grupo
                     })}>
-                        <Image
-                            source={{ uri: item.grupo?.foto_perfil }}
-                            style={styles.fotoGrupo}
-                        />
+                        <Image source={{ uri: item.grupo?.foto_perfil }} style={styles.fotoGrupo} />
 
+                        <Image
+                            source={require('../assets/img/amiguis.jpg')}
+                            style={styles.imagen}
+                        />
                         <View style={styles.grupoInfo}>
                             <Text style={styles.grupoNombre}>
                                 {item.grupo?.nombre}
                             </Text>
+
+                            <Text style={styles.grupoIntegrantes}>martu, martu, martu y yo</Text>
                         </View>
+
                     </TouchableOpacity>
                 )}
             />
@@ -155,8 +159,34 @@ const styles = StyleSheet.create({
         fontFamily: 'CashMarket',
         fontSize: 20
     },
-    test: {
-        color: 'white'
+    imagen: {
+        width: 50,
+        height: 50,
+        borderRadius: 50
+    }, 
+    grupoInfo: {
+        flex: 1,
+        marginLeft: 12,
+        justifyContent: 'center'
+    },
+    grupoCard: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: '#4A216F',
+        borderRadius: 16,
+        padding: 12,
+        marginBottom: 10
+    },
+    grupoNombre: {
+        color: 'white',
+        fontFamily: 'CashMarket',
+        fontSize: 16
+    },
+    grupoIntegrantes: {
+        color: '#b0a0cc',
+        fontFamily: 'Utendo',
+        fontSize: 13,
+        marginTop: 2
     }
 })
 
