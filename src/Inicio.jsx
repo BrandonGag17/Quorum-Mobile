@@ -5,7 +5,7 @@ import supabase from './supabaseClient'
 import Navbar from './Utilidades/Navbar'
 import Iconos from '../src/Utilidades/Iconos'
 import FontAwesome6 from '@expo/vector-icons/FontAwesome6'
-import FontAwesome5 from '@expo/vector-icons/FontAwesome5'
+import Ionicons from '@expo/vector-icons/Ionicons';
 import Feather from '@expo/vector-icons/Feather'
 
 function Inicio() {
@@ -60,7 +60,7 @@ function Inicio() {
             <View style={styles.tituloSeparador}>
                 <Iconos
                     size={42}
-                    icono={<FontAwesome5 name="calendar-alt" size={22} color="#3F3F3F" />}
+                    icono={<Ionicons name="calendar" size={24} color="#3F3F3F" />}
                 />
                 <Text style={styles.textoTitulo}>Proximas juntadas</Text>
             </View>
