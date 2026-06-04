@@ -1,9 +1,12 @@
 import { useEffect, useState } from 'react'
 import { View, Text, TouchableOpacity, Image, FlatList, StyleSheet, TextInput, } from 'react-native'
 import { useNavigation } from '@react-navigation/native'
-import { IconSearch, IconFolderFilled, IconCalendarWeekFilled } from '@tabler/icons-react-native'
 import supabase from './supabaseClient'
 import Navbar from './Utilidades/Navbar'
+import Iconos from '../src/Utilidades/Iconos'
+import FontAwesome6 from '@expo/vector-icons/FontAwesome6'
+import FontAwesome5 from '@expo/vector-icons/FontAwesome5'
+import Feather from '@expo/vector-icons/Feather'
 
 function Inicio() {
     const navigation = useNavigation()
@@ -43,7 +46,7 @@ function Inicio() {
             <Text style={styles.titulo}>Quórum</Text>
 
             <View style={styles.buscador}>
-                <IconSearch size={22} color="#808080" />
+                <Feather name="search" size={22} color="#808080" />
 
                 <TextInput
                     style={styles.inputBuscador}
@@ -55,13 +58,24 @@ function Inicio() {
             </View>
 
             <View style={styles.tituloSeparador}>
-                <IconCalendarWeekFilled size={25} color="#ffffff" />
+                <Iconos
+                    size={42}
+                    icono={<FontAwesome5 name="calendar-alt" size={22} color="#3F3F3F" />}
+                />
                 <Text style={styles.textoTitulo}>Proximas juntadas</Text>
             </View>
 
             <View style={styles.tituloSeparador}>
-                <IconFolderFilled size={25} color="#ffffff" />
+                <Iconos
+                    size={42}
+                    icono={<FontAwesome6 name="users" size={22} color="#3F3F3F" />}
+                />
                 <Text style={styles.textoTitulo}>Grupos</Text>
+
+
+                <TouchableOpacity onPress={() => setMostrarModal(true)} style={styles.botonCrear}>
+                    <Text style={styles.botonCrearTexto}>+ Crear</Text>
+                </TouchableOpacity>
             </View>
 
             <FlatList
@@ -89,10 +103,6 @@ function Inicio() {
                 )}
             />
 
-            <TouchableOpacity onPress={() => setMostrarModal(true)}>
-                <Text style={styles.test}>+</Text>
-            </TouchableOpacity>
-
             {/*<Modal
                 visible={mostrarModal}
                 transparent={true}
@@ -118,6 +128,19 @@ function Inicio() {
 }
 
 const styles = StyleSheet.create({
+    botonCrear: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 6,
+        backgroundColor: '#57C7A3',
+        padding: 6,
+        borderRadius: 8
+    },
+    botonCrearTexto: {
+        color: '#3F3F3F',
+        fontSize: 15,
+        fontFamily: 'CashMarket',
+    },
     fondo: {
         flex: 1,
         backgroundColor: '#15151C',
@@ -157,13 +180,14 @@ const styles = StyleSheet.create({
         color: 'white',
         marginLeft: 10,
         fontFamily: 'CashMarket',
-        fontSize: 20
+        fontSize: 20,
+        flex: 1
     },
     imagen: {
         width: 50,
         height: 50,
         borderRadius: 50
-    }, 
+    },
     grupoInfo: {
         flex: 1,
         marginLeft: 12,
