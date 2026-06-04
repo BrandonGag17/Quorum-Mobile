@@ -12,6 +12,7 @@ import Inicio from './src/Inicio'
 import Recomendaciones from './src/Recomendaciones'
 import Notificaciones from './src/Notificaciones'
 import Configuracion from './src/Configuracion'
+import Grupo from './src/Grupo/Grupo'
 
 const Stack = createNativeStackNavigator()
 
@@ -77,6 +78,11 @@ export default function App() {
         <Stack.Screen
           name="Configuracion"
           component={Configuracion}
+        />
+
+        <Stack.Screen
+          name="Grupo"
+          component={Grupo}
         />
       </Stack.Navigator>
     </NavigationContainer>

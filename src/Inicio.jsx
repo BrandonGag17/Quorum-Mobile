@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { View, Text, TouchableOpacity, Image, FlatList, StyleSheet, TextInput } from 'react-native'
+import { View, Text, TouchableOpacity, Image, FlatList, StyleSheet, TextInput, } from 'react-native'
 import { useNavigation } from '@react-navigation/native'
 import { IconSearch, IconFolderFilled, IconCalendarWeekFilled } from '@tabler/icons-react-native'
 import supabase from './supabaseClient'
@@ -59,15 +59,21 @@ function Inicio() {
                 <Text style={styles.textoTitulo}>Proximas juntadas</Text>
             </View>
 
+            <View style={styles.tituloSeparador}>
+                <IconFolderFilled size={25} color="#ffffff" />
+                <Text style={styles.textoTitulo}>Grupos</Text>
+            </View>
+
             <FlatList
                 data={grupos}
                 keyExtractor={(item) => item.id_grupo.toString()}
                 renderItem={({ item }) => (
-                    <TouchableOpacity style={styles.grupoCard}>
+                    <TouchableOpacity style={styles.grupoCard} onPress={() => navigation.navigate('Grupo', {
+                        idGrupo: item.id_grupo
+                    })}>
                         <Image
-                            source={require('../assets/img/Logos/IsotipoSinFondo.png')}
+                            source={{ uri: item.grupo?.foto_perfil }}
                             style={styles.fotoGrupo}
-                            resizeMode="contain"
                         />
 
                         <View style={styles.grupoInfo}>
@@ -78,11 +84,6 @@ function Inicio() {
                     </TouchableOpacity>
                 )}
             />
-
-            <View style={styles.tituloSeparador}>
-                <IconFolderFilled size={25} color="#ffffff" />
-                <Text style={styles.textoTitulo}>Grupos</Text>
-            </View>
 
             <TouchableOpacity onPress={() => setMostrarModal(true)}>
                 <Text style={styles.test}>+</Text>

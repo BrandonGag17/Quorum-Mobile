@@ -74,7 +74,7 @@ const styles = StyleSheet.create({
         paddingHorizontal: 10,
         backgroundColor: '#15151C',
         borderTopLeftRadius: 25,
-        borderTopRightRadius: 25,
+        borderTopRightRadius: 25
     },
 
     navItem: {
