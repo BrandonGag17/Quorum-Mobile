@@ -1,12 +1,14 @@
 import { useEffect, useState } from 'react'
-import { View, Text, TouchableOpacity, Image, FlatList, StyleSheet, TextInput, } from 'react-native'
+import { View, Text, TouchableOpacity, Image, FlatList, StyleSheet, TextInput, ScrollView } from 'react-native'
 import { useNavigation } from '@react-navigation/native'
 import supabase from './supabaseClient'
 import Navbar from './Utilidades/Navbar'
 import Iconos from '../src/Utilidades/Iconos'
 import FontAwesome6 from '@expo/vector-icons/FontAwesome6'
-import Ionicons from '@expo/vector-icons/Ionicons';
+import Ionicons from '@expo/vector-icons/Ionicons'
 import Feather from '@expo/vector-icons/Feather'
+import DetalleJuntada from '../src/Utilidades/DetalleJuntada'
+import HarcodeoCards from './Utilidades/HarcodeoCards'
 
 function Inicio() {
     const navigation = useNavigation()
@@ -43,67 +45,75 @@ function Inicio() {
 
     return (
         <View style={styles.fondo}>
-            <Text style={styles.titulo}>Quórum</Text>
+            <ScrollView
+                showsVerticalScrollIndicator={false}
+                contentContainerStyle={styles.contenido}
+            >
+                <Text style={styles.titulo}>Quórum</Text>
 
-            <View style={styles.buscador}>
-                <Feather name="search" size={22} color="#808080" />
+                <View style={styles.buscador}>
+                    <Feather name="search" size={22} color="#808080" />
 
-                <TextInput
-                    style={styles.inputBuscador}
-                    placeholder="Buscar grupos"
-                    placeholderTextColor="#808080"
-                    value={busqueda}
-                    onChangeText={setBusqueda}
-                />
-            </View>
+                    <TextInput
+                        style={styles.inputBuscador}
+                        placeholder="Buscar grupos"
+                        placeholderTextColor="#808080"
+                        value={busqueda}
+                        onChangeText={setBusqueda}
+                    />
+                </View>
 
-            <View style={styles.tituloSeparador}>
-                <Iconos
-                    size={42}
-                    icono={<Ionicons name="calendar" size={24} color="#3F3F3F" />}
-                />
-                <Text style={styles.textoTitulo}>Proximas juntadas</Text>
-            </View>
+                <View style={styles.tituloSeparador}>
+                    <Iconos
+                        size={42}
+                        icono={<Ionicons name="calendar" size={24} color="#3F3F3F" />}
+                    />
+                    <Text style={styles.textoTitulo}>Proximas juntadas</Text>
+                </View>
 
-            <View style={styles.tituloSeparador}>
-                <Iconos
-                    size={42}
-                    icono={<FontAwesome6 name="users" size={22} color="#3F3F3F" />}
-                />
-                <Text style={styles.textoTitulo}>Grupos</Text>
+                {/*<DetalleJuntada idEvento={1} />*/}
+                < HarcodeoCards />
+
+                <View style={styles.tituloSeparador}>
+                    <Iconos
+                        size={42}
+                        icono={<FontAwesome6 name="users" size={22} color="#3F3F3F" />}
+                    />
+                    <Text style={styles.textoTitulo}>Grupos</Text>
 
 
-                <TouchableOpacity onPress={() => setMostrarModal(true)} style={styles.botonCrear}>
-                    <Text style={styles.botonCrearTexto}>+ Crear</Text>
-                </TouchableOpacity>
-            </View>
-
-            <FlatList
-                data={grupos}
-                keyExtractor={(item) => item.id_grupo.toString()}
-                renderItem={({ item }) => (
-                    <TouchableOpacity style={styles.grupoCard} onPress={() => navigation.navigate('Grupo', {
-                        idGrupo: item.id_grupo
-                    })}>
-                        <Image source={{ uri: item.grupo?.foto_perfil }} style={styles.fotoGrupo} />
-
-                        <Image
-                            source={require('../assets/img/amiguis.jpg')}
-                            style={styles.imagen}
-                        />
-                        <View style={styles.grupoInfo}>
-                            <Text style={styles.grupoNombre}>
-                                {item.grupo?.nombre}
-                            </Text>
-
-                            <Text style={styles.grupoIntegrantes}>martu, martu, martu y yo</Text>
-                        </View>
-
+                    <TouchableOpacity onPress={() => setMostrarModal(true)} style={styles.botonCrear}>
+                        <Text style={styles.botonCrearTexto}>+ Crear</Text>
                     </TouchableOpacity>
-                )}
-            />
+                </View>
 
-            {/*<Modal
+                <FlatList
+                    scrollEnabled={false}
+                    data={grupos}
+                    keyExtractor={(item) => item.id_grupo.toString()}
+                    renderItem={({ item }) => (
+                        <TouchableOpacity style={styles.grupoCard} onPress={() => navigation.navigate('Grupo', {
+                            idGrupo: item.id_grupo
+                        })}>
+                            <Image source={{ uri: item.grupo?.foto_perfil }} style={styles.fotoGrupo} />
+
+                            <Image
+                                source={require('../assets/img/amiguis.jpg')}
+                                style={styles.imagen}
+                            />
+                            <View style={styles.grupoInfo}>
+                                <Text style={styles.grupoNombre}>
+                                    {item.grupo?.nombre}
+                                </Text>
+
+                                <Text style={styles.grupoIntegrantes}>martu, martu, martu y yo</Text>
+                            </View>
+
+                        </TouchableOpacity>
+                    )}
+                />
+
+                {/*<Modal
                 visible={mostrarModal}
                 transparent={true}
                 onRequestClose={() => setMostrarModal(false)}
@@ -120,6 +130,10 @@ function Inicio() {
                     </View>
                 </TouchableOpacity>
             </Modal>*/}
+
+            </ScrollView>
+
+            <Navbar pantallaActual="Inicio" />
 
             <Navbar pantallaActual="Inicio" />
         </View>
@@ -174,7 +188,7 @@ const styles = StyleSheet.create({
     tituloSeparador: {
         flexDirection: 'row',
         alignItems: 'center',
-        marginBottom: 20
+        marginBottom: 12
     },
     textoTitulo: {
         color: 'white',
@@ -192,14 +206,15 @@ const styles = StyleSheet.create({
         flex: 1,
         marginLeft: 12,
         justifyContent: 'center'
-    },
+    }, 
     grupoCard: {
         flexDirection: 'row',
         alignItems: 'center',
         backgroundColor: '#4A216F',
         borderRadius: 16,
-        padding: 12,
-        marginBottom: 10
+        paddingVertical: 8,
+        paddingHorizontal: 12,
+        marginBottom: 8
     },
     grupoNombre: {
         color: 'white',
@@ -211,6 +226,9 @@ const styles = StyleSheet.create({
         fontFamily: 'Utendo',
         fontSize: 13,
         marginTop: 2
+    },
+    contenido: {
+        paddingBottom: 20,
     }
 })
 
