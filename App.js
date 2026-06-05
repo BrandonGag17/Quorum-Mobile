@@ -13,7 +13,7 @@ import Recomendaciones from './src/Recomendaciones'
 import Notificaciones from './src/Notificaciones'
 import Configuracion from './src/Configuracion'
 import Grupo from './src/Grupo/Grupo'
-import DetalleJuntada from './src/Utilidades/DetalleJuntada'
+import Juntada from './src/Juntada/Juntada'
 
 const Stack = createNativeStackNavigator()
 
@@ -87,8 +87,8 @@ export default function App() {
         />
 
         <Stack.Screen
-          name="DetalleJuntada"
-          component={DetalleJuntada}
+          name="Juntada"
+          component={Juntada}
         />
 
       </Stack.Navigator>

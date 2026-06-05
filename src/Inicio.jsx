@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { View, Text, TouchableOpacity, Image, FlatList, StyleSheet, TextInput, ScrollView } from 'react-native'
+import { View, Text, TouchableOpacity, Image, FlatList, StyleSheet, TextInput, ScrollView, Modal } from 'react-native'
 import { useNavigation } from '@react-navigation/native'
 import supabase from './supabaseClient'
 import Navbar from './Utilidades/Navbar'
@@ -7,14 +7,14 @@ import Iconos from '../src/Utilidades/Iconos'
 import FontAwesome6 from '@expo/vector-icons/FontAwesome6'
 import Ionicons from '@expo/vector-icons/Ionicons'
 import Feather from '@expo/vector-icons/Feather'
-import DetalleJuntada from '../src/Utilidades/DetalleJuntada'
-import HarcodeoCards from './Utilidades/HarcodeoCards'
+import CardJuntadas from './Utilidades/CardJuntadas'
 
 function Inicio() {
     const navigation = useNavigation()
     const [grupos, setGrupos] = useState([])
     const [mostrarModal, setMostrarModal] = useState(false)
     const [busqueda, setBusqueda] = useState('')
+    const [eventos, setEventos] = useState([])
 
     useEffect(() => {
         cargarGrupos()
@@ -41,7 +41,36 @@ function Inicio() {
         }
 
         setGrupos(data)
+
+        if (data && data.length > 0) {
+            const idsGrupos = data.map(g => g.id_grupo)
+            traerEventos(idsGrupos)
+        }
     }
+
+    async function traerEventos(idsGrupos) {
+        const { data, error } = await supabase
+            .from('evento')
+            .select(`
+                *,
+                grupo (
+                    nombre
+                )
+            `)
+            .in('id_grupo', idsGrupos)
+
+        if (error) {
+            console.log("Error consultando eventos:", error.message)
+            return
+        }
+        setEventos(data || [])
+    }
+
+    const ahora = new Date().toISOString();
+
+    const eventosConfirmados = eventos.filter(e =>
+        e.estado === 'confirmado' && (e.fecha_hora_inicio > ahora || !e.fecha_hora_inicio)
+    )
 
     return (
         <View style={styles.fondo}>
@@ -70,9 +99,19 @@ function Inicio() {
                     />
                     <Text style={styles.textoTitulo}>Proximas juntadas</Text>
                 </View>
+                
+                {eventosConfirmados.length > 0 ? (
+                    eventosConfirmados.map(e => (
+                        <CardJuntadas
+                            key={e.id}
+                            evento={e}
+                            navigation={navigation}
+                        />
+                    ))
+                ) : (
+                    <Text>No hay juntadas confirmadas</Text>
+                )}
 
-                {/*<DetalleJuntada idEvento={1} />*/}
-                < HarcodeoCards />
 
                 <View style={styles.tituloSeparador}>
                     <Iconos
@@ -113,7 +152,7 @@ function Inicio() {
                     )}
                 />
 
-                {/*<Modal
+                <Modal
                 visible={mostrarModal}
                 transparent={true}
                 onRequestClose={() => setMostrarModal(false)}
@@ -129,11 +168,9 @@ function Inicio() {
                         </TouchableOpacity>
                     </View>
                 </TouchableOpacity>
-            </Modal>*/}
+            </Modal>
 
             </ScrollView>
-
-            <Navbar pantallaActual="Inicio" />
 
             <Navbar pantallaActual="Inicio" />
         </View>
@@ -206,7 +243,7 @@ const styles = StyleSheet.create({
         flex: 1,
         marginLeft: 12,
         justifyContent: 'center'
-    }, 
+    },
     grupoCard: {
         flexDirection: 'row',
         alignItems: 'center',
