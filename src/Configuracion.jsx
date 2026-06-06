@@ -14,15 +14,6 @@ export default function Configuracion() {
                     navigation.replace('Introduccion')
                 }}
             >
-                <Text>Cerrar sesión</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-                onPress={async () => {
-                    await supabase.auth.signOut()
-                    navigation.replace('Introduccion')
-                }}
-            >
                 <Text style={styles.botones}>Cerrar sesión</Text>
             </TouchableOpacity>
 

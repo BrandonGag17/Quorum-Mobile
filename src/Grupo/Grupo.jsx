@@ -6,11 +6,15 @@ import {
     Modal,
     FlatList,
     StyleSheet,
-    ActivityIndicator
+    ActivityIndicator,
+    TouchableOpacity
 } from 'react-native'
 import { useRoute, useNavigation } from '@react-navigation/native'
 import supabase from '../supabaseClient'
 import Navbar from '../Utilidades/Navbar'
+import Iconos from '../Utilidades/Iconos'
+import Ionicons from '@expo/vector-icons/Ionicons'
+import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 
 function Grupo() {
     const route = useRoute()
@@ -94,7 +98,7 @@ function Grupo() {
             style={styles.card}
             onPress={() =>
                 navigation.navigate(
-                    'DetalleJuntada',
+                    'Juntada',
                     { idEvento: item.id }
                 )
             }
@@ -126,9 +130,13 @@ function Grupo() {
                 {grupo?.nombre || 'Grupo sin nombre'}
             </Text>
 
-            <Text style={styles.titulo}>
-                Próximas juntadas
-            </Text>
+            <View style={styles.tituloSeparador}>
+                <Iconos
+                    size={42}
+                    icono={<Ionicons name="calendar" size={24} color="#3F3F3F" />}
+                />
+                <Text style={styles.textoTitulo}>Proximas juntadas</Text>
+            </View>
 
             {eventosConfirmados.length > 0 ? (
                 <FlatList
@@ -144,9 +152,18 @@ function Grupo() {
                 </Text>
             )}
 
-            <Text style={styles.titulo}>
-                Propuestas
-            </Text>
+            <View style={styles.tituloSeparador}>
+                <Iconos
+                    size={42}
+                    icono={<MaterialCommunityIcons name="lightbulb-variant" size={24} color="#3F3F3F" />
+                    }
+                />
+                <Text style={styles.textoTitulo}>Propuestas</Text>
+
+            <TouchableOpacity onPress={() => setMostrarModal(true)} style={styles.botonCrear}>
+                <Text style={styles.botonCrearTexto}>+ Crear</Text>
+            </TouchableOpacity>
+            </View>
 
             {propuestasPlanificacion.length > 0 ? (
                 <FlatList
@@ -161,13 +178,6 @@ function Grupo() {
                     No hay propuestas de planificación
                 </Text>
             )}
-
-            <Pressable
-                style={styles.botonMas}
-                onPress={() => setMostrarModal(true)}
-            >
-                <Text style={styles.textoMas}>+</Text>
-            </Pressable>
 
             <Modal
                 visible={mostrarModal}
@@ -229,13 +239,16 @@ function Grupo() {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        padding: 20
+        backgroundColor: '#15151C',
+        padding: 25,
+        paddingBottom: 90
     },
 
     nombreGrupo: {
         fontSize: 28,
         fontWeight: 'bold',
-        marginBottom: 20
+        marginBottom: 20,
+        color: 'white'
     },
 
     titulo: {
@@ -291,6 +304,30 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         backgroundColor: '#15151C'
+    },
+    tituloSeparador: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginBottom: 20
+    },
+    textoTitulo: {
+        color: 'white',
+        marginLeft: 10,
+        fontFamily: 'CashMarket',
+        fontSize: 20
+    },
+    botonCrear: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 6,
+        backgroundColor: '#57C7A3',
+        padding: 6,
+        borderRadius: 8
+    },
+    botonCrearTexto: {
+        color: '#3F3F3F',
+        fontSize: 15,
+        fontFamily: 'CashMarket',
     },
 })
 

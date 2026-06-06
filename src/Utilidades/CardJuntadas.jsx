@@ -38,7 +38,7 @@ function CardJuntadas({ evento, navigation }) {
                 <FontAwesome6
                     name="calendar-day"
                     size={10}
-                    color="#3F3F3F"
+                    color="#c5c5c5"
                 />
 
                 <Text style={styles.textoInfo}>
@@ -48,7 +48,7 @@ function CardJuntadas({ evento, navigation }) {
                 <MaterialCommunityIcons
                     name="clock"
                     size={10}
-                    color="#3F3F3F"
+                    color="#c5c5c5"
                     style={{ marginLeft: 8 }}
                 />
 
@@ -65,7 +65,7 @@ function CardJuntadas({ evento, navigation }) {
                 <FontAwesome6
                     name="users"
                     size={10}
-                    color="#3F3F3F"
+                    color="#c5c5c5"
                 />
 
                 <Text
@@ -78,7 +78,7 @@ function CardJuntadas({ evento, navigation }) {
                 <FontAwesome6
                     name="location-dot"
                     size={10}
-                    color="#3F3F3F"
+                    color="#c5c5c5"
                     style={{ marginLeft: 8 }}
                 />
 
@@ -95,7 +95,7 @@ function CardJuntadas({ evento, navigation }) {
 
 const styles = StyleSheet.create({
     card: {
-        backgroundColor: '#57C7A3',
+        backgroundColor: '#4A216F',
         borderRadius: 12,
         width: 200,
         paddingVertical: 15,
@@ -119,15 +119,15 @@ const styles = StyleSheet.create({
     nombre: {
         fontFamily: 'CashMarket',
         fontSize: 20,
-        color: '#15151C',
+        color: 'white',
         marginBottom: 6,
     },
 
     textoInfo: {
         fontFamily: 'Utendo',
-        fontSize: 10,
-        color: '#3F3F3F',
-        marginLeft: 3,
+        fontSize: 14,
+        color: '#c5c5c5',
+        marginLeft: 5,
         flexShrink: 1,
     },
 })
