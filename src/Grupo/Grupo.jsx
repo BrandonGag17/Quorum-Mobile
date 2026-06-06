@@ -134,7 +134,7 @@ function Grupo() {
                             <Ionicons
                                 name="calendar"
                                 size={24}
-                                color="#3F3F3F"
+                                color="#000000"
                             />
                         }
                     />
@@ -166,7 +166,7 @@ function Grupo() {
                 <View style={styles.tituloSeparador}>
                     <Iconos
                         size={42}
-                        icono={<MaterialCommunityIcons name="lightbulb-variant" size={24} color="#3F3F3F" />
+                        icono={<MaterialCommunityIcons name="lightbulb-variant" size={24} color="#000000" />
                         }
                     />
                     <Text style={styles.textoTitulo}>Propuestas</Text>
@@ -326,7 +326,7 @@ const styles = StyleSheet.create({
         borderRadius: 8
     },
     botonCrearTexto: {
-        color: '#3F3F3F',
+        color: '#000000',
         fontSize: 15,
         fontFamily: 'CashMarket',
     },

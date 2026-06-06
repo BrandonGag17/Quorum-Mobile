@@ -95,7 +95,7 @@ function Inicio() {
                 <View style={styles.tituloSeparador}>
                     <Iconos
                         size={42}
-                        icono={<Ionicons name="calendar" size={24} color="#3F3F3F" />}
+                        icono={<Ionicons name="calendar" size={24} color="#000000" />}
                     />
                     <Text style={styles.textoTitulo}>Proximas juntadas</Text>
                 </View>
@@ -116,7 +116,7 @@ function Inicio() {
                 <View style={styles.tituloSeparador}>
                     <Iconos
                         size={42}
-                        icono={<FontAwesome6 name="users" size={22} color="#3F3F3F" />}
+                        icono={<FontAwesome6 name="users" size={22} color="#000000" />}
                     />
                     <Text style={styles.textoTitulo}>Grupos</Text>
 
@@ -188,7 +188,7 @@ const styles = StyleSheet.create({
         borderRadius: 8
     },
     botonCrearTexto: {
-        color: '#3F3F3F',
+        color: '#000000',
         fontSize: 15,
         fontFamily: 'CashMarket',
     },
