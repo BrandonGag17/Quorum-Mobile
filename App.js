@@ -14,6 +14,7 @@ import Notificaciones from './src/Notificaciones'
 import Configuracion from './src/Configuracion'
 import Grupo from './src/Grupo/Grupo'
 import Juntada from './src/Juntada/Juntada'
+import ProponerJuntada from './src/Juntada/ProponerJuntada'
 
 const Stack = createNativeStackNavigator()
 
@@ -91,6 +92,11 @@ export default function App() {
           component={Juntada}
         />
 
+
+        <Stack.Screen
+          name="ProponerJuntada"
+          component={ProponerJuntada}
+        />
       </Stack.Navigator>
     </NavigationContainer>
   )

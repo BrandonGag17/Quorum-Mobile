@@ -7,14 +7,19 @@ import {
     FlatList,
     StyleSheet,
     ActivityIndicator,
-    TouchableOpacity
+    TouchableOpacity,
+    ScrollView
 } from 'react-native'
+
 import { useRoute, useNavigation } from '@react-navigation/native'
 import supabase from '../supabaseClient'
+
 import Navbar from '../Utilidades/Navbar'
 import Iconos from '../Utilidades/Iconos'
+import CardJuntadas from '../Utilidades/CardJuntadas'
+
 import Ionicons from '@expo/vector-icons/Ionicons'
-import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
+import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons'
 
 function Grupo() {
     const route = useRoute()
@@ -63,7 +68,12 @@ function Grupo() {
     async function traerEventos() {
         const { data, error } = await supabase
             .from('evento')
-            .select('*')
+            .select(`
+            *,
+            grupo (
+                nombre
+            )
+        `)
             .eq('id_grupo', idGrupo)
             .order('fecha_hora_inicio', {
                 ascending: true
@@ -93,22 +103,6 @@ function Grupo() {
         evento => evento.estado === 'planificacion'
     )
 
-    const renderEvento = ({ item }) => (
-        <Pressable
-            style={styles.card}
-            onPress={() =>
-                navigation.navigate(
-                    'Juntada',
-                    { idEvento: item.id }
-                )
-            }
-        >
-            <Text style={styles.cardTitulo}>
-                {item.nombre}
-            </Text>
-        </Pressable>
-    )
-
     if (cargando) {
         return (
             <View style={styles.loadingContainer}>
@@ -125,112 +119,136 @@ function Grupo() {
 
     return (
         <View style={styles.container}>
-
-            <Text style={styles.nombreGrupo}>
-                {grupo?.nombre || 'Grupo sin nombre'}
-            </Text>
-
-            <View style={styles.tituloSeparador}>
-                <Iconos
-                    size={42}
-                    icono={<Ionicons name="calendar" size={24} color="#3F3F3F" />}
-                />
-                <Text style={styles.textoTitulo}>Proximas juntadas</Text>
-            </View>
-
-            {eventosConfirmados.length > 0 ? (
-                <FlatList
-                    data={eventosConfirmados}
-                    keyExtractor={(item) =>
-                        item.id.toString()
-                    }
-                    renderItem={renderEvento}
-                />
-            ) : (
-                <Text>
-                    No hay juntadas confirmadas
-                </Text>
-            )}
-
-            <View style={styles.tituloSeparador}>
-                <Iconos
-                    size={42}
-                    icono={<MaterialCommunityIcons name="lightbulb-variant" size={24} color="#3F3F3F" />
-                    }
-                />
-                <Text style={styles.textoTitulo}>Propuestas</Text>
-
-            <TouchableOpacity onPress={() => setMostrarModal(true)} style={styles.botonCrear}>
-                <Text style={styles.botonCrearTexto}>+ Crear</Text>
-            </TouchableOpacity>
-            </View>
-
-            {propuestasPlanificacion.length > 0 ? (
-                <FlatList
-                    data={propuestasPlanificacion}
-                    keyExtractor={(item) =>
-                        item.id.toString()
-                    }
-                    renderItem={renderEvento}
-                />
-            ) : (
-                <Text>
-                    No hay propuestas de planificación
-                </Text>
-            )}
-
-            <Modal
-                visible={mostrarModal}
-                transparent
-                animationType="fade"
-                onRequestClose={() =>
-                    setMostrarModal(false)
-                }
+            <ScrollView
+                showsVerticalScrollIndicator={false}
+                contentContainerStyle={{ paddingBottom: 100 }}
             >
-                <View style={styles.modalOverlay}>
-                    <View style={styles.modal}>
+                <Text style={styles.nombreGrupo}>
+                    {grupo?.nombre || 'Grupo sin nombre'}
+                </Text>
 
-                        <Pressable
-                            onPress={() =>
-                                setMostrarModal(false)
-                            }
-                        >
-                            <Text>Cerrar</Text>
-                        </Pressable>
+                <View style={styles.tituloSeparador}>
+                    <Iconos
+                        size={42}
+                        icono={
+                            <Ionicons
+                                name="calendar"
+                                size={24}
+                                color="#3F3F3F"
+                            />
+                        }
+                    />
 
-                        <Pressable
-                            onPress={() => {
-                                setMostrarModal(false)
-
-                                navigation.navigate(
-                                    'ProponerJuntada',
-                                    { idGrupo }
-                                )
-                            }}
-                        >
-                            <Text>
-                                Proponer Juntada
-                            </Text>
-                        </Pressable>
-
-                        <Pressable
-                            onPress={() => {
-                                setMostrarModal(false)
-
-                                navigation.navigate(
-                                    'CrearEvento',
-                                    { idGrupo }
-                                )
-                            }}
-                        >
-                            <Text>
-                                Crear Evento
-                            </Text>
-                        </Pressable>
-
-                    </View>
+                    <Text style={styles.textoTitulo}>
+                        Proximas juntadas
+                    </Text>
                 </View>
-            </Modal>
+
+                {eventosConfirmados.length > 0 ? (
+                    <FlatList
+                        horizontal
+                        showsHorizontalScrollIndicator={false}
+                        data={eventosConfirmados}
+                        keyExtractor={(item) => item.id}
+                        renderItem={({ item }) => (
+                            <CardJuntadas
+                                evento={item}
+                                navigation={navigation}
+                            />
+                        )}
+                    />
+                ) : (
+                    <Text style={{ color: 'white' }}>
+                        No hay juntadas confirmadas
+                    </Text>
+                )}
+
+                <View style={styles.tituloSeparador}>
+                    <Iconos
+                        size={42}
+                        icono={<MaterialCommunityIcons name="lightbulb-variant" size={24} color="#3F3F3F" />
+                        }
+                    />
+                    <Text style={styles.textoTitulo}>Propuestas</Text>
+
+                    <TouchableOpacity onPress={() => setMostrarModal(true)} style={styles.botonCrear}>
+                        <Text style={styles.botonCrearTexto}>+ Crear</Text>
+                    </TouchableOpacity>
+                </View>
+
+                {propuestasPlanificacion.length > 0 ? (
+                    <FlatList
+                        horizontal
+                        showsHorizontalScrollIndicator={false}
+                        data={propuestasPlanificacion}
+                        keyExtractor={(item) => item.id}
+                        renderItem={({ item }) => (
+                            <CardJuntadas
+                                evento={item}
+                                navigation={navigation}
+                            />
+                        )}
+                    />
+                ) : (
+                    <Text style={{ color: 'white' }}>
+                        No hay propuestas de planificación
+                    </Text>
+                )}
+
+                <Modal
+                    visible={mostrarModal}
+                    transparent
+                    animationType="fade"
+                    onRequestClose={() =>
+                        setMostrarModal(false)
+                    }
+                >
+                    <View style={styles.modalOverlay}>
+                        <View style={styles.modal}>
+
+                            <Pressable
+                                onPress={() =>
+                                    setMostrarModal(false)
+                                }
+                            >
+                                <Text>Cerrar</Text>
+                            </Pressable>
+
+                            <Pressable
+                                onPress={() => {
+                                    setMostrarModal(false)
+
+                                    navigation.navigate(
+                                        'ProponerJuntada',
+                                        { idGrupo }
+                                    )
+                                }}
+                            >
+                                <Text>
+                                    Proponer Juntada
+                                </Text>
+                            </Pressable>
+
+                            <Pressable
+                                onPress={() => {
+                                    setMostrarModal(false)
+
+                                    navigation.navigate(
+                                        'CrearEvento',
+                                        { idGrupo }
+                                    )
+                                }}
+                            >
+                                <Text>
+                                    Crear Evento
+                                </Text>
+                            </Pressable>
+
+                        </View>
+                    </View>
+                </Modal>
+            </ScrollView>
+
             <Navbar pantallaActual="Inicio" />
         </View>
     )
@@ -249,24 +267,6 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
         marginBottom: 20,
         color: 'white'
-    },
-
-    titulo: {
-        fontSize: 20,
-        fontWeight: 'bold',
-        marginTop: 20,
-        marginBottom: 10
-    },
-
-    card: {
-        padding: 15,
-        marginBottom: 10,
-        borderRadius: 12,
-        backgroundColor: '#EEEEEE'
-    },
-
-    cardTitulo: {
-        fontSize: 16
     },
 
     botonMas: {
@@ -314,7 +314,8 @@ const styles = StyleSheet.create({
         color: 'white',
         marginLeft: 10,
         fontFamily: 'CashMarket',
-        fontSize: 20
+        fontSize: 20,
+        flex: 1
     },
     botonCrear: {
         flexDirection: 'row',
