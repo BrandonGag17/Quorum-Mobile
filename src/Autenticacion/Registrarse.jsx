@@ -39,7 +39,7 @@ function Registrarse() {
         <View style={styles.fondo}>
             <Text style={styles.titulo}>Registrarse</Text>
 
-            <Input label="Email:" placeholder="tu@gmail.com" value={email} onChangeText={setEmail} Icon={IconMailFilled} />
+            <Input label="Email:" placeholder="tu@gmail.com" value={email} onChangeText={setEmail} Icon={IconMailFilled} keyboardType="email-address" autoCapitalize="none" />
 
             <Input label="Nombre de usuario:" placeholder="tuusuario123" value={usuario} onChangeText={setUsuario} Icon={IconUserFilled} />
 
@@ -49,6 +49,10 @@ function Registrarse() {
                 <Checkbox value={isChecked} onValueChange={setChecked} />
                 <Text style={[styles.texto, { color: '#FFFFFF' }]}> Acepto los términos y condiciones</Text>
             </View>
+
+            {mensaje ? (
+                <ErrorMessage mensaje="Email o contraseña incorrectos" />
+            ) : null}
 
             <Button nombre={cargando ? 'Cargando...' : 'Continuar'} onPress={() => navigation.navigate('Registrarse2')} disabled={cargando} />
 

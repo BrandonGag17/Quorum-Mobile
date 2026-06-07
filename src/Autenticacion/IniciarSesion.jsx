@@ -5,6 +5,7 @@ import { useState } from 'react'
 import Button from '../Utilidades/Botones'
 import Input from '../Utilidades/Input'
 import supabase from '../supabaseClient'
+import ErrorMessage from '../Utilidades/MensajeError'
 
 function IniciarSesion() {
     const navigation = useNavigation()
@@ -46,6 +47,10 @@ function IniciarSesion() {
             <Input label="Email:" placeholder="tu@gmail.com" value={email} onChangeText={setEmail} keyboardType="email-address" autoCapitalize="none" Icon={IconMailFilled} />
             <Input label="Contraseña:" placeholder="********" value={password} onChangeText={setPassword} secureTextEntry Icon={IconLockFilled} />
             <Text style={styles.olvido}>¿Olvidaste tu contraseña?</Text>
+
+            {mensaje ? (
+                <ErrorMessage mensaje="Email o contraseña incorrectos" />
+            ) : null}
 
             <Button nombre={cargando ? 'Cargando...' : 'Iniciar sesión'} onPress={handleSubmit} disabled={cargando} />
 

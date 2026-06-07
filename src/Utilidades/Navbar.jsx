@@ -24,27 +24,15 @@ export default function Navbar({ pantallaActual }) {
                 <Text style={styles.navText}>Inicio</Text>
             </TouchableOpacity>
 
-            <TouchableOpacity
-                style={[
-                    styles.navItem,
-                    pantallaActual === 'Recomendaciones' && styles.activo
-                ]}
-                onPress={() => navigation.navigate('Recomendaciones')}
-            >
-                <IconCompassFilled color="#FFFFFF" size={30} />
-                <Text style={styles.navText}>Explorar</Text>
-            </TouchableOpacity>
+            <View style={[styles.navItem]}>
+                <IconCompassFilled color="#727272" size={30} />
+                <Text style={{color: '#727272'}}>Explorar</Text>
+            </View>
 
-            <TouchableOpacity
-                style={[
-                    styles.navItem,
-                    pantallaActual === 'Notificaciones' && styles.activo
-                ]}
-                onPress={() => navigation.navigate('Notificaciones')}
-            >
-                <IconBellFilled color="#FFFFFF" size={30} />
-                <Text style={styles.navText}>Notificaciones</Text>
-            </TouchableOpacity>
+            <View style={[styles.navItem]}>
+                <IconBellFilled color="#727272" size={30} />
+                <Text style={{color: '#727272'}}>Notificaciones</Text>
+            </View>
 
             <TouchableOpacity
                 style={[

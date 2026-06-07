@@ -4,10 +4,10 @@ import { useNavigation } from '@react-navigation/native'
 import supabase from './supabaseClient'
 import Navbar from './Utilidades/Navbar'
 import Iconos from '../src/Utilidades/Iconos'
-import FontAwesome6 from '@expo/vector-icons/FontAwesome6'
 import Ionicons from '@expo/vector-icons/Ionicons'
 import Feather from '@expo/vector-icons/Feather'
 import CardJuntadas from './Utilidades/CardJuntadas'
+import { IconUserFilled } from '@tabler/icons-react-native';
 
 function Inicio() {
     const navigation = useNavigation()
@@ -94,8 +94,8 @@ function Inicio() {
 
                 <View style={styles.tituloSeparador}>
                     <Iconos
-                        size={42}
-                        icono={<Ionicons name="calendar" size={24} color="#000000" />}
+                        size={36}
+                        icono={<Ionicons name="calendar" size={25} color="#000000" />}
                     />
                     <Text style={styles.textoTitulo}>Proximas juntadas</Text>
                 </View>
@@ -115,8 +115,8 @@ function Inicio() {
 
                 <View style={styles.tituloSeparador}>
                     <Iconos
-                        size={42}
-                        icono={<FontAwesome6 name="users" size={22} color="#000000" />}
+                        size={36}
+                        icono={<IconUserFilled name="users" size={25} color="#000000" />}
                     />
                     <Text style={styles.textoTitulo}>Grupos</Text>
 
@@ -184,7 +184,9 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         gap: 6,
         backgroundColor: '#57C7A3',
-        padding: 6,
+        padding: 7,
+        paddingLeft: 10,
+        paddingRight: 10,
         borderRadius: 8
     },
     botonCrearTexto: {

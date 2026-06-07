@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import {
     View,
     Text,
@@ -8,7 +8,8 @@ import {
     StyleSheet,
     ActivityIndicator,
     TouchableOpacity,
-    ScrollView
+    ScrollView,
+    Animated
 } from 'react-native'
 
 import { useRoute, useNavigation } from '@react-navigation/native'
@@ -19,6 +20,7 @@ import Iconos from '../Utilidades/Iconos'
 import CardJuntadas from '../Utilidades/CardJuntadas'
 
 import Ionicons from '@expo/vector-icons/Ionicons'
+import { IconBulbFilled, IconCalendarEventFilled } from '@tabler/icons-react-native';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons'
 
 function Grupo() {
@@ -31,6 +33,24 @@ function Grupo() {
     const [eventos, setEventos] = useState([])
     const [mostrarModal, setMostrarModal] = useState(false)
     const [cargando, setCargando] = useState(true)
+
+    const translateY = useRef(new Animated.Value(400)).current
+
+    useEffect(() => {
+        if (mostrarModal) {
+            Animated.timing(translateY, {
+                toValue: 0,
+                duration: 300,
+                useNativeDriver: false,
+            }).start()
+        } else {
+            Animated.timing(translateY, {
+                toValue: 400,
+                duration: 300,
+                useNativeDriver: false,
+            }).start()
+        }
+    }, [mostrarModal])
 
     useEffect(() => {
         cargarDatos()
@@ -129,11 +149,11 @@ function Grupo() {
 
                 <View style={styles.tituloSeparador}>
                     <Iconos
-                        size={42}
+                        size={36}
                         icono={
                             <Ionicons
                                 name="calendar"
-                                size={24}
+                                size={25}
                                 color="#000000"
                             />
                         }
@@ -165,8 +185,8 @@ function Grupo() {
 
                 <View style={styles.tituloSeparador}>
                     <Iconos
-                        size={42}
-                        icono={<MaterialCommunityIcons name="lightbulb-variant" size={24} color="#000000" />
+                        size={36}
+                        icono={<MaterialCommunityIcons name="lightbulb-variant" size={25} color="#000000" />
                         }
                     />
                     <Text style={styles.textoTitulo}>Propuestas</Text>
@@ -198,54 +218,70 @@ function Grupo() {
                 <Modal
                     visible={mostrarModal}
                     transparent
-                    animationType="fade"
-                    onRequestClose={() =>
-                        setMostrarModal(false)
-                    }
+                    animationType="none"
+                    onRequestClose={() => setMostrarModal(false)}
                 >
-                    <View style={styles.modalOverlay}>
-                        <View style={styles.modal}>
-
+                    <Pressable
+                        style={styles.modalOverlay}
+                        onPress={() => setMostrarModal(false)}
+                    >
+                        <Animated.View
+                            style={[
+                                styles.bottomSheet,
+                                { transform: [{ translateY }] }
+                            ]}
+                        >
                             <Pressable
-                                onPress={() =>
-                                    setMostrarModal(false)
-                                }
+                                onPress={() => { }}
                             >
-                                <Text>Cerrar</Text>
-                            </Pressable>
+                                <View style={styles.sheetHandle} />
 
-                            <Pressable
-                                onPress={() => {
-                                    setMostrarModal(false)
-
-                                    navigation.navigate(
-                                        'ProponerJuntada',
-                                        { idGrupo }
-                                    )
-                                }}
-                            >
-                                <Text>
-                                    Proponer Juntada
+                                <Text style={styles.sheetTitulo}>
+                                    Crear
                                 </Text>
+
+                                <TouchableOpacity
+                                    style={styles.sheetBoton}
+                                    onPress={() => {
+                                        setMostrarModal(false)
+
+                                        navigation.navigate(
+                                            'ProponerJuntada',
+                                            { idGrupo }
+                                        )
+                                    }}
+                                >
+                                    <View style={styles.sheetBotonTexto}>
+                                        <IconBulbFilled size={35} />
+                                        <View style={styles.textosModal}>
+                                            <Text style={styles.tituloModal}>Proponer juntadas</Text>
+                                            <Text style={styles.subtituloModal}>El grupo vota fechas, lugares y mas</Text>
+                                        </View>
+                                    </View>
+                                </TouchableOpacity>
+
+                                <View style={styles.sheetBotonDisabled}>
+                                    <View style={styles.sheetBotonTexto}>
+                                        <IconCalendarEventFilled
+                                            size={35}
+                                            color="#727272"
+                                        />
+
+                                        <View style={styles.textosModal}>
+                                            <Text style={styles.tituloModalDisabled}>
+                                                Crear evento
+                                            </Text>
+
+                                            <Text style={styles.subtituloModalDisabled}>
+                                                Sin votaciones, fecha fija
+                                            </Text>
+                                        </View>
+                                    </View>
+                                </View>
+
                             </Pressable>
-
-                            <Pressable
-                                onPress={() => {
-                                    setMostrarModal(false)
-
-                                    navigation.navigate(
-                                        'CrearEvento',
-                                        { idGrupo }
-                                    )
-                                }}
-                            >
-                                <Text>
-                                    Crear Evento
-                                </Text>
-                            </Pressable>
-
-                        </View>
-                    </View>
+                        </Animated.View>
+                    </Pressable>
                 </Modal>
             </ScrollView>
 
@@ -255,6 +291,26 @@ function Grupo() {
 }
 
 const styles = StyleSheet.create({
+    /* TEMPORAL POR LA DEMO */
+    sheetBotonDisabled: {
+        backgroundColor: '#2E2E2E',
+        padding: 16,
+        borderRadius: 14,
+        marginBottom: 12,
+        opacity: 0.7
+    },
+
+    tituloModalDisabled: {
+        color: '#727272',
+        fontFamily: 'CashMarket',
+        marginBottom: 5
+    },
+
+    subtituloModalDisabled: {
+        color: '#727272',
+        fontFamily: 'Utendo'
+    },
+    /* TEMPORAL POR LA DEMO */
     container: {
         flex: 1,
         backgroundColor: '#15151C',
@@ -280,24 +336,48 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         backgroundColor: '#B514F6'
     },
-
     textoMas: {
         color: 'white',
         fontSize: 30
     },
-
     modalOverlay: {
         flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-        backgroundColor: 'rgba(0,0,0,0.5)'
+        justifyContent: 'flex-end',
+        backgroundColor: 'rgba(0,0,0,0.45)',
     },
-
-    modal: {
-        width: '80%',
-        padding: 20,
-        borderRadius: 15,
-        backgroundColor: 'white'
+    bottomSheet: {
+        backgroundColor: '#23232D',
+        borderTopLeftRadius: 25,
+        borderTopRightRadius: 25,
+        padding: 25,
+        paddingBottom: 40,
+    },
+    sheetHandle: {
+        width: 50,
+        height: 5,
+        backgroundColor: '#666',
+        borderRadius: 10,
+        alignSelf: 'center',
+        marginBottom: 20,
+    },
+    sheetTitulo: {
+        color: 'white',
+        fontSize: 22,
+        fontFamily: 'CashMarket',
+        marginBottom: 20,
+    },
+    sheetBoton: {
+        backgroundColor: '#4A216F',
+        padding: 16,
+        borderRadius: 14,
+        marginBottom: 12,
+    },
+    sheetBotonTexto: {
+        color: 'white',
+        fontSize: 16,
+        fontFamily: 'Utendo',
+        flexDirection: 'row',
+        alignItems: 'center',
     },
     loadingContainer: {
         flex: 1,
@@ -317,12 +397,17 @@ const styles = StyleSheet.create({
         fontSize: 20,
         flex: 1
     },
+    textosModal: {
+        marginLeft: 10
+    },
     botonCrear: {
         flexDirection: 'row',
         alignItems: 'center',
         gap: 6,
         backgroundColor: '#57C7A3',
-        padding: 6,
+        padding: 7,
+        paddingLeft: 10,
+        paddingRight: 10,
         borderRadius: 8
     },
     botonCrearTexto: {
@@ -330,6 +415,15 @@ const styles = StyleSheet.create({
         fontSize: 15,
         fontFamily: 'CashMarket',
     },
+    tituloModal: {
+        color: 'white',
+        fontFamily: 'CashMarket',
+        marginBottom: 5
+    },
+    subtituloModal: {
+        color: '#b6b6b6',
+        fontFamily: 'Utendo'
+    }
 })
 
 export default Grupo

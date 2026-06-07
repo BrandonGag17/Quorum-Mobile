@@ -1,6 +1,6 @@
 import { View, StyleSheet } from 'react-native'
 
-function Iconos ({ icono, size = 48 }) {
+function Iconos ({ icono, size }) {
     return (
         <View style={[styles.circulo, { width: size, height: size, borderRadius: size / 2 }]}>
             {icono}
