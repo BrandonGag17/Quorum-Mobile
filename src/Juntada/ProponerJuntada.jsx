@@ -5,10 +5,15 @@ import {
     TextInput,
     Pressable,
     ScrollView,
-    Platform
+    Platform,
+    StyleSheet
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import supabase from '../supabaseClient';
+import supabase from '../supabaseClient'
+import InputApp from '../Utilidades/InputApp'
+import ButtonApp from '../Utilidades/BotonesApp'
+import IndicadorPasos from '../Utilidades/IndicadorPasos'
+import Navbar from '../Utilidades/Navbar'
 
 const DateTimePicker =
     Platform.OS !== 'web'
@@ -30,6 +35,9 @@ function ProponerJuntada({ route, onCreado }) {
         useState('');
     const [descripcion, setDescripcion] =
         useState('');
+    const [cargando, setCargando] =
+        useState(false)
+
 
     // PASO 2
     const [opcionesFechas, setOpcionesFechas] =
@@ -306,47 +314,48 @@ function ProponerJuntada({ route, onCreado }) {
 
     if (paso === 'paso1') {
         return (
-            <View>
-                <Text>
-                    Nombre de la juntada:
-                </Text>
+            <View style={styles.fondo}>
 
-                <TextInput
-                    value={
-                        nombreJuntada
-                    }
-                    onChangeText={
-                        setNombreJuntada
-                    }
-                />
+                <View style={styles.contenedorIndicador}>
+                    <IndicadorPasos
+                        pasoActual={1}
+                        totalPasos={3}
+                    />
+                </View>
 
-                <Text>
-                    Descripción:
-                </Text>
-
-                <TextInput
-                    value={
-                        descripcion
-                    }
-                    onChangeText={
-                        setDescripcion
-                    }
-                />
-
-                <Pressable
-                    onPress={() =>
-                        setPaso(
-                            'paso2'
-                        )
-                    }
-                    disabled={
-                        !nombreJuntada
-                    }
-                >
-                    <Text>
-                        Continuar
+                <View style={styles.formulario}>
+                    <Text style={styles.text}>
+                        Nombre de la juntada:
                     </Text>
-                </Pressable>
+
+                    <InputApp
+                        value={nombreJuntada}
+                        onChangeText={setNombreJuntada}
+                    />
+
+                    <View style={styles.SeparadorInputs}>
+                        <Text style={styles.text}>
+                            Descripción (Opcional):
+                        </Text>
+
+                        <InputApp
+                            value={descripcion}
+                            onChangeText={setDescripcion}
+                        />
+                    </View>
+                </View>
+
+                <View style={styles.botonContainer}>
+                    <ButtonApp
+                        nombre={cargando ? 'Cargando...' : 'Continuar'}
+                        onPress={() => {
+                            setPaso('paso2')
+                        }}
+                        disabled={cargando || !nombreJuntada}
+                    />
+                </View>
+                <Navbar pantallaActual="Inicio" />
+
             </View>
         );
     }
@@ -357,163 +366,94 @@ function ProponerJuntada({ route, onCreado }) {
 
     if (paso === 'paso2') {
         return (
-            <ScrollView>
-                <Text>
-                    Sugerir Fechas y Horarios
-                </Text>
+            <View style={styles.fondo}>
 
-                {Platform.OS ===
-                    'web' ? (
-                    <input
-                        type="datetime-local"
-                        value={
-                            fechaWeb
-                        }
-                        onChange={e =>
-                            setFechaWeb(
-                                e.target
-                                    .value
-                            )
-                        }
-                    />
-                ) : (
-                    <Pressable
-                        onPress={() => {
-                            setPickerMode(
-                                'date'
-                            );
+                <View style={styles.contenedorIndicador}>
+                    <IndicadorPasos pasoActual={2} totalPasos={3} />
+                </View>
 
-                            setShowPicker(
-                                true
-                            );
-                        }}
-                    >
-                        <Text>
-                            {fechaTextoTemporal ||
-                                'Seleccionar fecha...'}
-                        </Text>
-                    </Pressable>
-                )}
+                <ScrollView style={{ marginTop: 110 }}>
+                    <Text style={styles.text}>Sugerir Fechas y Horarios</Text>
 
-                <Pressable
-                    onPress={
-                        añadirFecha
-                    }
-                >
-                    <Text>
-                        + Agregar fecha
-                    </Text>
-                </Pressable>
-
-                {opcionesFechas.map(
-                    f => (
-                        <View
-                            key={f}
-                        >
-                            <Text>
-                                {f}
-                            </Text>
-
-                            <Pressable
-                                onPress={() =>
-                                    eliminarItem(
-                                        opcionesFechas,
-                                        setOpcionesFechas,
-                                        f
-                                    )
-                                }
-                            >
-                                <Text>
-                                    X
-                                </Text>
-                            </Pressable>
-                        </View>
-                    )
-                )}
-
-                <Text>
-                    Sugerir Lugares
-                </Text>
-
-                <TextInput
-                    placeholder="Nombre del lugar..."
-                    value={
-                        lugarTemporal
-                    }
-                    onChangeText={
-                        setLugarTemporal
-                    }
-                />
-
-                <Pressable
-                    onPress={
-                        añadirLugar
-                    }
-                >
-                    <Text>
-                        + Agregar lugar
-                    </Text>
-                </Pressable>
-
-                {opcionesLugares.map(
-                    l => (
-                        <View
-                            key={l}
-                        >
-                            <Text>
-                                {l}
-                            </Text>
-
-                            <Pressable
-                                onPress={() =>
-                                    eliminarItem(
-                                        opcionesLugares,
-                                        setOpcionesLugares,
-                                        l
-                                    )
-                                }
-                            >
-                                <Text>
-                                    X
-                                </Text>
-                            </Pressable>
-                        </View>
-                    )
-                )}
-
-                {showPicker &&
-                    DateTimePicker && (
-                        <DateTimePicker
-                            value={
-                                date
-                            }
-                            mode={
-                                Platform.OS ===
-                                    'ios'
-                                    ? 'datetime'
-                                    : pickerMode
-                            }
-                            is24Hour={
-                                true
-                            }
-                            onChange={
-                                onChangeNativo
-                            }
+                    {Platform.OS === 'web' ? (
+                        <input
+                            type="datetime-local"
+                            value={fechaWeb}
+                            onChange={e => setFechaWeb(e.target.value)}
+                            style={{
+                                borderRadius: 15,
+                                border: '2px solid #979797',
+                                backgroundColor: '#5D157E',
+                                padding: 15,
+                                color: 'white',
+                                width: '100%',
+                                boxSizing: 'border-box',
+                                fontFamily: 'Utendo',
+                                fontSize: 16,
+                                colorScheme: 'dark',
+                                marginTop: 10
+                            }}
                         />
+                    ) : (
+                        <Pressable onPress={() => { setPickerMode('date'); setShowPicker(true); }}>
+                            <Text>{fechaTextoTemporal || 'Seleccionar fecha...'}</Text>
+                        </Pressable>
                     )}
 
-                <Pressable
-                    onPress={() =>
-                        setPaso(
-                            'paso3'
-                        )
-                    }
-                >
-                    <Text>
-                        Siguiente
-                    </Text>
-                </Pressable>
-            </ScrollView>
+                    <Pressable onPress={añadirFecha}>
+                        <InputApp placeholder="+ Agregar fecha" />
+                    </Pressable>
+
+                    {opcionesFechas.map(f => (
+                        <View key={f}>
+                            <Text style={{ color: 'white' }}>{f}</Text>
+                            <Pressable onPress={() => eliminarItem(opcionesFechas, setOpcionesFechas, f)}>
+                                <Text style={{ color: 'white' }}>X</Text>
+                            </Pressable>
+                        </View>
+                    ))}
+
+                    <Text style={[styles.text, { marginTop: 20 }]}>Sugerir Lugares</Text>
+                    <InputApp
+                        placeholder="Nombre del lugar..."
+                        value={lugarTemporal}
+                        onChangeText={setLugarTemporal}
+                        containerStyle={{ marginBottom: 0 }}
+                    />
+
+                    <Pressable onPress={añadirLugar}>
+                        <InputApp placeholder="+ Agregar lugar" />
+                    </Pressable>
+
+                    {opcionesLugares.map(l => (
+                        <View key={l}>
+                            <Text style={{ color: 'white' }}>{l}</Text>
+                            <Pressable onPress={() => eliminarItem(opcionesLugares, setOpcionesLugares, l)}>
+                                <Text style={{ color: 'white' }}>X</Text>
+                            </Pressable>
+                        </View>
+                    ))}
+
+                    {showPicker && DateTimePicker && (
+                        <DateTimePicker
+                            value={date}
+                            mode={Platform.OS === 'ios' ? 'datetime' : pickerMode}
+                            is24Hour={true}
+                            onChange={onChangeNativo}
+                        />
+                    )}
+                </ScrollView>
+
+                <View style={styles.botonContainer}>
+                    <ButtonApp
+                        nombre={cargando ? 'Cargando...' : 'Continuar'}
+                        onPress={() => setPaso('paso3')}
+                        disabled={cargando}
+                    />
+                </View>
+
+                <Navbar pantallaActual="Inicio" />
+            </View>
         );
     }
 
@@ -522,11 +462,13 @@ function ProponerJuntada({ route, onCreado }) {
     // -------------------------
 
     return (
-        <View>
-            <Text>
-                ¿Cuándo cierra la
-                votación?
-            </Text>
+        <View style={styles.fondo}>
+
+            <View style={styles.contenedorIndicador}>
+                <IndicadorPasos pasoActual={3} totalPasos={3} />
+            </View>
+            
+<Text style={[styles.text, { marginTop: 110 }]}>¿Cuándo cierra la votación?</Text>
 
             {Platform.OS ===
                 'web' ? (
@@ -568,29 +510,51 @@ function ProponerJuntada({ route, onCreado }) {
                 />
             )}
 
-            <Pressable
-                onPress={
-                    manejarSubmitFinal
-                }
-            >
-                <Text>
-                    Crear Propuesta
-                </Text>
-            </Pressable>
+            <View style={styles.botonContainer}>
+                <ButtonApp
+                    nombre={cargando ? 'Cargando...' : 'Volver'}
+                    onPress={() => setPaso('paso2')}
+                    disabled={cargando}
+                />
+                <ButtonApp
+                    nombre={cargando ? 'Cargando...' : 'Crear Propuesta'}
+                    onPress={manejarSubmitFinal}
+                    disabled={cargando}
+                />
+            </View>
 
-            <Pressable
-                onPress={() =>
-                    setPaso(
-                        'paso2'
-                    )
-                }
-            >
-                <Text>
-                    Volver
-                </Text>
-            </Pressable>
+            <Navbar pantallaActual="Inicio" />
         </View>
     );
 }
 
-export default ProponerJuntada;
+const styles = StyleSheet.create({
+    fondo: {
+        flex: 1,
+        backgroundColor: '#15151C',
+        padding: 25,
+        justifyContent: 'center'
+    },
+    text: {
+        fontFamily: 'CashMarket',
+        color: 'white'
+    },
+    contenedorIndicador: {
+        position: 'absolute',
+        top: 25,
+        left: 25,
+        right: 25,
+    },
+    formulario: {
+        marginTop: 140
+    },
+    botonContainer: {
+        marginTop: 'auto',
+        marginBottom: 70
+    },
+    SeparadorInputs: {
+        marginTop: 10
+    }
+})
+
+export default ProponerJuntada

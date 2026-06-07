@@ -2,9 +2,11 @@ import { View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native'
 import Checkbox from 'expo-checkbox'
 import { IconMailFilled, IconLockFilled, IconUserFilled } from '@tabler/icons-react-native'
 import { useState } from 'react'
+import { useNavigation } from '@react-navigation/native'
 import Button from '../Utilidades/Botones'
 import Input from '../Utilidades/Input'
 import supabase from '../supabaseClient'
+import ErrorMessage from '../Utilidades/MensajeError'
 
 function Registrarse() {
     const [isChecked, setChecked] = useState(false)
@@ -14,17 +16,76 @@ function Registrarse() {
     const [mensaje, setMensaje] = useState('')
     const [cargando, setCargando] = useState(false)
 
-    const handleSubmit = async () => {
-        setCargando(true)
+    const navigation = useNavigation()
+
+    const continuar = async () => {
         setMensaje('')
+        const emailValido = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
 
-        const { error } = await supabase.auth.signInWithPassword({ email, password })
-
-        if (error) {
-            setMensaje('Error: ' + error.message)
+        if (!email.trim()) {
+            setMensaje('Ingresá un email')
+            return
         }
 
-        setCargando(false)
+        if (!emailValido) {
+            setMensaje('Ingresá un email válido')
+            return
+        }
+
+        if (!usuario.trim()) {
+            setMensaje('Ingresá un nombre de usuario')
+            return
+        }
+
+        if (!password.trim()) {
+            setMensaje('Ingresá una contraseña')
+            return
+        }
+
+        if (password.length < 8) {
+            setMensaje('La contraseña debe tener al menos 8 caracteres')
+            return
+        }
+
+        if (!isChecked) {
+            setMensaje('Debés aceptar los términos y condiciones')
+            return
+        }
+
+        try {
+            setCargando(true)
+
+            const { data: usuarioExistente } = await supabase
+                .from('usuario')
+                .select('id')
+                .eq('username', usuario.trim())
+                .maybeSingle()
+
+            if (usuarioExistente) {
+                setMensaje('Ese nombre de usuario ya está en uso')
+                return
+            }
+
+            const { data: emailExistente } = await supabase
+                .from('usuario')
+                .select('id')
+                .eq('email', email.trim())
+                .maybeSingle()
+
+            if (emailExistente) {
+                setMensaje('Ese email ya está registrado')
+                return
+            }
+
+            navigation.navigate('Registrarse2', {
+                email: email.trim(),
+                usuario: usuario.trim(),
+                password
+            })
+            
+        } finally {
+            setCargando(false)
+        }
     }
 
     const handleGoogle = async () => {
@@ -39,11 +100,11 @@ function Registrarse() {
         <View style={styles.fondo}>
             <Text style={styles.titulo}>Registrarse</Text>
 
-            <Input label="Email:" placeholder="tu@gmail.com" value={email} onChangeText={setEmail} Icon={IconMailFilled} keyboardType="email-address" autoCapitalize="none" />
+            <Input label="Email:" placeholder="tu@gmail.com" value={email} onChangeText={setEmail} Icon={IconMailFilled} keyboardType="email-address" autoCapitalize="none" autoComplete="email" textContentType="emailAddress" />
 
-            <Input label="Nombre de usuario:" placeholder="tuusuario123" value={usuario} onChangeText={setUsuario} Icon={IconUserFilled} />
+            <Input label="Nombre de usuario:" placeholder="tuusuario123" value={usuario} onChangeText={setUsuario} Icon={IconUserFilled} autoComplete="username" textContentType="username" />
 
-            <Input label="Contraseña:" placeholder="*******" value={password} onChangeText={setPassword} secureTextEntry={true} Icon={IconLockFilled} />
+            <Input label="Contraseña:" placeholder="*******" value={password} onChangeText={setPassword} secureTextEntry={true} Icon={IconLockFilled} autoComplete="new-password" textContentType="newPassword" />
 
             <View style={styles.checkbox}>
                 <Checkbox value={isChecked} onValueChange={setChecked} />
@@ -51,10 +112,14 @@ function Registrarse() {
             </View>
 
             {mensaje ? (
-                <ErrorMessage mensaje="Email o contraseña incorrectos" />
+                <ErrorMessage mensaje={mensaje} />
             ) : null}
 
-            <Button nombre={cargando ? 'Cargando...' : 'Continuar'} onPress={() => navigation.navigate('Registrarse2')} disabled={cargando} />
+            <Button
+                nombre={cargando ? 'Cargando...' : 'Continuar'}
+                onPress={continuar}
+                disabled={cargando}
+            />
 
             <View style={styles.separador}>
                 <View style={styles.linea} />

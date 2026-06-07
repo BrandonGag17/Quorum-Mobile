@@ -1,4 +1,5 @@
 import { StyleSheet, Text, View, Image } from 'react-native'
+import { SafeAreaView } from 'react-native-safe-area-context'
 import Button from '../Utilidades/Botones'
 import { useNavigation } from '@react-navigation/native'
 
@@ -6,7 +7,7 @@ function Introduccion() {
     const navigation = useNavigation()
 
     return (
-        <View style={styles.inicio}>
+        <SafeAreaView style={styles.inicio}>
             <Image
                 source={require('../../assets/img/Logos/IsotipoSinFondo.png')}
                 style={styles.logo}
@@ -17,7 +18,7 @@ function Introduccion() {
 
             <Button nombre="Iniciar sesión" onPress={() => navigation.navigate('IniciarSesion')} />
             <Button nombre="Registrarse" onPress={() => navigation.navigate('Registrarse')} />
-        </View>
+        </SafeAreaView>
     )
 }
 

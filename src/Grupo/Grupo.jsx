@@ -11,6 +11,7 @@ import {
     ScrollView,
     Animated
 } from 'react-native'
+import { SafeAreaView } from 'react-native-safe-area-context'
 
 import { useRoute, useNavigation } from '@react-navigation/native'
 import supabase from '../supabaseClient'
@@ -18,6 +19,7 @@ import supabase from '../supabaseClient'
 import Navbar from '../Utilidades/Navbar'
 import Iconos from '../Utilidades/Iconos'
 import CardJuntadas from '../Utilidades/CardJuntadas'
+import BotonVolver from '../Utilidades/BotonVolver'
 
 import Ionicons from '@expo/vector-icons/Ionicons'
 import { IconBulbFilled, IconCalendarEventFilled } from '@tabler/icons-react-native';
@@ -125,7 +127,7 @@ function Grupo() {
 
     if (cargando) {
         return (
-            <View style={styles.loadingContainer}>
+            <SafeAreaView style={styles.loadingContainer}>
                 <ActivityIndicator
                     size="large"
                     color="#B514F6"
@@ -133,16 +135,17 @@ function Grupo() {
 
 
                 <Navbar pantallaActual="Inicio" />
-            </View>
+            </SafeAreaView>
         )
     }
 
     return (
-        <View style={styles.container}>
+        <SafeAreaView style={styles.container}>
             <ScrollView
                 showsVerticalScrollIndicator={false}
                 contentContainerStyle={{ paddingBottom: 100 }}
             >
+                <BotonVolver />
                 <Text style={styles.nombreGrupo}>
                     {grupo?.nombre || 'Grupo sin nombre'}
                 </Text>
@@ -286,7 +289,7 @@ function Grupo() {
             </ScrollView>
 
             <Navbar pantallaActual="Inicio" />
-        </View>
+        </SafeAreaView>
     )
 }
 

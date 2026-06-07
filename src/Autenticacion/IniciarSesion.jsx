@@ -1,4 +1,5 @@
 import { View, Text, StyleSheet, TextInput, TouchableOpacity, Image } from 'react-native'
+import { SafeAreaView } from 'react-native-safe-area-context'
 import { IconMailFilled, IconLockFilled } from '@tabler/icons-react-native'
 import { useNavigation } from '@react-navigation/native'
 import { useState } from 'react'
@@ -41,11 +42,31 @@ function IniciarSesion() {
     }
 
     return (
-        <View style={styles.fondo}>
+        <SafeAreaView style={styles.fondo}>
             <Text style={styles.titulo}>Iniciar sesión</Text>
 
-            <Input label="Email:" placeholder="tu@gmail.com" value={email} onChangeText={setEmail} keyboardType="email-address" autoCapitalize="none" Icon={IconMailFilled} />
-            <Input label="Contraseña:" placeholder="********" value={password} onChangeText={setPassword} secureTextEntry Icon={IconLockFilled} />
+            <Input
+                label="Email:"
+                placeholder="tu@gmail.com"
+                value={email}
+                onChangeText={setEmail}
+                keyboardType="email-address"
+                autoCapitalize="none"
+                autoComplete="email"
+                textContentType="emailAddress"
+                Icon={IconMailFilled}
+            />
+
+            <Input
+                label="Contraseña:"
+                placeholder="********"
+                value={password}
+                onChangeText={setPassword}
+                secureTextEntry
+                autoComplete="password"
+                textContentType="password"
+                Icon={IconLockFilled}
+            />
             <Text style={styles.olvido}>¿Olvidaste tu contraseña?</Text>
 
             {mensaje ? (
@@ -66,7 +87,7 @@ function IniciarSesion() {
             </TouchableOpacity>
 
             {mensaje ? <Text>{mensaje}</Text> : null}
-        </View>
+        </SafeAreaView>
     )
 }
 

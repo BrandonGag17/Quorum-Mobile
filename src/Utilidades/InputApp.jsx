@@ -1,16 +1,8 @@
 import { View, Text, StyleSheet, TextInput } from 'react-native'
 
-function Input({
-    label,
-    placeholder,
-    value,
-    onChangeText,
-    secureTextEntry = false,
-    Icon,
-    ...props
-}) {
+function InputApp({ label, placeholder, value, onChangeText, secureTextEntry = false, Icon, containerStyle }) {
     return (
-        <View style={styles.container}>
+        <View style={[styles.container, containerStyle]}>
             <View style={styles.iconoTexto}>
                 {Icon && <Icon color="#FFFFFF" size={28} />}
                 <Text style={styles.texto}>{label}</Text>
@@ -23,7 +15,6 @@ function Input({
                 value={value}
                 onChangeText={onChangeText}
                 secureTextEntry={secureTextEntry}
-                {...props}
             />
         </View>
     )
@@ -49,12 +40,12 @@ const styles = StyleSheet.create({
 
     input: {
         borderRadius: 15,
-        borderColor: '#4F4F55',
+        borderColor: '#979797',
         borderWidth: 2,
-        backgroundColor: '#2A2A2E',
+        backgroundColor: '#5D157E',
         padding: 15,
         color: 'white',
     }
 })
 
-export default Input
+export default InputApp

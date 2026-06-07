@@ -1,11 +1,12 @@
 import { StyleSheet, Text, View } from 'react-native'
+import { SafeAreaView } from 'react-native-safe-area-context'
 import Navbar from './Utilidades/Navbar'
 
 export default function Recomendaciones() {
     return (
-        <View style={styles.fondo}>
+        <SafeAreaView style={styles.fondo}>
             <Navbar pantallaActual="Recomendaciones" />
-        </View>
+        </SafeAreaView>
     )
 }
 

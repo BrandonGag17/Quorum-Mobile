@@ -1,44 +1,59 @@
 import { View, Text, StyleSheet, TextInput } from 'react-native'
+import { SafeAreaView } from 'react-native-safe-area-context'
 import { IconMailFilled, IconLockFilled, IconUserFilled } from '@tabler/icons-react-native'
 import { useState } from 'react'
 import { useNavigation } from '@react-navigation/native'
+import { useRoute } from '@react-navigation/native'
 import Button from '../Utilidades/Botones'
 import Input from '../Utilidades/Input'
 
 function Registrarse2() {
     const navigation = useNavigation()
 
+    const route = useRoute()
+    const { email, usuario, password } = route.params
+
     const [nombre, setNombre] = useState('')
     const [apellido, setApellido] = useState('')
-
     const [mensaje, setMensaje] = useState('')
     const [cargando, setCargando] = useState(false)
 
-    const handleSubmit = async () => {
-        setCargando(true)
+    const handleSubmit = () => {
         setMensaje('')
 
-        try {
-            //completar con backend
-
-            navigation.navigate('Registrarse3')
-        } catch (error) {
-            setMensaje(error.message)
-        } finally {
-            setCargando(false)
+        if (!nombre.trim()) {
+            setMensaje('Ingresá tu nombre')
+            return
         }
+
+        if (!apellido.trim()) {
+            setMensaje('Ingresá tu apellido')
+            return
+        }
+
+        navigation.navigate('Registrarse3', {
+            email,
+            usuario,
+            password,
+            nombre: nombre.trim(),
+            apellido: apellido.trim()
+        })
     }
 
     return (
-        <View style={styles.fondo}>
+        <SafeAreaView style={styles.fondo}>
             <Text style={styles.titulo}>Registrarse</Text>
 
-            <Input label="Nombre:" value={nombre} onChangeText={setNombre} /* Icon={IconMailFilled} *//>
+            <Input label="Nombre:" value={nombre} onChangeText={setNombre} /* Icon={IconMailFilled} */ />
 
             <Input label="Apellido:" value={apellido} onChangeText={setApellido} /*Icon={IconUserFilled}*/ />
 
-            <Button nombre={cargando ? 'Cargando...' : 'Continuar'} onPress={() => navigation.navigate('Registrarse3')} disabled={cargando}/>
-        </View>
+            <Button
+                nombre={cargando ? 'Cargando...' : 'Continuar'}
+                onPress={handleSubmit}
+                disabled={cargando}
+            />
+        </SafeAreaView>
 
     )
 }

@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { View, Text, TouchableOpacity, Image, FlatList, StyleSheet, TextInput, ScrollView, Modal } from 'react-native'
+import { SafeAreaView } from 'react-native-safe-area-context'
 import { useNavigation } from '@react-navigation/native'
 import supabase from './supabaseClient'
 import Navbar from './Utilidades/Navbar'
@@ -84,7 +85,7 @@ function Inicio() {
     )
 
     return (
-        <View style={styles.fondo}>
+        <SafeAreaView style={styles.fondo}>
             <ScrollView
                 showsVerticalScrollIndicator={false}
                 contentContainerStyle={styles.contenido}
@@ -179,35 +180,36 @@ function Inicio() {
                     }}
                 />
 
-                <Modal
-                    visible={mostrarModal}
-                    transparent
-                    animationType="fade"
-                    onRequestClose={() => setMostrarModal(false)}
-                >
-                    <View style={styles.modalOverlay}>
-                        <View style={styles.modal}>
-                            <View style={styles.headerModal}>
-                                <Text style={styles.modalTitulo}>Crear grupo</Text>
+                {mostrarModal && (
+                    <Modal
+                        visible={mostrarModal}
+                        transparent
+                        animationType="fade"
+                        onRequestClose={() => setMostrarModal(false)}
+                    >
+                        <View style={styles.modalOverlay}>
+                            <View style={styles.modal}>
+                                <View style={styles.headerModal}>
+                                    <Text style={styles.modalTitulo}>Crear grupo</Text>
 
-                                <TouchableOpacity onPress={() => setMostrarModal(false)}>
-                                    <Text style={styles.botonCerrar}>✕</Text>
-                                </TouchableOpacity>
+                                    <TouchableOpacity onPress={() => setMostrarModal(false)}>
+                                        <Text style={styles.botonCerrar}>✕</Text>
+                                    </TouchableOpacity>
+                                </View>
+                                <CrearGrupo
+                                    onGrupoCreado={() => {
+                                        setMostrarModal(false)
+                                        cargarGrupos()
+                                    }}
+                                />
                             </View>
-                            <CrearGrupo
-                                onGrupoCreado={() => {
-                                    setMostrarModal(false)
-                                    cargarGrupos()
-                                }}
-                            />
                         </View>
-                    </View>
-                </Modal>
-
+                    </Modal>
+                )}
             </ScrollView>
 
             <Navbar pantallaActual="Inicio" />
-        </View>
+        </SafeAreaView>
     )
 
 }
