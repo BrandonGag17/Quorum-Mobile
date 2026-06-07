@@ -15,6 +15,7 @@ import Configuracion from './src/Configuracion'
 import Grupo from './src/Grupo/Grupo'
 import Juntada from './src/Juntada/Juntada'
 import ProponerJuntada from './src/Juntada/ProponerJuntada'
+import CrearGrupo from './src/Grupo/CrearGrupo'
 
 const Stack = createNativeStackNavigator()
 

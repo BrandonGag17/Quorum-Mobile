@@ -8,6 +8,7 @@ import Ionicons from '@expo/vector-icons/Ionicons'
 import Feather from '@expo/vector-icons/Feather'
 import CardJuntadas from './Utilidades/CardJuntadas'
 import { IconUserFilled } from '@tabler/icons-react-native';
+import CrearGrupo from './Grupo/CrearGrupo'
 
 function Inicio() {
     const navigation = useNavigation()
@@ -32,7 +33,17 @@ function Inicio() {
 
         const { data, error } = await supabase
             .from('usuario_grupo')
-            .select('id_grupo, grupo(*)')
+            .select(`
+        id_grupo,
+        grupo (
+            *,
+            usuario_grupo (
+                usuario (
+                    username
+                )
+            )
+        )
+    `)
             .eq('id_usuario', user.id)
 
         if (error) {
@@ -99,7 +110,7 @@ function Inicio() {
                     />
                     <Text style={styles.textoTitulo}>Proximas juntadas</Text>
                 </View>
-                
+
                 {eventosConfirmados.length > 0 ? (
                     eventosConfirmados.map(e => (
                         <CardJuntadas
@@ -116,7 +127,7 @@ function Inicio() {
                 <View style={styles.tituloSeparador}>
                     <Iconos
                         size={36}
-                        icono={<IconUserFilled name="users" size={25} color="#000000" />}
+                        icono={<IconUserFilled size={25} color="#000000" />}
                     />
                     <Text style={styles.textoTitulo}>Grupos</Text>
 
@@ -130,45 +141,68 @@ function Inicio() {
                     scrollEnabled={false}
                     data={grupos}
                     keyExtractor={(item) => item.id_grupo.toString()}
-                    renderItem={({ item }) => (
-                        <TouchableOpacity style={styles.grupoCard} onPress={() => navigation.navigate('Grupo', {
-                            idGrupo: item.id_grupo
-                        })}>
-                            <Image source={{ uri: item.grupo?.foto_perfil }} style={styles.fotoGrupo} />
+                    renderItem={({ item }) => {
+                        const integrantes = item.grupo?.usuario_grupo
+                            ?.map(m => m.usuario?.username)
+                            .filter(Boolean)
+                            .join(', ')
 
-                            <Image
-                                source={require('../assets/img/amiguis.jpg')}
-                                style={styles.imagen}
-                            />
-                            <View style={styles.grupoInfo}>
-                                <Text style={styles.grupoNombre}>
-                                    {item.grupo?.nombre}
-                                </Text>
+                        return (
+                            <TouchableOpacity
+                                style={styles.grupoCard}
+                                onPress={() =>
+                                    navigation.navigate('Grupo', {
+                                        idGrupo: item.id_grupo
+                                    })
+                                }
+                            >
+                                <Image
+                                    source={
+                                        item.grupo?.foto_perfil
+                                            ? { uri: item.grupo.foto_perfil }
+                                            : require('../assets/img/amiguis.jpg')
+                                    }
+                                    style={styles.imagen}
+                                />
 
-                                <Text style={styles.grupoIntegrantes}>martu, martu, martu y yo</Text>
-                            </View>
+                                <View style={styles.grupoInfo}>
+                                    <Text style={styles.grupoNombre}>
+                                        {item.grupo?.nombre}
+                                    </Text>
 
-                        </TouchableOpacity>
-                    )}
+                                    <Text style={styles.grupoIntegrantes}>
+                                        {integrantes}
+                                    </Text>
+                                </View>
+                            </TouchableOpacity>
+                        )
+                    }}
                 />
 
                 <Modal
-                visible={mostrarModal}
-                transparent={true}
-                onRequestClose={() => setMostrarModal(false)}
-            >
-                <TouchableOpacity onPress={() => setMostrarModal(false)}>
-                    <View>
-                        <TouchableOpacity onPress={() => { }}>
-                            <View>
+                    visible={mostrarModal}
+                    transparent
+                    animationType="fade"
+                    onRequestClose={() => setMostrarModal(false)}
+                >
+                    <View style={styles.modalOverlay}>
+                        <View style={styles.modal}>
+                            <View style={styles.headerModal}>
+                                <Text style={styles.modalTitulo}>Crear grupo</Text>
+
                                 <TouchableOpacity onPress={() => setMostrarModal(false)}>
-                                    <Text>X</Text>
+                                    <Text style={styles.botonCerrar}>✕</Text>
                                 </TouchableOpacity>
                             </View>
-                        </TouchableOpacity>
+                            <CrearGrupo
+                                onGrupoCreado={() => {
+                                    setMostrarModal(false)
+                                    cargarGrupos()
+                                }}
+                            />
+                        </View>
                     </View>
-                </TouchableOpacity>
-            </Modal>
+                </Modal>
 
             </ScrollView>
 
@@ -268,7 +302,39 @@ const styles = StyleSheet.create({
     },
     contenido: {
         paddingBottom: 20,
-    }
+    },
+    modalOverlay: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: 'rgba(0,0,0,0.5)',
+    },
+
+    modal: {
+        width: '85%',
+        backgroundColor: '#23232D',
+        padding: 20,
+        borderRadius: 20,
+    },
+
+    headerModal: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        marginBottom: 25,
+    },
+
+    modalTitulo: {
+        color: 'white',
+        fontSize: 24,
+        fontFamily: 'CashMarket',
+    },
+
+    botonCerrar: {
+        color: '#B0B0B0',
+        fontSize: 24,
+        fontFamily: 'Utendo',
+    },
 })
 
 export default Inicio
