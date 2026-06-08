@@ -12,13 +12,17 @@ import {
 import Input from '../Utilidades/Input'
 import * as ImagePicker from 'expo-image-picker'
 import supabase from '../supabaseClient'
+import ErrorMessage from '../Utilidades/MensajeError'
+import InputApp from '../Utilidades/InputApp'
+import ButtonApp from '../Utilidades/BotonesApp'
 
 function CrearGrupo({ onGrupoCreado }) {
     const [nombreGrupo, setNombreGrupo] = useState('')
     const [foto, setFoto] = useState(null)
     const [miembroUsername, setMiembroUsername] = useState('')
     const [miembros, setMiembros] = useState([])
-    const [errorMiembro, setErrorMiembro] = useState('')
+    const [mensaje, setMensaje] = useState('')
+    const [cargando, setCargando] = useState(false)
 
     async function seleccionarFoto() {
         const resultado = await ImagePicker.launchImageLibraryAsync({
@@ -33,32 +37,28 @@ function CrearGrupo({ onGrupoCreado }) {
     }
 
     async function agregarMiembro() {
-        if (!miembroUsername.trim()) return
-
-        if (miembros.includes(miembroUsername.trim())) {
-            setErrorMiembro('Ese usuario ya fue agregado')
+        if (!miembroUsername.trim()) {
+            setMensaje('Ingresá un usuario')
             return
         }
 
-        const { data: usuarioEncontrado } = await supabase
+        const {
+            data: usuarioEncontrado
+        } = await supabase
             .from('usuario')
-            .select('id')
-            .eq('username', miembroUsername.trim())
+            .select(`
+            id,
+            username,
+            foto_perfil
+        `)
+            .eq(
+                'username',
+                miembroUsername.trim()
+            )
             .single()
 
         if (!usuarioEncontrado) {
-            setErrorMiembro('El usuario no existe')
-            return
-        }
-
-        setErrorMiembro('')
-        setMiembros([...miembros, miembroUsername.trim()])
-        setMiembroUsername('')
-    }
-
-    async function manejarSubmit() {
-        if (!nombreGrupo.trim()) {
-            Alert.alert('Error', 'Ingresá un nombre para el grupo')
+            setMensaje('El usuario no existe')
             return
         }
 
@@ -66,96 +66,156 @@ function CrearGrupo({ onGrupoCreado }) {
             data: { user }
         } = await supabase.auth.getUser()
 
-        let fotoPerfil = null
+        if (usuarioEncontrado.id === user.id) {
+            setMensaje('No podés agregarte a vos mismo')
+            return
+        }
 
-        if (foto) {
-            const response = await fetch(foto.uri)
-            const blob = await response.blob()
+        if (
+            miembros.some(
+                miembro =>
+                    miembro.id === usuarioEncontrado.id
+            )
+        ) {
+            setMensaje('Ese usuario ya fue agregado')
+            return
+        }
 
-            const extension = foto.uri.split('.').pop()
+        setMensaje('')
+        setMiembros([
+            ...miembros,
+            usuarioEncontrado
+        ])
 
-            const nombreArchivo =
-                `${user.id}-${Date.now()}.${extension}`
+        setMiembroUsername('')
+    }
 
-            const { error: errorStorage } =
-                await supabase.storage
+    async function manejarSubmit() {
+        if (cargando) return
+
+        setCargando(true)
+        try {
+            setMensaje('')
+
+            if (!nombreGrupo.trim()) {
+                setMensaje(
+                    'Ingresá un nombre para el grupo'
+                )
+                return
+            }
+
+            if (nombreGrupo.trim().length < 3) {
+                setMensaje(
+                    'El nombre debe tener al menos 3 caracteres'
+                )
+                return
+            }
+
+            if (miembros.length === 0) {
+                setMensaje(
+                    'Agregá al menos un integrante para crear el grupo'
+                )
+                return
+            }
+
+            const {
+                data: { user }
+            } = await supabase.auth.getUser()
+
+            if (!user) {
+                setMensaje(
+                    'No se pudo obtener el usuario'
+                )
+                return
+            }
+
+            let fotoPerfil = null
+
+            if (foto) {
+                const response =
+                    await fetch(foto.uri)
+
+                const blob =
+                    await response.blob()
+
+                const extension =
+                    foto.uri.split('.').pop()
+
+                const nombreArchivo =
+                    `${user.id}-${Date.now()}.${extension}`
+
+                const {
+                    error: errorStorage
+                } = await supabase.storage
                     .from('avatars')
                     .upload(
                         nombreArchivo,
                         blob
                     )
 
-            if (errorStorage) {
-                console.log(errorStorage)
+                if (errorStorage) {
+                    setMensaje(
+                        'No se pudo subir la imagen'
+                    )
+                    return
+                }
 
-                Alert.alert(
-                    'Error',
-                    'No se pudo subir la imagen'
-                )
+                const { data } =
+                    supabase.storage
+                        .from('avatars')
+                        .getPublicUrl(
+                            nombreArchivo
+                        )
 
-                return
+                fotoPerfil =
+                    data.publicUrl
             }
 
-            const { data } =
-                supabase.storage
-                    .from('avatars')
-                    .getPublicUrl(nombreArchivo)
-
-            fotoPerfil = data.publicUrl
-        }
-
-        const { data: grupo, error } =
-            await supabase
+            const {
+                data: grupo,
+                error
+            } = await supabase
                 .from('grupo')
                 .insert({
-                    nombre: nombreGrupo,
+                    nombre: nombreGrupo.trim(),
                     id_creador: user.id,
                     foto_perfil: fotoPerfil
                 })
                 .select()
                 .single()
 
-        if (error) {
-            Alert.alert(
-                'Error',
-                'No se pudo crear el grupo'
-            )
-            return
-        }
+            if (error) {
+                setMensaje(
+                    'No se pudo crear el grupo'
+                )
+                return
+            }
 
-        await supabase
-            .from('usuario_grupo')
-            .insert({
-                id_usuario: user.id,
-                id_grupo: grupo.id,
-                rol: 'admin'
-            })
+            await supabase
+                .from('usuario_grupo')
+                .insert({
+                    id_usuario: user.id,
+                    id_grupo: grupo.id,
+                    rol: 'admin'
+                })
 
-        for (const username of miembros) {
-            const { data: usuarioEncontrado } =
-                await supabase
-                    .from('usuario')
-                    .select('id')
-                    .eq('username', username)
-                    .single()
-
-            if (usuarioEncontrado) {
+            for (const miembro of miembros) {
                 await supabase
                     .from('usuario_grupo')
                     .insert({
-                        id_usuario: usuarioEncontrado.id,
+                        id_usuario: miembro.id,
                         id_grupo: grupo.id,
                         rol: 'miembro'
                     })
             }
+
+            onGrupoCreado?.()
+
+        } catch (error) {
+            setMensaje(error.message)
+        } finally {
+            setCargando(false)
         }
-
-        Alert.alert(
-            'Éxito',
-            'Grupo creado correctamente'
-        )
-
-        onGrupoCreado?.()
     }
 
     return (
@@ -170,7 +230,11 @@ function CrearGrupo({ onGrupoCreado }) {
                 placeholder="Ej: Los pibes"
                 placeholderTextColor="#888"
                 value={nombreGrupo}
-                onChangeText={setNombreGrupo}
+                onChangeText={(texto) => {
+                    setNombreGrupo(texto)
+                    setMensaje('')
+                }}
+
             />
 
             <Text style={styles.label}>
@@ -211,7 +275,15 @@ function CrearGrupo({ onGrupoCreado }) {
                     value={miembroUsername}
                     onChangeText={(valor) => {
                         setMiembroUsername(valor)
-                        setErrorMiembro('')
+
+                        if (
+                            mensaje === 'Ingresá un usuario' ||
+                            mensaje === 'El usuario no existe' ||
+                            mensaje === 'No podés agregarte a vos mismo' ||
+                            mensaje === 'Ese usuario ya fue agregado'
+                        ) {
+                            setMensaje('')
+                        }
                     }}
                 />
 
@@ -224,30 +296,42 @@ function CrearGrupo({ onGrupoCreado }) {
                     </Text>
                 </TouchableOpacity>
             </View>
-
-            {!!errorMiembro && (
-                <Text style={styles.error}>
-                    {errorMiembro}
-                </Text>
-            )}
-
+            
             <FlatList
                 scrollEnabled={false}
                 data={miembros}
-                keyExtractor={(item) => item}
+                keyExtractor={item => item.id}
                 renderItem={({ item }) => (
-                    <Text style={styles.miembro}>
-                        @{item}
-                    </Text>
+                    <View style={styles.miembroContainer}>
+                        <Image
+                            source={{
+                                uri:
+                                    item.foto_perfil ||
+                                    'https://via.placeholder.com/40'
+                            }}
+                            style={styles.miembroFoto}
+                        />
+
+                        <Text style={styles.miembro}>
+                            @{item.username}
+                        </Text>
+                    </View>
                 )}
             />
+
+            {mensaje ? (
+                <ErrorMessage mensaje={mensaje} />
+            ) : null}
 
             <TouchableOpacity
                 style={styles.botonCrear}
                 onPress={manejarSubmit}
+                disabled={cargando}
             >
                 <Text style={styles.botonCrearTexto}>
-                    Crear grupo
+                    {cargando
+                        ? 'Creando...'
+                        : 'Crear grupo'}
                 </Text>
             </TouchableOpacity>
 
@@ -338,6 +422,18 @@ const styles = StyleSheet.create({
         width: 30,
         height: 30,
         borderRadius: 10,
+    },
+    miembroContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginTop: 10
+    },
+
+    miembroFoto: {
+        width: 35,
+        height: 35,
+        borderRadius: 17.5,
+        marginRight: 10
     },
 })
 

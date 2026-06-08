@@ -6,7 +6,7 @@ import {
     Pressable,
     ScrollView,
     Platform,
-    StyleSheet
+    StyleSheet,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import supabase from '../supabaseClient'
@@ -15,6 +15,7 @@ import ButtonApp from '../Utilidades/BotonesApp'
 import IndicadorPasos from '../Utilidades/IndicadorPasos'
 import Navbar from '../Utilidades/Navbar'
 import ErrorMessage from '../Utilidades/MensajeError'
+import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons'
 
 const DateTimePicker =
     Platform.OS !== 'web'
@@ -437,7 +438,7 @@ function ProponerJuntada({ route, onCreado }) {
                             style={{
                                 borderRadius: 15,
                                 border: '2px solid #979797',
-                                backgroundColor: '#5D157E',
+                                backgroundColor: '#312e32',
                                 padding: 15,
                                 color: 'white',
                                 width: '100%',
@@ -459,14 +460,32 @@ function ProponerJuntada({ route, onCreado }) {
                         onPress={añadirFecha}
                     />
 
-                    {opcionesFechas.map(f => (
-                        <View key={f}>
-                            <Text style={{ color: 'white' }}>{f}</Text>
-                            <Pressable onPress={() => eliminarItem(opcionesFechas, setOpcionesFechas, f)}>
-                                <Text style={{ color: 'white' }}>X</Text>
-                            </Pressable>
-                        </View>
-                    ))}
+                    <View style={styles.listaContainer}>
+                        {opcionesFechas.map((f, index) => (
+                            <View
+                                key={f}
+                                style={[
+                                    styles.itemLista,
+                                    index === opcionesFechas.length - 1 && {
+                                        borderBottomWidth: 0
+                                    }
+                                ]}
+                            >
+                                <Text style={styles.itemTexto}>{f}</Text>
+
+                                <Pressable
+                                    onPress={() => eliminarItem(opcionesFechas, setOpcionesFechas, f)}
+                                    style={styles.botonEliminar}
+                                >
+                                    <MaterialCommunityIcons
+                                        name="trash-can-outline"
+                                        size={22}
+                                        color="white"
+                                    />
+                                </Pressable>
+                            </View>
+                        ))}
+                    </View>
 
                     <Text style={[styles.text, { marginTop: 20 }]}>Sugerir Lugares</Text>
                     <InputApp
@@ -481,14 +500,32 @@ function ProponerJuntada({ route, onCreado }) {
                         onPress={añadirLugar}
                     />
 
-                    {opcionesLugares.map(l => (
-                        <View key={l}>
-                            <Text style={{ color: 'white' }}>{l}</Text>
-                            <Pressable onPress={() => eliminarItem(opcionesLugares, setOpcionesLugares, l)}>
-                                <Text style={{ color: 'white' }}>X</Text>
-                            </Pressable>
-                        </View>
-                    ))}
+                    <View style={styles.listaContainer}>
+                        {opcionesLugares.map(l => (
+                            <View
+                                key={f}
+                                style={[
+                                    styles.itemLista,
+                                    index === opcionesFechas.length - 1 && {
+                                        borderBottomWidth: 0
+                                    }
+                                ]}
+                            >
+                                <Text style={styles.itemTexto}>{l}</Text>
+
+                                <Pressable
+                                    onPress={() => eliminarItem(opcionesLugares, setOpcionesLugares, l)}
+                                    style={styles.botonEliminar}
+                                >
+                                    <MaterialCommunityIcons
+                                        name="trash-can-outline"
+                                        size={22}
+                                        color="white"
+                                    />
+                                </Pressable>
+                            </View>
+                        ))}
+                    </View>
 
                     {showPicker && DateTimePicker && (
                         <DateTimePicker
@@ -528,47 +565,43 @@ function ProponerJuntada({ route, onCreado }) {
                 <IndicadorPasos pasoActual={3} totalPasos={3} />
             </View>
 
-            <Text style={[styles.text, { marginTop: 110 }]}>¿Cuándo cierra la votación?</Text>
+            <View style={styles.formulario}>
+                <Text style={styles.text}>¿Cuándo cierra la votación?</Text>
 
-            {Platform.OS ===
-                'web' ? (
-                <input
-                    type="datetime-local"
-                    value={
-                        fechaCierre
-                    }
-                    onChange={e =>
-                        setFechaCierre(
-                            e.target
-                                .value
-                        )
-                    }
-                />
-            ) : (
-                <DateTimePicker
-                    value={
-                        fechaCierre
-                            ? new Date(
-                                fechaCierre
-                            )
-                            : new Date()
-                    }
-                    mode="datetime"
-                    is24Hour={true}
-                    onChange={(
-                        event,
-                        selectedDate
-                    ) => {
-                        if (
-                            selectedDate
-                        ) {
-                            setFechaCierre(
-                                selectedDate.toISOString()
-                            );
-                        }
-                    }}
-                />
-            )}
+                {Platform.OS === 'web' ? (
+                    <input
+                        type="datetime-local"
+                        value={fechaCierre}
+                        onChange={e => setFechaCierre(e.target.value)}
+                        style={{
+                            borderRadius: 15,
+                            border: '2px solid #979797',
+                            backgroundColor: '#312e32',
+                            padding: 15,
+                            color: 'white',
+                            width: '100%',
+                            boxSizing: 'border-box',
+                            fontFamily: 'Utendo',
+                            fontSize: 16,
+                            colorScheme: 'dark',
+                            marginTop: 10
+                        }}
+                    />
+                ) : (
+                    <View style={styles.datePickerContainer}>
+                        <DateTimePicker
+                            value={fechaCierre ? new Date(fechaCierre) : new Date()}
+                            mode="datetime"
+                            is24Hour={true}
+                            onChange={(event, selectedDate) => {
+                                if (selectedDate) {
+                                    setFechaCierre(selectedDate.toISOString());
+                                }
+                            }}
+                        />
+                    </View>
+                )}
+            </View>
 
             {mensaje ? (
                 <ErrorMessage mensaje={mensaje} />
@@ -618,7 +651,35 @@ const styles = StyleSheet.create({
     },
     SeparadorInputs: {
         marginTop: 10
-    }
+    },
+    itemLista: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        paddingVertical: 14,
+        paddingHorizontal: 15,
+        borderBottomWidth: 1,
+        borderBottomColor: 'rgba(255,255,255,0.4)',
+    },
+
+    itemTexto: {
+        color: 'white',
+        fontSize: 15,
+        fontFamily: 'Utendo',
+        flex: 1,
+        marginLeft: 15
+    },
+
+    botonEliminar: {
+        marginLeft: 15,
+        paddingHorizontal: 5,
+    },
+    listaContainer: {
+        backgroundColor: '#5C3E94',
+        borderRadius: 20,
+        marginTop: 10,
+        overflow: 'hidden',
+    },
 })
 
 export default ProponerJuntada

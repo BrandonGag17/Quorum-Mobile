@@ -4,7 +4,7 @@ import { IconXboxXFilled } from '@tabler/icons-react-native';
 export default function ErrorMessage({ mensaje }) {
     return (
         <View style={styles.bloqueError}>
-            <IconXboxXFilled color={'white'}  size={30}/>
+            <IconXboxXFilled color={'white'} size={30} />
             <View style={styles.bloqueTexto}>
                 <Text style={styles.titulo}>ERROR!</Text>
                 <Text style={styles.mensaje}>{mensaje}</Text>
@@ -19,10 +19,13 @@ const styles = StyleSheet.create({
         borderRadius: 10,
         padding: 10,
         flexDirection: 'row',
-        alignItems: 'center'
+        alignItems: 'center',
+        marginTop: 10,
+        marginBottom: 10
     },
     bloqueTexto: {
-        marginLeft: 10
+        marginLeft: 10,
+        flex: 1
     },
     titulo: {
         color: 'white',

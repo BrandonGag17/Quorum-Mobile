@@ -45,16 +45,17 @@ function CardJuntadas({ evento, navigation }) {
                     {fechaTexto}
                 </Text>
 
-                <MaterialCommunityIcons
-                    name="clock"
-                    size={10}
-                    color="#c5c5c5"
-                    style={{ marginLeft: 8 }}
-                />
+                <View style={styles.horaContainer}>
+                    <MaterialCommunityIcons
+                        name="clock"
+                        size={10}
+                        color="#c5c5c5"
+                    />
 
-                <Text style={styles.textoInfo}>
-                    {horaTexto}
-                </Text>
+                    <Text style={styles.textoInfo}>
+                        {horaTexto}
+                    </Text>
+                </View>
             </View>
 
             <Text style={styles.nombre}>
@@ -68,26 +69,21 @@ function CardJuntadas({ evento, navigation }) {
                     color="#c5c5c5"
                 />
 
-                <Text
-                    style={styles.textoInfo}
-                    numberOfLines={1}
-                >
+                <Text style={styles.textoInfo}>
                     {evento.grupo?.nombre || 'Sin grupo'}
                 </Text>
 
-                <FontAwesome6
-                    name="location-dot"
-                    size={10}
-                    color="#c5c5c5"
-                    style={{ marginLeft: 8 }}
-                />
+                <View style={styles.ubicacionContainer}>
+                    <FontAwesome6
+                        name="location-dot"
+                        size={10}
+                        color="#c5c5c5"
+                    />
 
-                <Text
-                    style={styles.textoInfo}
-                    numberOfLines={1}
-                >
-                    {evento.lugar || 'Sin ubicación'}
-                </Text>
+                    <Text style={styles.textoInfo}>
+                        {evento.lugar || 'Sin ubicación'}
+                    </Text>
+                </View>
             </View>
         </Pressable>
     )
@@ -97,39 +93,50 @@ const styles = StyleSheet.create({
     card: {
         backgroundColor: '#4A216F',
         borderRadius: 12,
-        width: 200,
+        width: 210,
         paddingVertical: 15,
-        paddingHorizontal: 15,
+        paddingHorizontal: 12,
         marginBottom: 30,
-        marginTop: 10,
+        marginTop: 15,
         marginRight: 10,
+        alignItems: 'flex-start',
     },
-
     filaFecha: {
         flexDirection: 'row',
         alignItems: 'center',
-        marginBottom: 6,
+        width: '100%',
     },
-
     filaInfo: {
         flexDirection: 'row',
         alignItems: 'center',
+        width: '100%',
     },
-
+    horaContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginLeft: 'auto',
+    },
     nombre: {
         fontFamily: 'CashMarket',
-        fontSize: 20,
+        fontSize: 18,
         color: 'white',
-        marginBottom: 6,
+        marginBottom: 10,
+        lineHeight: 22,
+        marginTop: 10
     },
-
     textoInfo: {
         fontFamily: 'Utendo',
-        fontSize: 14,
+        fontSize: 12,
         color: '#c5c5c5',
-        marginLeft: 5,
-        flexShrink: 1,
+        marginLeft: 3,
+        marginTop: 3
     },
+    ubicacionContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginLeft: 'auto',
+    },
+
 })
 
 export default CardJuntadas

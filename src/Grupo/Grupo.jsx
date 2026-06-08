@@ -222,9 +222,11 @@ function Grupo() {
                         )}
                     />
                 ) : (
-                    <Text style={{ color: 'white' }}>
-                        No hay juntadas confirmadas
-                    </Text>
+                    <View style={styles.noJuntadas}>
+                        <Text style={styles.text}>
+                            No hay propuestas de planificación
+                        </Text>
+                    </View>
                 )}
 
                 <View style={styles.tituloSeparador}>
@@ -254,9 +256,11 @@ function Grupo() {
                         )}
                     />
                 ) : (
-                    <Text style={{ color: 'white' }}>
-                        No hay propuestas de planificación
-                    </Text>
+                    <View style={styles.noJuntadas}>
+                        <Text style={styles.text}>
+                            Aquí apareceran las propuestas de juntada.
+                        </Text>
+                    </View>
                 )}
 
                 <Modal
@@ -496,6 +500,17 @@ const styles = StyleSheet.create({
         fontSize: 13,
         fontFamily: 'Utendo',
         marginTop: 2
+    },
+    noJuntadas: {
+        padding: 50,
+        backgroundColor: '#5C3E94',
+        borderRadius: 10,
+        marginBottom: 20
+    },
+    text: {
+        fontFamily: 'CashMarket',
+        color: 'white',
+        textAlign: 'center'
     },
 })
 
