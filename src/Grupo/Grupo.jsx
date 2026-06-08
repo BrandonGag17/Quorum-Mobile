@@ -36,6 +36,7 @@ function Grupo() {
     const [eventos, setEventos] = useState([])
     const [mostrarModal, setMostrarModal] = useState(false)
     const [cargando, setCargando] = useState(true)
+    const [cantidadMiembros, setCantidadMiembros] = useState(0)
 
     const translateY = useRef(new Animated.Value(400)).current
 
@@ -64,10 +65,20 @@ function Grupo() {
 
         await Promise.all([
             traerGrupo(),
-            traerEventos()
+            traerEventos(),
+            traerCantidadMiembros()
         ])
 
         setCargando(false)
+    }
+
+    async function traerCantidadMiembros() {
+        const { count } = await supabase
+            .from('usuario_grupo')
+            .select('*', { count: 'exact', head: true })
+            .eq('id_grupo', idGrupo)
+
+        setCantidadMiembros(count || 0)
     }
 
     async function traerGrupo() {
@@ -150,18 +161,34 @@ function Grupo() {
                 <View style={styles.headerGrupo}>
                     <BotonVolver />
 
-                    <Image
-                        source={
-                            grupo?.foto_perfil
-                                ? { uri: grupo.foto_perfil }
-                                : require('../../assets/img/amiguis.jpg')
+                    <TouchableOpacity
+                        style={styles.infoGrupo}
+                        onPress={() =>
+                            navigation.navigate('InfoGrupo', {
+                                idGrupo
+                            })
                         }
-                        style={styles.fotoGrupo}
-                    />
+                        activeOpacity={0.8}
+                    >
+                        <Image
+                            source={
+                                grupo?.foto_perfil
+                                    ? { uri: grupo.foto_perfil }
+                                    : require('../../assets/img/amiguis.jpg')
+                            }
+                            style={styles.fotoGrupo}
+                        />
 
-                    <Text style={styles.nombreGrupo}>
-                        {grupo?.nombre || 'Grupo sin nombre'}
-                    </Text>
+                        <View>
+                            <Text style={styles.nombreGrupo}>
+                                {grupo?.nombre || 'Grupo sin nombre'}
+                            </Text>
+
+                            <Text style={styles.miembrosGrupo}>
+                                {cantidadMiembros} participantes
+                            </Text>
+                        </View>
+                    </TouchableOpacity>
                 </View>
 
                 <View style={styles.tituloSeparador}>
@@ -437,22 +464,38 @@ const styles = StyleSheet.create({
     headerGrupo: {
         flexDirection: 'row',
         alignItems: 'center',
-        marginBottom: 25,
+        marginBottom: 30,
+        padding: 10,
+    },
+
+    infoGrupo: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginLeft: 15,
+        flex: 1,
+        padding: 10,
+        backgroundColor: '#652274',
+        borderRadius: 15
     },
 
     fotoGrupo: {
-        width: 40,
-        height: 40,
-        borderRadius: 27.5,
-        marginLeft: 10,
-        marginRight: 12,
+        width: 45,
+        height: 45,
+        borderRadius: 22.5,
+        marginRight: 10
     },
 
     nombreGrupo: {
         color: 'white',
+        fontSize: 19,
         fontFamily: 'CashMarket',
-        fontSize: 26,
-        flexShrink: 1,
+    },
+
+    miembrosGrupo: {
+        color: '#9E9E9E',
+        fontSize: 13,
+        fontFamily: 'Utendo',
+        marginTop: 2
     },
 })
 
