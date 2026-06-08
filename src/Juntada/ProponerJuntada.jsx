@@ -14,6 +14,7 @@ import InputApp from '../Utilidades/InputApp'
 import ButtonApp from '../Utilidades/BotonesApp'
 import IndicadorPasos from '../Utilidades/IndicadorPasos'
 import Navbar from '../Utilidades/Navbar'
+import ErrorMessage from '../Utilidades/MensajeError'
 
 const DateTimePicker =
     Platform.OS !== 'web'
@@ -22,6 +23,7 @@ const DateTimePicker =
 
 function ProponerJuntada({ route, onCreado }) {
     const navigation = useNavigation();
+    const [mensaje, setMensaje] = useState('')
     const idGrupo =
         route?.params?.idGrupo ||
         route?.params?.id;
@@ -195,117 +197,167 @@ function ProponerJuntada({ route, onCreado }) {
         );
     };
 
+    const validarPaso1 = () => {
+        setMensaje('')
+
+        if (!nombreJuntada.trim()) {
+            setMensaje('Ingresá un nombre para la juntada')
+            return
+        }
+
+        if (nombreJuntada.trim().length < 3) {
+            setMensaje('El nombre debe tener al menos 3 caracteres')
+            return
+        }
+
+        setMensaje('')
+        setPaso('paso2')
+    }
+
+    const validarPaso2 = () => {
+        setMensaje('')
+
+        if (
+            opcionesFechas.length === 0 &&
+            opcionesLugares.length === 0
+        ) {
+            setMensaje(
+                'Agregá al menos una fecha o un lugar'
+            )
+            return
+        }
+
+        setMensaje('')
+        setPaso('paso3')
+    }
+
     // -------------------------
     // GUARDAR
     // -------------------------
 
     const manejarSubmitFinal =
         async () => {
-            if (
-                !nombreJuntada ||
-                (
-                    opcionesFechas.length ===
-                    0 &&
-                    opcionesLugares.length ===
-                    0
-                )
-            ) {
-                alert(
-                    'Faltan datos'
-                );
-                return;
-            }
+            try {
+                setMensaje('')
+                setCargando(true)
+                if (!nombreJuntada.trim()) {
+                    setMensaje(
+                        'Ingresá un nombre para la juntada'
+                    )
+                    return
+                }
 
-            if (!fechaCierre) {
-                alert(
-                    'Elegí una fecha de cierre'
-                );
-                return;
-            }
+                if (
+                    opcionesFechas.length === 0 &&
+                    opcionesLugares.length === 0
+                ) {
+                    setMensaje(
+                        'Agregá al menos una fecha o un lugar'
+                    )
+                    return
+                }
 
-            const {
-                data: { user }
-            } =
-                await supabase.auth.getUser();
+                if (!fechaCierre) {
+                    setMensaje(
+                        'Elegí una fecha de cierre'
+                    )
+                    return
+                }
 
-            if (!user) return;
+                const {
+                    data: { user }
+                } =
+                    await supabase.auth.getUser();
 
-            const { data: ev } =
-                await supabase
+                if (!user) {
+                    setMensaje('No se pudo obtener el usuario')
+                    return
+                }
+
+                const {
+                    data: ev,
+                    error: errorEvento
+                } = await supabase
                     .from('evento')
                     .insert({
-                        nombre:
-                            nombreJuntada,
-                        descripcion:
-                            descripcion ||
-                            null,
-                        id_grupo:
-                            idGrupo,
-                        id_creador:
-                            user.id,
-                        estado:
-                            'planificacion'
+                        nombre: nombreJuntada,
+                        descripcion: descripcion || null,
+                        id_grupo: idGrupo,
+                        id_creador: user.id,
+                        estado: 'planificacion'
                     })
                     .select()
-                    .single();
+                    .single()
 
-            if (!ev) return;
+                if (errorEvento) {
+                    setMensaje(errorEvento.message)
+                    return
+                }
 
-            const { data: enc } =
-                await supabase
+                const {
+                    data: enc,
+                    error: errorEncuesta
+                } = await supabase
                     .from('encuesta')
                     .insert({
-                        pregunta:
-                            nombreJuntada,
-                        id_evento:
-                            ev.id,
+                        pregunta: nombreJuntada,
+                        id_evento: ev.id,
                         activa: true,
-                        cierre_en:
-                            new Date(
-                                fechaCierre
-                            ).toISOString()
+                        cierre_en: new Date(
+                            fechaCierre
+                        ).toISOString()
                     })
                     .select()
-                    .single();
+                    .single()
 
-            if (!enc) return;
-
-            const opcionesParaInsertar = [
-                ...opcionesFechas.map(
-                    f => ({
-                        id_encuesta:
-                            enc.id,
-                        descripcion: f
-                    })
-                ),
-
-                ...opcionesLugares.map(
-                    l => ({
-                        id_encuesta:
-                            enc.id,
-                        descripcion:
-                            `Lugar: ${l}`
-                    })
-                )
-            ];
-
-            await supabase
-                .from(
-                    'opcion_encuesta'
-                )
-                .insert(
-                    opcionesParaInsertar
-                );
-
-            if (onCreado)
-                onCreado();
-
-            navigation.navigate(
-                'Juntada',
-                {
-                    idEvento: ev.id
+                if (errorEncuesta) {
+                    setMensaje(errorEncuesta.message)
+                    return
                 }
-            );
+
+                const opcionesParaInsertar = [
+                    ...opcionesFechas.map(
+                        f => ({
+                            id_encuesta:
+                                enc.id,
+                            descripcion: f
+                        })
+                    ),
+
+                    ...opcionesLugares.map(
+                        l => ({
+                            id_encuesta:
+                                enc.id,
+                            descripcion:
+                                `Lugar: ${l}`
+                        })
+                    )
+                ];
+
+                const { error: errorOpciones } =
+                    await supabase
+                        .from('opcion_encuesta')
+                        .insert(opcionesParaInsertar)
+
+                if (errorOpciones) {
+                    setMensaje(errorOpciones.message)
+                    return
+                }
+
+                if (onCreado)
+                    onCreado();
+
+                navigation.navigate(
+                    'Juntada',
+                    {
+                        idEvento: ev.id
+                    }
+                );
+            } catch (error) {
+                setMensaje(error.message)
+            } finally {
+                setCargando(false)
+            }
         };
 
     // -------------------------
@@ -345,13 +397,15 @@ function ProponerJuntada({ route, onCreado }) {
                     </View>
                 </View>
 
+                {mensaje ? (
+                    <ErrorMessage mensaje={mensaje} />
+                ) : null}
+
                 <View style={styles.botonContainer}>
                     <ButtonApp
                         nombre={cargando ? 'Cargando...' : 'Continuar'}
-                        onPress={() => {
-                            setPaso('paso2')
-                        }}
-                        disabled={cargando || !nombreJuntada}
+                        onPress={validarPaso1}
+                        disabled={cargando}
                     />
                 </View>
                 <Navbar pantallaActual="Inicio" />
@@ -400,9 +454,10 @@ function ProponerJuntada({ route, onCreado }) {
                         </Pressable>
                     )}
 
-                    <Pressable onPress={añadirFecha}>
-                        <InputApp placeholder="+ Agregar fecha" />
-                    </Pressable>
+                    <ButtonApp
+                        nombre="+ Agregar fecha"
+                        onPress={añadirFecha}
+                    />
 
                     {opcionesFechas.map(f => (
                         <View key={f}>
@@ -421,9 +476,10 @@ function ProponerJuntada({ route, onCreado }) {
                         containerStyle={{ marginBottom: 0 }}
                     />
 
-                    <Pressable onPress={añadirLugar}>
-                        <InputApp placeholder="+ Agregar lugar" />
-                    </Pressable>
+                    <ButtonApp
+                        nombre="+ Agregar lugar"
+                        onPress={añadirLugar}
+                    />
 
                     {opcionesLugares.map(l => (
                         <View key={l}>
@@ -444,10 +500,14 @@ function ProponerJuntada({ route, onCreado }) {
                     )}
                 </ScrollView>
 
+                {mensaje ? (
+                    <ErrorMessage mensaje={mensaje} />
+                ) : null}
+
                 <View style={styles.botonContainer}>
                     <ButtonApp
                         nombre={cargando ? 'Cargando...' : 'Continuar'}
-                        onPress={() => setPaso('paso3')}
+                        onPress={validarPaso2}
                         disabled={cargando}
                     />
                 </View>
@@ -467,8 +527,8 @@ function ProponerJuntada({ route, onCreado }) {
             <View style={styles.contenedorIndicador}>
                 <IndicadorPasos pasoActual={3} totalPasos={3} />
             </View>
-            
-<Text style={[styles.text, { marginTop: 110 }]}>¿Cuándo cierra la votación?</Text>
+
+            <Text style={[styles.text, { marginTop: 110 }]}>¿Cuándo cierra la votación?</Text>
 
             {Platform.OS ===
                 'web' ? (
@@ -509,6 +569,10 @@ function ProponerJuntada({ route, onCreado }) {
                     }}
                 />
             )}
+
+            {mensaje ? (
+                <ErrorMessage mensaje={mensaje} />
+            ) : null}
 
             <View style={styles.botonContainer}>
                 <ButtonApp

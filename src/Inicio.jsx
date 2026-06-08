@@ -46,7 +46,7 @@ function Inicio() {
         )
     `)
             .eq('id_usuario', user.id)
-
+                
         if (error) {
             console.error(error)
             return

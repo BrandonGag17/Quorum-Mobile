@@ -174,12 +174,16 @@ function Juntada({ route, navigation }) {
 
         if (ahora < cierre) return;
 
-        const { data: opciones } = await supabase
+        const {
+            error: errorOpciones
+        } = await supabase
             .from('opcion_encuesta')
-            .select('*')
-            .eq('id_encuesta', encuestaActual.id);
+            .insert(opcionesParaInsertar)
 
-        if (!opciones?.length) return;
+        if (errorOpciones) {
+            setMensaje(errorOpciones.message)
+            return
+        }
 
         const idsOpciones = opciones.map(o => o.id);
 

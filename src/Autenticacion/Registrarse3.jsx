@@ -110,6 +110,10 @@ function Registrarse3() {
                 fotoPerfil = fotoData.publicUrl
             }
 
+            if (!foto) {
+                fotoPerfil = 'https://tu-proyecto.supabase.co/storage/v1/object/public/avatars/amiguis.jpg'
+            }
+
             if (
                 fechaNacimiento &&
                 !/^\d{2}\/\d{2}\/\d{4}$/.test(fechaNacimiento)

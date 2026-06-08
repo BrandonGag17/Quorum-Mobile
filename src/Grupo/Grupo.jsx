@@ -9,7 +9,8 @@ import {
     ActivityIndicator,
     TouchableOpacity,
     ScrollView,
-    Animated
+    Animated,
+    Image
 } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 
@@ -145,10 +146,23 @@ function Grupo() {
                 showsVerticalScrollIndicator={false}
                 contentContainerStyle={{ paddingBottom: 100 }}
             >
-                <BotonVolver />
-                <Text style={styles.nombreGrupo}>
-                    {grupo?.nombre || 'Grupo sin nombre'}
-                </Text>
+
+                <View style={styles.headerGrupo}>
+                    <BotonVolver />
+
+                    <Image
+                        source={
+                            grupo?.foto_perfil
+                                ? { uri: grupo.foto_perfil }
+                                : require('../../assets/img/amiguis.jpg')
+                        }
+                        style={styles.fotoGrupo}
+                    />
+
+                    <Text style={styles.nombreGrupo}>
+                        {grupo?.nombre || 'Grupo sin nombre'}
+                    </Text>
+                </View>
 
                 <View style={styles.tituloSeparador}>
                     <Iconos
@@ -321,13 +335,6 @@ const styles = StyleSheet.create({
         paddingBottom: 90
     },
 
-    nombreGrupo: {
-        fontSize: 28,
-        fontWeight: 'bold',
-        marginBottom: 20,
-        color: 'white'
-    },
-
     botonMas: {
         position: 'absolute',
         right: 25,
@@ -426,7 +433,27 @@ const styles = StyleSheet.create({
     subtituloModal: {
         color: '#b6b6b6',
         fontFamily: 'Utendo'
-    }
+    },
+    headerGrupo: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginBottom: 25,
+    },
+
+    fotoGrupo: {
+        width: 40,
+        height: 40,
+        borderRadius: 27.5,
+        marginLeft: 10,
+        marginRight: 12,
+    },
+
+    nombreGrupo: {
+        color: 'white',
+        fontFamily: 'CashMarket',
+        fontSize: 26,
+        flexShrink: 1,
+    },
 })
 
 export default Grupo
