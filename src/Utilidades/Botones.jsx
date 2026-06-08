@@ -6,9 +6,7 @@ function Button({ nombre, onPress, disabled = false }) {
             onPress={onPress}
             disabled={disabled}
         >
-            <Text style={styles.botones}>
-                {nombre}
-            </Text>
+            <Text style={styles.botones}>{nombre}</Text>
         </TouchableOpacity>
     )
 }
@@ -20,7 +18,6 @@ const styles = StyleSheet.create({
         color: 'white',
         fontSize: 22.5,
         padding: 10,
-        margin: 10,
         backgroundColor: '#A846E9',
         borderRadius: 15
     }
