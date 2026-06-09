@@ -53,6 +53,7 @@ function Registrarse3() {
 
         if (!resultado.canceled) {
             setFoto(resultado.assets[0])
+            setMensaje('')
         }
     }
 
@@ -60,6 +61,34 @@ function Registrarse3() {
         try {
             setCargando(true)
             setMensaje('')
+
+            if (
+                fechaNacimiento &&
+                !/^\d{2}\/\d{2}\/\d{4}$/.test(fechaNacimiento)
+            ) {
+                setMensaje('Fecha inválida')
+                return
+            }
+
+            if (fechaNacimiento) {
+                const [dia, mes, anio] =
+                    fechaNacimiento.split('/')
+
+                const fecha = new Date(
+                    anio,
+                    mes - 1,
+                    dia
+                )
+
+                if (
+                    fecha.getDate() !== Number(dia) ||
+                    fecha.getMonth() !== Number(mes) - 1 ||
+                    fecha.getFullYear() !== Number(anio)
+                ) {
+                    setMensaje('Fecha inválida')
+                    return
+                }
+            }
 
             const { data, error } = await supabase.auth.signUp({
                 email,
@@ -114,14 +143,6 @@ function Registrarse3() {
                 fotoPerfil = 'https://tu-proyecto.supabase.co/storage/v1/object/public/avatars/amiguis.jpg'
             }
 
-            if (
-                fechaNacimiento &&
-                !/^\d{2}\/\d{2}\/\d{4}$/.test(fechaNacimiento)
-            ) {
-                setMensaje('Fecha inválida')
-                return
-            }
-
             let fechaSQL = null
 
             if (fechaNacimiento) {
@@ -150,7 +171,7 @@ function Registrarse3() {
                 return
             }
 
-            navigation.replace('Inicio')
+            navigation.replace('Exito')
 
         } catch (error) {
             setMensaje(error.message)
@@ -167,9 +188,10 @@ function Registrarse3() {
                 label="Fecha de nacimiento (Opcional)"
                 placeholder="DD/MM/AAAA"
                 value={fechaNacimiento}
-                onChangeText={(texto) =>
+                onChangeText={(texto) => {
                     setFechaNacimiento(formatearFecha(texto))
-                }
+                    setMensaje('')
+                }}
                 keyboardType="numeric"
             />
             <TouchableOpacity

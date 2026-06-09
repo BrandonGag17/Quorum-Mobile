@@ -82,7 +82,7 @@ function Registrarse() {
                 usuario: usuario.trim(),
                 password
             })
-            
+
         } finally {
             setCargando(false)
         }
@@ -100,14 +100,56 @@ function Registrarse() {
         <View style={styles.fondo}>
             <Text style={styles.titulo}>Registrarse</Text>
 
-            <Input label="Email:" placeholder="tu@gmail.com" value={email} onChangeText={setEmail} Icon={IconMailFilled} keyboardType="email-address" autoCapitalize="none" autoComplete="email" textContentType="emailAddress" />
+            <Input
+                label="Email:"
+                placeholder="tu@gmail.com"
+                value={email}
+                onChangeText={(texto) => {
+                    setEmail(texto)
+                    setMensaje('')
+                }}
+                Icon={IconMailFilled}
+                keyboardType="email-address"
+                autoCapitalize="none"
+                autoComplete="email"
+                textContentType="emailAddress"
+            />
 
-            <Input label="Nombre de usuario:" placeholder="tuusuario123" value={usuario} onChangeText={setUsuario} Icon={IconUserFilled} autoComplete="username" textContentType="username" />
+            <Input
+                label="Nombre de usuario:"
+                placeholder="tuusuario123"
+                value={usuario}
+                onChangeText={(texto) => {
+                    setUsuario(texto)
+                    setMensaje('')
+                }}
+                Icon={IconUserFilled}
+                autoComplete="username"
+                textContentType="username"
+            />
 
-            <Input label="Contraseña:" placeholder="*******" value={password} onChangeText={setPassword} secureTextEntry={true} Icon={IconLockFilled} autoComplete="new-password" textContentType="newPassword" />
+            <Input
+                label="Contraseña:"
+                placeholder="*******"
+                value={password}
+                onChangeText={(texto) => {
+                    setPassword(texto)
+                    setMensaje('')
+                }}
+                secureTextEntry
+                Icon={IconLockFilled}
+                autoComplete="new-password"
+                textContentType="newPassword"
+            />
 
             <View style={styles.checkbox}>
-                <Checkbox value={isChecked} onValueChange={setChecked} />
+                <Checkbox
+    value={isChecked}
+    onValueChange={(valor) => {
+        setChecked(valor)
+        setMensaje('')
+    }}
+/>
                 <Text style={[styles.texto, { color: '#FFFFFF' }]}> Acepto los términos y condiciones</Text>
             </View>
 

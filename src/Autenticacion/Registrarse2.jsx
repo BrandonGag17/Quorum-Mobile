@@ -6,6 +6,7 @@ import { useNavigation } from '@react-navigation/native'
 import { useRoute } from '@react-navigation/native'
 import Button from '../Utilidades/Botones'
 import Input from '../Utilidades/Input'
+import ErrorMessage from '../Utilidades/MensajeError'
 
 function Registrarse2() {
     const navigation = useNavigation()
@@ -44,9 +45,27 @@ function Registrarse2() {
         <SafeAreaView style={styles.fondo}>
             <Text style={styles.titulo}>Registrarse</Text>
 
-            <Input label="Nombre:" value={nombre} onChangeText={setNombre} /* Icon={IconMailFilled} */ />
+            <Input
+                label="Nombre:"
+                value={nombre}
+                onChangeText={(texto) => {
+                    setNombre(texto)
+                    setMensaje('')
+                }}
+            />
 
-            <Input label="Apellido:" value={apellido} onChangeText={setApellido} /*Icon={IconUserFilled}*/ />
+            <Input
+                label="Apellido:"
+                value={apellido}
+                onChangeText={(texto) => {
+                    setApellido(texto)
+                    setMensaje('')
+                }}
+            />
+
+            {mensaje ? (
+                <ErrorMessage mensaje={mensaje} />
+            ) : null}
 
             <Button
                 nombre={cargando ? 'Cargando...' : 'Continuar'}

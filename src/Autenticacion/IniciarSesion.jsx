@@ -49,7 +49,10 @@ function IniciarSesion() {
                 label="Email:"
                 placeholder="tu@gmail.com"
                 value={email}
-                onChangeText={setEmail}
+                onChangeText={(texto) => {
+                    setEmail(texto)
+                    setMensaje('')
+                }}
                 keyboardType="email-address"
                 autoCapitalize="none"
                 autoComplete="email"
@@ -61,7 +64,10 @@ function IniciarSesion() {
                 label="Contraseña:"
                 placeholder="********"
                 value={password}
-                onChangeText={setPassword}
+                onChangeText={(texto) => {
+                    setPassword(texto)
+                    setMensaje('')
+                }}
                 secureTextEntry
                 autoComplete="password"
                 textContentType="password"
@@ -85,8 +91,6 @@ function IniciarSesion() {
                 <Image source={require('../../assets/img/Iconos/Google.png')} style={styles.googleLogo} resizeMode="contain" />
                 <Text style={styles.textoGoogle}>Continuar con Google</Text>
             </TouchableOpacity>
-
-            {mensaje ? <Text>{mensaje}</Text> : null}
         </SafeAreaView>
     )
 }

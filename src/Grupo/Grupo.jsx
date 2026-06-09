@@ -224,7 +224,7 @@ function Grupo() {
                 ) : (
                     <View style={styles.noJuntadas}>
                         <Text style={styles.text}>
-                            No hay propuestas de planificación
+                            No hay proximas juntadas
                         </Text>
                     </View>
                 )}

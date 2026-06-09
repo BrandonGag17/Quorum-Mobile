@@ -8,6 +8,7 @@ import IniciarSesion from './src/Autenticacion/IniciarSesion'
 import Registrarse from './src/Autenticacion/Registrarse'
 import Registrarse2 from './src/Autenticacion/Registrarse2'
 import Registrarse3 from './src/Autenticacion/Registrarse3'
+import Exito from './src/Autenticacion/Exito'
 import Inicio from './src/Inicio'
 import Recomendaciones from './src/Recomendaciones'
 import Notificaciones from './src/Notificaciones'
@@ -65,6 +66,11 @@ export default function App() {
         />
 
         <Stack.Screen
+          name="Exito"
+          component={Exito}
+        />
+
+        <Stack.Screen
           name="Inicio"
           component={Inicio}
         />
@@ -103,6 +109,11 @@ export default function App() {
         <Stack.Screen
           name="InfoGrupo"
           component={InfoGrupo}
+        />
+
+        <Stack.Screen
+          name="CrearGrupo"
+          component={CrearGrupo}
         />
       </Stack.Navigator>
     </NavigationContainer>

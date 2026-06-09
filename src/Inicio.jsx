@@ -46,7 +46,7 @@ function Inicio() {
         )
     `)
             .eq('id_usuario', user.id)
-                
+
         if (error) {
             console.error(error)
             return
@@ -121,7 +121,11 @@ function Inicio() {
                         />
                     ))
                 ) : (
-                    <Text>No hay juntadas confirmadas</Text>
+                    <View style={styles.noJuntadas}>
+                        <Text style={styles.text}>
+                            No hay proximas juntadas
+                        </Text>
+                    </View>
                 )}
 
 
@@ -138,47 +142,55 @@ function Inicio() {
                     </TouchableOpacity>
                 </View>
 
-                <FlatList
-                    scrollEnabled={false}
-                    data={grupos}
-                    keyExtractor={(item) => item.id_grupo.toString()}
-                    renderItem={({ item }) => {
-                        const integrantes = item.grupo?.usuario_grupo
-                            ?.map(m => m.usuario?.username)
-                            .filter(Boolean)
-                            .join(', ')
+                {grupos.length > 0 ? (
+                    <FlatList
+                        scrollEnabled={false}
+                        data={grupos}
+                        keyExtractor={(item) => item.id_grupo.toString()}
+                        renderItem={({ item }) => {
+                            const integrantes = item.grupo?.usuario_grupo
+                                ?.map(m => m.usuario?.username)
+                                .filter(Boolean)
+                                .join(', ')
 
-                        return (
-                            <TouchableOpacity
-                                style={styles.grupoCard}
-                                onPress={() =>
-                                    navigation.navigate('Grupo', {
-                                        idGrupo: item.id_grupo
-                                    })
-                                }
-                            >
-                                <Image
-                                    source={
-                                        item.grupo?.foto_perfil
-                                            ? { uri: item.grupo.foto_perfil }
-                                            : require('../assets/img/amiguis.jpg')
+                            return (
+                                <TouchableOpacity
+                                    style={styles.grupoCard}
+                                    onPress={() =>
+                                        navigation.navigate('Grupo', {
+                                            idGrupo: item.id_grupo
+                                        })
                                     }
-                                    style={styles.imagen}
-                                />
+                                >
+                                    <Image
+                                        source={
+                                            item.grupo?.foto_perfil
+                                                ? { uri: item.grupo.foto_perfil }
+                                                : require('../assets/img/amiguis.jpg')
+                                        }
+                                        style={styles.imagen}
+                                    />
 
-                                <View style={styles.grupoInfo}>
-                                    <Text style={styles.grupoNombre}>
-                                        {item.grupo?.nombre}
-                                    </Text>
+                                    <View style={styles.grupoInfo}>
+                                        <Text style={styles.grupoNombre}>
+                                            {item.grupo?.nombre}
+                                        </Text>
 
-                                    <Text style={styles.grupoIntegrantes}>
-                                        {integrantes}
-                                    </Text>
-                                </View>
-                            </TouchableOpacity>
-                        )
-                    }}
-                />
+                                        <Text style={styles.grupoIntegrantes}>
+                                            {integrantes}
+                                        </Text>
+                                    </View>
+                                </TouchableOpacity>
+                            )
+                        }}
+                    />
+                ) : (
+                    <View style={styles.noJuntadas}>
+                        <Text style={styles.text}>
+                            Todavía no formás parte de ningún grupo
+                        </Text>
+                    </View>
+                )}
 
                 {mostrarModal && (
                     <Modal
@@ -336,6 +348,17 @@ const styles = StyleSheet.create({
         color: '#B0B0B0',
         fontSize: 24,
         fontFamily: 'Utendo',
+    },
+    noJuntadas: {
+        padding: 50,
+        backgroundColor: '#5C3E94',
+        borderRadius: 10,
+        marginBottom: 20
+    },
+    text: {
+        fontFamily: 'CashMarket',
+        color: 'white',
+        textAlign: 'center'
     },
 })
 

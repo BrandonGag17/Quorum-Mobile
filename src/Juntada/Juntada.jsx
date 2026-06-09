@@ -1,6 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, Pressable, ScrollView } from 'react-native';
-import supabase from '../supabaseClient';
+import { View, Text, Pressable, ScrollView, StyleSheet } from 'react-native';
+import supabase from '../supabaseClient'
+import { IconUserFilled } from '@tabler/icons-react-native';
+import Iconos from '../Utilidades/Iconos'
+import Navbar from '../Utilidades/Navbar'
+import MaterialIcons from '@expo/vector-icons/MaterialIcons'
 
 function Juntada({ route, navigation }) {
     const { idEvento } = route.params;
@@ -307,72 +311,318 @@ function Juntada({ route, navigation }) {
     }
 
     return (
-        <ScrollView>
-            <Pressable onPress={() => navigation.navigate('InicioGrupo', { id: evento.id_grupo })}>
-                <Text>Volver al grupo</Text>
-            </Pressable>
+        <View style={styles.fondo}>
+            <ScrollView>
+                <Pressable onPress={() => navigation.navigate('InicioGrupo', { id: evento.id_grupo })}>
+                    <Text>Volver al grupo</Text>
+                </Pressable>
+        
+                {evento.estado === 'confirmado' ? (
+                    <View style={styles.confirmedCard}>
+                        <Text style={styles.tituloInfo}>{evento.nombre}</Text>
 
-            {evento.estado === 'confirmado' ? (
-                <View>
-                    <Text>{evento.nombre}</Text>
-                    <Text>Fecha:</Text>
-                    <Text>{new Date(evento.fecha_hora_inicio).toLocaleString()}</Text>
-                    <Text>Lugar:</Text>
-                    <Text>{evento.lugar}</Text>
-                    <Text>Personas que van:</Text>
-                    {usuariosQueVan.length === 0 ? (
-                        <Text>Nadie confirmó asistencia</Text>
-                    ) : (
-                        usuariosQueVan.map(usuario => (
-                            <Text key={usuario.id}>{usuario.username}</Text>
-                        ))
-                    )}
-                    <Pressable onPress={() => cambiarAsistencia('voy')}>
-                        <Text>Voy</Text>
-                    </Pressable>
-                    <Pressable onPress={() => cambiarAsistencia('no_voy')}>
-                        <Text>No voy</Text>
-                    </Pressable>
-                </View>
-            ) : (
-                <>
-                    <View>
-                        <Text>{evento.nombre}</Text>
-                        <Text>Van {asistentesCount}/{totalGrupo}</Text>
-                        <Text>Estado: {evento.estado}</Text>
-                    </View>
-                    <View>
-                        <Pressable onPress={() => cambiarAsistencia('voy')}>
-                            <Text>Voy</Text>
-                        </Pressable>
-                        <Pressable onPress={() => cambiarAsistencia('no_voy')}>
-                            <Text>No voy</Text>
-                        </Pressable>
-                    </View>
+                        {/*                         <Text style={styles.label}>Fecha</Text>
+                       <Text style={styles.value}>{new Date(evento.fecha_hora_inicio).toLocaleString()}</Text>
 
-                    {encuesta?.activa && (
-                        <>
-                            <Text>👥 Votaciones</Text>
-                            <Pressable onPress={() => navigation.navigate('VotacionJuntada', { idEvento })}>
-                                <Text>Fecha y hora</Text>
-                                <Text>Si te arrepentís de tu voto podés volver a votar</Text>
-                            </Pressable>
-                            <View>
-                                <Text>La votación cierra en:</Text>
-                                <Text>{tiempoRestante}</Text>
+                        <Text style={styles.label}>Hora</Text>
+                        <Text style={styles.value}>{new Date(evento.fecha_hora_inicio).toLocaleString()}</Text>*/}
+                        <View style={styles.infoJuntada}>
+                            <View style={styles.infofechahora}>
+
+                                <Text style={styles.label}>Lugar</Text>
+                                <Text style={styles.value}>{evento.lugar}</Text>
+
+                                <Text style={styles.label}>Lugar</Text>
+                                <Text style={styles.value}>{evento.lugar}</Text>
                             </View>
-                        </>
-                    )}
+                            <View style={styles.infoLugarInteg}>
 
-                    <Text>⚙️ Opcionales</Text>
-                    <Pressable onPress={() => alert('Próximamente disponible')}>
-                        <Text>$ División de Gastos</Text>
-                        <Text>Divide los gastos del grupo</Text>
-                    </Pressable>
-                </>
-            )}
-        </ScrollView>
-    );
+                                <Text style={styles.label}>Lugar</Text>
+                                <Text style={styles.value}>{evento.lugar}</Text>
+
+
+                                <Text style={styles.label}>Personas que van</Text>
+                                {usuariosQueVan.length === 0 ? (
+                                    <Text style={styles.noAssistants}>Nadie confirmó asistencia</Text>
+                                ) : (
+                                    usuariosQueVan.map(usuario => (
+                                        <Text key={usuario.id} style={styles.userItem}>• {usuario.username}</Text>
+                                    ))
+                                )}
+                            </View>
+                        </View>
+
+                        <View style={styles.buttonsCon}>
+                            <Pressable style={styles.btnVoy} onPress={() => cambiarAsistencia('voy')}>
+                                <Text style={styles.text}>Voy</Text>
+                            </Pressable>
+                            <Pressable style={styles.btnNoVoy} onPress={() => cambiarAsistencia('no_voy')}>
+                                <Text style={styles.text}>No voy</Text>
+                            </Pressable>
+                        </View>
+                    </View>
+
+                ) : (
+                    <View style={styles.card}>
+                        <View>
+                            <Text style={styles.eventName}>{evento.nombre}</Text>
+                            <View style={styles.avatarsRow}>
+                                <Text style={styles.infoText}>Van {asistentesCount}/{totalGrupo}</Text>
+                                {[...Array(asistentesCount)].map((_, i) => (
+                                    <View key={i} style={[styles.avatar, { marginLeft: i === 0 ? 6 : -6 }]}>
+                                        <Text style={styles.avatarText}>👤</Text>
+                                    </View>
+                                ))}
+                            </View>
+                        </View>
+                        <View style={styles.buttonsCol}>
+                            <Pressable style={styles.btnVoy} onPress={() => cambiarAsistencia('voy')}>
+                                <Text style={styles.text}>Voy</Text>
+                            </Pressable>
+                            <Pressable style={styles.btnNoVoy} onPress={() => cambiarAsistencia('no_voy')}>
+                                <Text style={styles.text}>No voy</Text>
+                            </Pressable>
+                        </View>
+                    </View>
+                )}
+
+                {encuesta?.activa && (
+                    <>
+                        <View style={styles.tituloSeparador}>
+                            <Iconos
+                                size={36}
+                                icono={<IconUserFilled size={25} color="#000000" />}
+                            />
+                            <Text style={styles.textoTitulo}>Votaciones</Text>
+                        </View>
+                        <Pressable
+                            style={styles.cardGastos}
+                            onPress={() => alert('Próximamente disponible')}
+                        >
+                            <View style={styles.iconoContainer}>
+                                <IconUserFilled size={22} color="#FFFFFF" />
+                            </View>
+                            <View style={styles.textoContainer}>
+                                <Text style={styles.titulo}>Fecha, hora y ubicación</Text>
+                                <Text style={styles.descripcion}>
+                                    Vota las opciones establecidas o sugiere otra opción
+                                </Text>
+                            </View>
+                        </Pressable>
+                        <View style={styles.container}>
+                            <Text style={styles.label}>La votación finaliza en:</Text>
+                            <Text style={styles.date}>{tiempoRestante}</Text>
+                        </View>
+                    </>
+                )}
+
+                <View style={styles.tituloSeparador}>
+                    <Iconos
+                        size={36}
+                        icono={<IconUserFilled size={25} color="#000000" />}
+                    />
+                    <Text style={styles.textoTitulo}>Opcionales</Text>
+                </View>
+                <Pressable
+                    style={styles.cardGastos}
+                    onPress={() => alert('Próximamente disponible')}
+                >
+                    <View style={styles.iconoContainer}>
+                        <MaterialIcons name="attach-money" size={24} color="white" />
+                    </View>
+                    <View style={styles.textoContainer}>
+                        <Text style={styles.titulo}>División de Gastos</Text>
+                        <Text style={styles.descripcion}>Divide los gastos del grupo</Text>
+                    </View>
+                </Pressable>
+            </ScrollView>
+            <Navbar pantallaActual="Inicio" />
+        </View>
+    )
 }
+
+const styles = StyleSheet.create({
+    fondo: {
+        flex: 1,
+        backgroundColor: '#15151C',
+        padding: 25,
+        paddingBottom: 90
+    },
+    text: {
+        fontFamily: 'CashMarket',
+        color: 'white'
+    },
+    tituloSeparador: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginBottom: 12
+    },
+    cardGastos: {
+        backgroundColor: '#4B1F6F',
+        borderRadius: 12,
+        paddingVertical: 12,
+        paddingHorizontal: 16,
+        flexDirection: 'row',
+        alignItems: 'center',
+        borderWidth: 1,
+        borderColor: '#6E3D97',
+        marginVertical: 8,
+    },
+
+    iconoContainer: {
+        marginRight: 12,
+    },
+
+    textoContainer: {
+        flex: 1,
+    },
+    text: {
+        fontFamily: 'CashMarket',
+        color: 'white'
+    },
+
+    titulo: {
+        color: '#FFFFFF',
+        fontSize: 18,
+        fontWeight: '600',
+        marginBottom: 2,
+        fontFamily: 'CashMarket'
+    },
+    tituloInfo: {
+        color: '#FFFFFF',
+        fontSize: 18,
+        fontWeight: '600',
+        marginBottom: 2,
+        fontFamily: 'CashMarket',
+        alignSelf: 'center'
+    },
+    textoTitulo: {
+        color: 'white',
+        marginLeft: 10,
+        fontFamily: 'CashMarket',
+        fontSize: 20,
+        flex: 1
+    },
+
+    descripcion: {
+        color: '#D8C7E8',
+        fontSize: 13,
+        fontFamily: 'Utendo'
+    },
+    card: {
+        backgroundColor: '#5C3E94',
+        borderRadius: 16,
+        padding: 16,
+        marginVertical: 20,
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+    },
+    eventName: {
+        color: '#FFFFFF',
+        fontSize: 16,
+        fontWeight: '700',
+        marginBottom: 6,
+        fontFamily: 'CashMarket'
+    },
+    infoText: {
+        color: '#C9B8F0',
+        fontSize: 13,
+        fontFamily: 'Utendo'
+    },
+    avatarsRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginTop: 4,
+        gap: 4,
+    },
+    avatar: {
+        width: 28,
+        height: 28,
+        borderRadius: 14,
+        backgroundColor: '#6B4FAD',
+        alignItems: 'center',
+        justifyContent: 'center',
+        borderWidth: 2,
+        borderColor: '#3D2E6B',
+        marginLeft: -6,
+    },
+    avatarText: {
+        color: '#E0D4FF',
+        fontSize: 11,
+        fontWeight: '600',
+    },
+    buttonsCol: {
+        gap: 8,
+        alignItems: 'flex-end',
+    },
+    btnVoy: {
+        backgroundColor: '#3AA683',
+        borderRadius: 10,
+        paddingVertical: 8,
+        paddingHorizontal: 25,
+    },
+    btnNoVoy: {
+        backgroundColor: '#C70609',
+        borderRadius: 10,
+        paddingVertical: 8,
+        paddingHorizontal: 15,
+    },
+
+
+
+
+    confirmedCard: {
+  backgroundColor: '#5B3FA8',
+  borderRadius: 24,
+  padding: 20,
+  marginVertical: 12,
+  marginBottom: 20
+},
+
+infoJuntada: {
+  flexDirection: 'row',
+  justifyContent: 'space-between',
+  marginTop: 20,
+},
+
+infofechahora: {
+  flex: 1,
+  paddingRight: 12,
+},
+
+infoLugarInteg: {
+  flex: 1,
+  paddingLeft: 12,
+},
+
+label: {
+  color: '#D8D0F5',
+  fontSize: 14,
+  fontWeight: '700',
+  textTransform: 'uppercase',
+  marginBottom: 4,
+},
+
+value: {
+  color: '#FFF',
+  fontSize: 16,
+  fontWeight: '500',
+  marginBottom: 18,
+},
+
+userItem: {
+  color: '#FFF',
+  fontSize: 16,
+  marginTop: 4,
+},
+
+buttonsCon: {
+  flexDirection: 'row',
+  justifyContent: 'space-evenly',
+  marginTop: 10,
+},
+})
+
 
 export default Juntada;
