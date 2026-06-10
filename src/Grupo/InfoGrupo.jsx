@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, FlatList, Image, TextInput, TouchableOpacity, Modal, Alert, ActivityIndicator } from 'react-native';
+import { View, Text, FlatList, Image, TextInput, TouchableOpacity, Modal, Alert } from 'react-native';
 import { useRoute } from '@react-navigation/native';
 import supabase from '../supabaseClient';
 import HeaderGrupo from '../Utilidades/HeaderGrupo';
@@ -7,51 +7,41 @@ import BotonVolver from '../Utilidades/BotonVolver'
 import Iconos from '../Utilidades/Iconos'
 import { IconUserFilled } from '@tabler/icons-react-native'
 import ButtonApp from '../Utilidades/BotonesApp'
-import Navbar from '../Utilidades/Navbar'
-import { SafeAreaView } from 'react-native-safe-area-context'
+import NavBar from '../Utilidades/Navbar'
 
 function InfoGrupo() {
-    const route = useRoute()
-    const { idGrupo } = route.params
+    const route = useRoute();
+    const { idGrupo } = route.params;
+    const [grupo, setGrupo] = useState(null);
+    const [miembros, setMiembros] = useState([]);
+    const [cargando, setCargando] = useState(false)
 
-    const [grupo, setGrupo] = useState(null)
-    const [miembros, setMiembros] = useState([])
-    const [cargando, setCargando] = useState(true)
 
-    const [mostrarModal, setMostrarModal] = useState(false)
-    const [miembroUsername, setMiembroUsername] = useState('')
-    const [errorMiembro, setErrorMiembro] = useState('')
+    const [mostrarModal, setMostrarModal] = useState(false);
+    const [miembroUsername, setMiembroUsername] = useState('');
+    const [errorMiembro, setErrorMiembro] = useState('');
 
     useEffect(() => {
-        if (idGrupo) {
-            cargarGrupoYMiembros()
-        }
-    }, [idGrupo])
+        if (idGrupo) cargarGrupoYMiembros();
+    }, [idGrupo]);
 
     async function cargarGrupoYMiembros() {
-        setCargando(true)
-
         const { data: grupoData } = await supabase
             .from('grupo')
             .select('*')
             .eq('id', idGrupo)
-            .single()
+            .single();
 
         const { data: miembrosData } = await supabase
             .from('usuario_grupo')
             .select(`
                 id,
-                usuario (
-                    username,
-                    foto_perfil
-                )
+                usuario ( username, foto_perfil )
             `)
-            .eq('id_grupo', idGrupo)
+            .eq('id_grupo', idGrupo);
 
-        setGrupo(grupoData)
-        setMiembros(miembrosData || [])
-
-        setCargando(false)
+        setGrupo(grupoData);
+        setMiembros(miembrosData || []);
     }
 
     async function agregarMiembro() {
@@ -85,27 +75,10 @@ function InfoGrupo() {
         }
     }
 
-    if (cargando) {
-        return (
-            <SafeAreaView style={styles.loadingContainer}>
-                <ActivityIndicator
-                    size="large"
-                    color="#B514F6"
-                />
-
-
-                <Navbar pantallaActual="Inicio" />
-            </SafeAreaView>
-        )
-    }
-
     return (
         <View style={styles.container}>
 
-            <HeaderGrupo
-                grupo={grupo}
-                cantidadMiembros={miembros.length}
-            />
+            <HeaderGrupo />
 
             <View style={styles.contenido}>
                 <View style={styles.tituloSeparador}>
@@ -201,10 +174,10 @@ function InfoGrupo() {
                         </View>
                     </View>
                 </Modal>
-            </View>
+                                        </View>
 
-            <Navbar pantallaActual="Inicio" />
-        </View>
+                <NavBar />
+            </View>
     )
 }
 
@@ -214,8 +187,8 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: '#15151C',
-        padding: 25,
-        paddingBottom: 90
+        paddingHorizontal: '5%',
+        paddingTop: '5%',
     },
 
     contenido: {
@@ -237,8 +210,6 @@ const styles = StyleSheet.create({
         height: 45,
         borderRadius: 999,
         marginRight: 12,
-        borderWidth: 2,
-        borderColor: '#000',
     },
 
     infoUsuario: {
@@ -303,12 +274,7 @@ const styles = StyleSheet.create({
     listaMiembros: {
         paddingBottom: 20,
     },
-    loadingContainer: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-        backgroundColor: '#15151C'
-    },
+
 });
 
 export default InfoGrupo

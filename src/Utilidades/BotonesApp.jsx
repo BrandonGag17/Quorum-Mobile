@@ -1,13 +1,16 @@
 import { StyleSheet, Text, TouchableOpacity } from 'react-native'
 import { useNavigation } from '@react-navigation/native'
 
+
 function ButtonApp({ nombre, view, onPress }) {
     const navigation = useNavigation()
+
 
     const handlePress = () => {
         if (onPress) {
             onPress()
         }
+
 
         if (view) {
             navigation.navigate(view)
@@ -23,12 +26,13 @@ function ButtonApp({ nombre, view, onPress }) {
     )
 }
 
+
 const styles = StyleSheet.create({
     botones: {
-        fontFamily: 'Utendo',
+        fontFamily: 'CashMarket',
         textAlign: 'center',
-        color: 'black',
-        fontSize: 22.5,
+        color: 'white',
+        fontSize: 18,
         padding: 10,
         margin: 10,
         backgroundColor: '#57C7A3',
@@ -40,5 +44,6 @@ const styles = StyleSheet.create({
         width: '100%',
     }
 })
+
 
 export default ButtonApp
