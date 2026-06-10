@@ -10,18 +10,25 @@ function VotacionJuntada({ route, navigation }) {
     const [opcionesLugares, setOpcionesLugares] = useState([]);
     const [votosTotales, setVotosTotales] = useState({});
     const [misVotos, setMisVotos] = useState([]);
-    const [usuario, setUsuario] = useState(null)
 
     useEffect(() => {
         cargarVotacion();
     }, [idEvento]);
 
     async function cargarVotacion() {
-        const { data: encuesta } = await supabase
+        const {
+            data: encuesta,
+            error
+        } = await supabase
             .from('encuesta')
             .select('*')
             .eq('id_evento', idEvento)
             .single()
+
+        if (error) {
+            console.log(error)
+            return
+        }
 
         if (!encuesta) return;
         setEncuesta(encuesta);
@@ -29,17 +36,27 @@ function VotacionJuntada({ route, navigation }) {
         const { data: ops } = await supabase
             .from('opcion_encuesta')
             .select('*')
-            .eq('id_encuesta', enc.id);
+            .eq('id_encuesta', encuesta.id);
 
         if (ops) {
-            setOpcionesFechas(ops.filter(o => !o.descripcion.startsWith('Lugar:')));
-            setOpcionesLugares(ops.filter(o => o.descripcion.startsWith('Lugar:')));
+            setOpcionesFechas(
+                ops.filter(op => op.tipo === 'fecha')
+            )
+
+            setOpcionesLugares(
+                ops.filter(op => op.tipo === 'lugar')
+            )
             cargarVotosYPorcentajes(ops);
         }
     }
 
     async function cargarVotosYPorcentajes(listaOpciones) {
         const idsOpciones = listaOpciones.map(o => o.id);
+        if (listaOpciones.length === 0) {
+            setVotosTotales({})
+            setMisVotos([])
+            return
+        }
         const { data: todosLosVotos } = await supabase
             .from('voto')
             .select('*')
@@ -100,18 +117,6 @@ function VotacionJuntada({ route, navigation }) {
         return Math.round(((votosTotales[idOpcion] || 0) / totalVotosSeccion) * 100);
     };
 
-    useEffect(() => {
-        cargarUsuario()
-    }, [])
-
-    async function cargarUsuario() {
-        const {
-            data: { user }
-        } = await supabase.auth.getUser()
-
-        setUsuario(user)
-    }
-
     return (
         <ScrollView>
             <BotonVolver />
@@ -136,7 +141,7 @@ function VotacionJuntada({ route, navigation }) {
             <View>
                 {opcionesLugares.map(op => (
                     <Pressable key={op.id} onPress={() => alternarVoto(op.id)}>
-                        <Text>{op.descripcion.replace('Lugar: ', '')} - {calcularPorcentaje(op.id, true)}% {misVotos.includes(op.id) ? "✅" : ""}</Text>
+                        <Text>{op.descripcion} - {calcularPorcentaje(op.id, true)}% {misVotos.includes(op.id) ? "✅" : ""}</Text>
                     </Pressable>
                 ))}
             </View>
