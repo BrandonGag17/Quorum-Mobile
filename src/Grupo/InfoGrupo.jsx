@@ -1,40 +1,57 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, FlatList, Image, TextInput, TouchableOpacity, Modal, Alert } from 'react-native';
+import { View, Text, FlatList, Image, TextInput, TouchableOpacity, Modal, Alert, ActivityIndicator } from 'react-native';
 import { useRoute } from '@react-navigation/native';
 import supabase from '../supabaseClient';
-import BotonVolver from '../Utilidades/BotonVolver';
+import HeaderGrupo from '../Utilidades/HeaderGrupo';
+import BotonVolver from '../Utilidades/BotonVolver'
+import Iconos from '../Utilidades/Iconos'
+import { IconUserFilled } from '@tabler/icons-react-native'
+import ButtonApp from '../Utilidades/BotonesApp'
+import Navbar from '../Utilidades/Navbar'
+import { SafeAreaView } from 'react-native-safe-area-context'
 
 function InfoGrupo() {
-    const route = useRoute();
-    const { idGrupo } = route.params;
-    const [grupo, setGrupo] = useState(null);
-    const [miembros, setMiembros] = useState([]);
+    const route = useRoute()
+    const { idGrupo } = route.params
 
-    const [mostrarModal, setMostrarModal] = useState(false);
-    const [miembroUsername, setMiembroUsername] = useState('');
-    const [errorMiembro, setErrorMiembro] = useState('');
+    const [grupo, setGrupo] = useState(null)
+    const [miembros, setMiembros] = useState([])
+    const [cargando, setCargando] = useState(true)
+
+    const [mostrarModal, setMostrarModal] = useState(false)
+    const [miembroUsername, setMiembroUsername] = useState('')
+    const [errorMiembro, setErrorMiembro] = useState('')
 
     useEffect(() => {
-        if (idGrupo) cargarGrupoYMiembros();
-    }, [idGrupo]);
+        if (idGrupo) {
+            cargarGrupoYMiembros()
+        }
+    }, [idGrupo])
 
     async function cargarGrupoYMiembros() {
+        setCargando(true)
+
         const { data: grupoData } = await supabase
             .from('grupo')
             .select('*')
             .eq('id', idGrupo)
-            .single();
+            .single()
 
         const { data: miembrosData } = await supabase
             .from('usuario_grupo')
             .select(`
                 id,
-                usuario ( username, foto_perfil )
+                usuario (
+                    username,
+                    foto_perfil
+                )
             `)
-            .eq('id_grupo', idGrupo);
+            .eq('id_grupo', idGrupo)
 
-        setGrupo(grupoData);
-        setMiembros(miembrosData || []);
+        setGrupo(grupoData)
+        setMiembros(miembrosData || [])
+
+        setCargando(false)
     }
 
     async function agregarMiembro() {
@@ -68,58 +85,230 @@ function InfoGrupo() {
         }
     }
 
-    return (
-        <View>
-            <BotonVolver />
-            <Text>{grupo?.nombre || 'Cargando...'}</Text>
+    if (cargando) {
+        return (
+            <SafeAreaView style={styles.loadingContainer}>
+                <ActivityIndicator
+                    size="large"
+                    color="#B514F6"
+                />
 
-            <Text>Miembros</Text>
-            <FlatList
-                data={miembros}
-                keyExtractor={(item) => item.id.toString()}
-                renderItem={({ item }) => (
-                    <View>
-                        <Image
-                            source={{ uri: item.usuario?.foto_perfil || 'https://placeholder.com' }}
-                            style={{ width: 50, height: 50 }}
-                        />
-                        <Text>@{item.usuario?.username}</Text>
-                    </View>
-                )}
+
+                <Navbar pantallaActual="Inicio" />
+            </SafeAreaView>
+        )
+    }
+
+    return (
+        <View style={styles.container}>
+
+            <HeaderGrupo
+                grupo={grupo}
+                cantidadMiembros={miembros.length}
             />
 
-            <TouchableOpacity onPress={() => setMostrarModal(true)}>
-                <Text>+ Añadir miembro</Text>
-            </TouchableOpacity>
-
-            <Modal visible={mostrarModal} transparent={true} animationType="fade">
-                <View>
-                    <View>
-                        <TouchableOpacity onPress={() => setMostrarModal(false)}>
-                            <Text>X</Text>
-                        </TouchableOpacity>
-
-                        <Text>Añadir miembro</Text>
-
-                        <Text>Buscar miembro:</Text>
-                        <TextInput
-                            value={miembroUsername}
-                            onChangeText={(val) => {
-                                setMiembroUsername(val);
-                                setErrorMiembro('');
-                            }}
-                        />
-
-                        <TouchableOpacity onPress={agregarMiembro}>
-                            <Text>Añadir miembros</Text>
-                        </TouchableOpacity>
-
-                        {errorMiembro ? <Text>{errorMiembro}</Text> : null}
-                    </View>
+            <View style={styles.contenido}>
+                <View style={styles.tituloSeparador}>
+                    <Iconos size={36} icono={<IconUserFilled size={25} color="#000000" />} />
+                    <Text style={styles.textoTitulo}> Miembros </Text>
                 </View>
-            </Modal>
+
+
+                <FlatList
+                    data={miembros}
+                    keyExtractor={(item) => item.id.toString()}
+                    showsVerticalScrollIndicator={false}
+                    contentContainerStyle={styles.listaMiembros}
+                    renderItem={({ item }) => (
+                        <View style={styles.miembroCard}>
+                            <Image
+                                source={{
+                                    uri:
+                                        item.usuario?.foto_perfil ||
+                                        'https://placeholder.com'
+                                }}
+                                style={styles.fotoPerfil}
+                            />
+
+                            <View style={styles.infoUsuario}>
+                                <Text style={styles.nombreUsuario}>
+                                    {item.usuario?.username}
+                                </Text>
+
+                                <Text style={styles.username}>
+                                    @{item.usuario?.username}
+                                </Text>
+                            </View>
+                        </View>
+                    )}
+                />
+
+                <View style={styles.botonContainer}>
+                    <ButtonApp
+                        nombre={cargando ? 'Cargando...' : '+ Añadir miembros'}
+                    />
+                </View>
+
+                <TouchableOpacity style={styles.botonSalir}>
+                    <Text style={styles.textoBotonSalir}>
+                        Salir del grupo
+                    </Text>
+                </TouchableOpacity>
+
+                <Modal
+                    visible={mostrarModal}
+                    transparent
+                    animationType="fade"
+                >
+                    <View style={styles.modalFondo}>
+                        <View style={styles.modalContenido}>
+                            <TouchableOpacity
+                                style={styles.cerrarModal}
+                                onPress={() => setMostrarModal(false)}
+                            >
+                                <Text style={styles.textoCerrar}>✕</Text>
+                            </TouchableOpacity>
+
+                            <Text style={styles.modalTitulo}>
+                                Añadir miembro
+                            </Text>
+
+                            <TextInput
+                                style={styles.input}
+                                placeholder="Username"
+                                placeholderTextColor="#999"
+                                value={miembroUsername}
+                                onChangeText={(val) => {
+                                    setMiembroUsername(val);
+                                    setErrorMiembro('');
+                                }}
+                            />
+
+                            <TouchableOpacity
+                                style={styles.botonModal}
+                                onPress={agregarMiembro}
+                            >
+                                <Text style={styles.textoBotonModal}>
+                                    Añadir
+                                </Text>
+                            </TouchableOpacity>
+
+                            {errorMiembro ? (
+                                <Text style={styles.error}>
+                                    {errorMiembro}
+                                </Text>
+                            ) : null}
+                        </View>
+                    </View>
+                </Modal>
+            </View>
+
+            <Navbar pantallaActual="Inicio" />
         </View>
-    );
+    )
 }
 
-export default InfoGrupo;
+import { StyleSheet } from 'react-native';
+
+const styles = StyleSheet.create({
+    container: {
+        flex: 1,
+        backgroundColor: '#15151C',
+        padding: 25,
+        paddingBottom: 90
+    },
+
+    contenido: {
+        flex: 1,
+    },
+
+    miembroCard: {
+        backgroundColor: '#6742a8',
+        borderRadius: 15,
+        paddingVertical: 12,
+        paddingHorizontal: 15,
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginBottom: 12,
+    },
+
+    fotoPerfil: {
+        width: 45,
+        height: 45,
+        borderRadius: 999,
+        marginRight: 12,
+        borderWidth: 2,
+        borderColor: '#000',
+    },
+
+    infoUsuario: {
+        flex: 1,
+    },
+
+    nombreUsuario: {
+        color: 'white',
+        fontFamily: 'CashMarket',
+        fontSize: 15,
+    },
+
+    username: {
+        color: '#d5d5d5',
+        fontSize: 12,
+        marginTop: 2,
+        fontFamily: 'Utendo '
+    },
+
+    botonAgregar: {
+        backgroundColor: '#59d6b4',
+        borderRadius: 8,
+        paddingVertical: 14,
+        alignItems: 'center',
+        marginTop: 15,
+    },
+
+    textoBotonAgregar: {
+        color: '#1a1a1a',
+        fontWeight: 'bold',
+        fontSize: 16,
+    },
+
+    botonSalir: {
+        borderWidth: 2,
+        borderColor: '#ff0000',
+        borderRadius: 8,
+        paddingVertical: 14,
+        alignItems: 'center',
+        marginTop: 10,
+        marginBottom: 20,
+    },
+
+    textoBotonSalir: {
+        color: 'white',
+        fontWeight: 'bold',
+        fontSize: 16,
+    },
+
+    tituloSeparador: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginBottom: 12
+    },
+    textoTitulo: {
+        color: 'white',
+        marginLeft: 10,
+        fontFamily: 'CashMarket',
+        fontSize: 20,
+        flex: 1
+    },
+    listaMiembros: {
+        paddingBottom: 20,
+    },
+    loadingContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: '#15151C'
+    },
+});
+
+export default InfoGrupo

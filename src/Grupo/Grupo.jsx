@@ -21,6 +21,7 @@ import Navbar from '../Utilidades/Navbar'
 import Iconos from '../Utilidades/Iconos'
 import CardJuntadas from '../Utilidades/CardJuntadas'
 import BotonVolver from '../Utilidades/BotonVolver'
+import HeaderGrupo from '../Utilidades/HeaderGrupo'
 
 import Ionicons from '@expo/vector-icons/Ionicons'
 import { IconBulbFilled, IconCalendarEventFilled } from '@tabler/icons-react-native';
@@ -158,38 +159,10 @@ function Grupo() {
                 contentContainerStyle={{ paddingBottom: 100 }}
             >
 
-                <View style={styles.headerGrupo}>
-                    <BotonVolver />
-
-                    <TouchableOpacity
-                        style={styles.infoGrupo}
-                        onPress={() =>
-                            navigation.navigate('InfoGrupo', {
-                                idGrupo
-                            })
-                        }
-                        activeOpacity={0.8}
-                    >
-                        <Image
-                            source={
-                                grupo?.foto_perfil
-                                    ? { uri: grupo.foto_perfil }
-                                    : require('../../assets/img/amiguis.jpg')
-                            }
-                            style={styles.fotoGrupo}
-                        />
-
-                        <View>
-                            <Text style={styles.nombreGrupo}>
-                                {grupo?.nombre || 'Grupo sin nombre'}
-                            </Text>
-
-                            <Text style={styles.miembrosGrupo}>
-                                {cantidadMiembros} participantes
-                            </Text>
-                        </View>
-                    </TouchableOpacity>
-                </View>
+                <HeaderGrupo
+                    grupo={grupo}
+                    cantidadMiembros={cantidadMiembros}
+                />
 
                 <View style={styles.tituloSeparador}>
                     <Iconos

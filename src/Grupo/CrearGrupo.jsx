@@ -16,6 +16,9 @@ import ErrorMessage from '../Utilidades/MensajeError'
 import InputApp from '../Utilidades/InputApp'
 import ButtonApp from '../Utilidades/BotonesApp'
 
+const FOTO_DEFAULT =
+    'https://fusjhtyvjkshuzxofeqj.supabase.co/storage/v1/object/public/avatars/PlaceholderGrupo.png'
+
 function CrearGrupo({ onGrupoCreado }) {
     const [nombreGrupo, setNombreGrupo] = useState('')
     const [foto, setFoto] = useState(null)
@@ -129,7 +132,47 @@ function CrearGrupo({ onGrupoCreado }) {
                 return
             }
 
-            let fotoPerfil = null
+            let fotoPerfil = FOTO_DEFAULT
+
+            if (foto) {
+                const response =
+                    await fetch(foto.uri)
+
+                const blob =
+                    await response.blob()
+
+                const extension =
+                    foto.uri.split('.').pop() || 'jpg'
+
+                const nombreArchivo =
+                    `${user.id}-${Date.now()}.${extension}`
+
+                const {
+                    error: errorStorage
+                } = await supabase.storage
+                    .from('avatars')
+                    .upload(
+                        nombreArchivo,
+                        blob
+                    )
+
+                if (errorStorage) {
+                    setMensaje(
+                        'No se pudo subir la imagen'
+                    )
+                    return
+                }
+
+                const { data } =
+                    supabase.storage
+                        .from('avatars')
+                        .getPublicUrl(
+                            nombreArchivo
+                        )
+
+                fotoPerfil =
+                    data.publicUrl
+            }
 
             if (foto) {
                 const response =
@@ -296,7 +339,7 @@ function CrearGrupo({ onGrupoCreado }) {
                     </Text>
                 </TouchableOpacity>
             </View>
-            
+
             <FlatList
                 scrollEnabled={false}
                 data={miembros}

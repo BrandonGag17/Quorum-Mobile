@@ -9,6 +9,8 @@ import * as ImagePicker from 'expo-image-picker'
 import supabase from '../supabaseClient'
 import ErrorMessage from '../Utilidades/MensajeError'
 
+const FOTO_DEFAULT = 'https://fusjhtyvjkshuzxofeqj.supabase.co/storage/v1/object/public/avatars/PlaceholderPerfil.png'
+
 function Registrarse3() {
     const navigation = useNavigation()
 
@@ -107,13 +109,13 @@ function Registrarse3() {
 
             const user = data.user
 
-            let fotoPerfil = null
+            let fotoPerfil = FOTO_DEFAULT
 
             if (foto) {
                 const response = await fetch(foto.uri)
                 const blob = await response.blob()
 
-                const extension = foto.uri.split('.').pop()
+                const extension = foto.uri.split('.').pop() || 'jpg'
 
                 const nombreArchivo =
                     `${user.id}-${Date.now()}.${extension}`
@@ -121,10 +123,7 @@ function Registrarse3() {
                 const { error: errorStorage } =
                     await supabase.storage
                         .from('avatars')
-                        .upload(
-                            nombreArchivo,
-                            blob
-                        )
+                        .upload(nombreArchivo, blob)
 
                 if (errorStorage) {
                     setMensaje('No se pudo subir la foto')
@@ -137,10 +136,6 @@ function Registrarse3() {
                         .getPublicUrl(nombreArchivo)
 
                 fotoPerfil = fotoData.publicUrl
-            }
-
-            if (!foto) {
-                fotoPerfil = 'https://tu-proyecto.supabase.co/storage/v1/object/public/avatars/amiguis.jpg'
             }
 
             let fechaSQL = null
@@ -202,7 +197,7 @@ function Registrarse3() {
                     source={
                         foto
                             ? { uri: foto.uri }
-                            : require('../../assets/img/amiguis.jpg')
+                            : require('../../assets/img/Placeholders/PlaceholderPerfil.png')
                     }
                     style={styles.fotoPerfil}
                 />
