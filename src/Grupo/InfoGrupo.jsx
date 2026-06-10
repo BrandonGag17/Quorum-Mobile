@@ -78,13 +78,11 @@ function InfoGrupo() {
     return (
         <View style={styles.container}>
 
-            <HeaderGrupo />
-
             <View style={styles.contenido}>
-                <View style={styles.tituloSeparador}>
-                    <Iconos size={36} icono={<IconUserFilled size={25} color="#000000" />} />
-                    <Text style={styles.textoTitulo}> Miembros </Text>
-                </View>
+                <HeaderGrupo
+                    grupo={grupo}
+                    cantidadMiembros={miembros.length}
+                />
 
 
                 <FlatList
@@ -176,10 +174,10 @@ function InfoGrupo() {
                         </View>
                     </View>
                 </Modal>
-                                        </View>
-
-                <NavBar />
             </View>
+
+            <NavBar />
+        </View>
     )
 }
 

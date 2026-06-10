@@ -205,12 +205,12 @@ function Juntada({ route, navigation }) {
         });
 
         const fechas = opciones.filter(
-            o => !o.descripcion.startsWith('Lugar:')
-        );
+            op => op.tipo === 'fecha'
+        )
 
         const lugares = opciones.filter(
-            o => o.descripcion.startsWith('Lugar:')
-        );
+            op => op.tipo === 'lugar'
+        )
 
         let fechaGanadora = null;
         let lugarGanador = null;
@@ -409,7 +409,14 @@ function Juntada({ route, navigation }) {
                         </View>
                         <Pressable
                             style={styles.cardGastos}
-                            onPress={() => alert('Próximamente disponible')}
+                            onPress={() =>
+                                navigation.navigate(
+                                    'VotacionJuntada',
+                                    {
+                                        idEvento
+                                    }
+                                )
+                            }
                         >
                             <View style={styles.iconoContainer}>
                                 <IconUserFilled size={22} color="#FFFFFF" />
@@ -582,24 +589,24 @@ const styles = StyleSheet.create({
 
 
 
-confirmedCard: {
-    backgroundColor: '#5B3FA8',
-    borderRadius: 20,
-    padding: 18,
-    marginVertical: 12,
-},
-infoJuntada: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginTop: 10,
-},
+    confirmedCard: {
+        backgroundColor: '#5B3FA8',
+        borderRadius: 20,
+        padding: 18,
+        marginVertical: 12,
+    },
+    infoJuntada: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        marginTop: 10,
+    },
 
-  infofechahora: {
-    width: '48%',
-},
-  infoLugarInteg: {
-    width: '48%',
-},
+    infofechahora: {
+        width: '48%',
+    },
+    infoLugarInteg: {
+        width: '48%',
+    },
     label: {
         color: '#D8D0F5',
         fontSize: 14,
@@ -608,13 +615,13 @@ infoJuntada: {
         marginBottom: 4,
     },
 
-value: {
-    color: '#FFF',
-    fontSize: 13,
-    marginLeft: 8,
-    marginBottom: 0,
-    fontFamily: 'Utendo',
-},
+    value: {
+        color: '#FFF',
+        fontSize: 13,
+        marginLeft: 8,
+        marginBottom: 0,
+        fontFamily: 'Utendo',
+    },
     userItem: {
         color: '#FFF',
         fontSize: 16,

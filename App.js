@@ -18,6 +18,7 @@ import Juntada from './src/Juntada/Juntada'
 import ProponerJuntada from './src/Juntada/ProponerJuntada'
 import CrearGrupo from './src/Grupo/CrearGrupo'
 import InfoGrupo from './src/Grupo/InfoGrupo'
+import VotacionJuntada from './src/Juntada/VotacionJuntada'
 
 const Stack = createNativeStackNavigator()
 
@@ -114,6 +115,11 @@ export default function App() {
         <Stack.Screen
           name="CrearGrupo"
           component={CrearGrupo}
+        />
+
+        <Stack.Screen
+          name="VotacionJuntada"
+          component={VotacionJuntada}
         />
       </Stack.Navigator>
     </NavigationContainer>

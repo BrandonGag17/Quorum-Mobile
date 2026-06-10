@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, Pressable, ScrollView } from 'react-native';
-import supabase from './supabaseClient';
-import BotonVolver from './BotonVolver';
+import supabase from '../supabaseClient';
+import BotonVolver from '../Utilidades/BotonVolver';
 
 function VotacionJuntada({ route, navigation }) {
     const { idEvento } = route.params;
@@ -33,10 +33,18 @@ function VotacionJuntada({ route, navigation }) {
         if (!encuesta) return;
         setEncuesta(encuesta);
 
-        const { data: ops } = await supabase
+        const {
+            data: ops,
+            error: errorOps
+        } = await supabase
             .from('opcion_encuesta')
             .select('*')
-            .eq('id_encuesta', encuesta.id);
+            .eq('id_encuesta', encuesta.id)
+
+        if (errorOps) {
+            console.log(errorOps)
+            return
+        }
 
         if (ops) {
             setOpcionesFechas(
@@ -57,10 +65,21 @@ function VotacionJuntada({ route, navigation }) {
             setMisVotos([])
             return
         }
-        const { data: todosLosVotos } = await supabase
+        const {
+            data: todosLosVotos,
+            error: errorVotos
+        } = await supabase
             .from('voto')
             .select('*')
-            .in('id_opcion', idsOpciones);
+            .in('id_opcion', idsOpciones)
+
+        if (errorVotos) {
+            console.log(
+                'Error cargando votos:',
+                errorVotos.message
+            )
+            return
+        }
 
         const conteo = {};
         idsOpciones.forEach(id => { conteo[id] = 0; });
@@ -93,29 +112,38 @@ function VotacionJuntada({ route, navigation }) {
             misVotos.includes(idOpcion)
 
         if (yaVoto) {
-            await supabase
+            const { error } = await supabase
                 .from('voto')
                 .delete()
                 .eq('id_usuario', user.id)
                 .eq('id_opcion', idOpcion)
+
+            if (error) {
+                console.log(
+                    'Error eliminando voto:',
+                    error.message
+                )
+                return
+            }
         } else {
-            await supabase
+            const { error } = await supabase
                 .from('voto')
                 .insert({
                     id_usuario: user.id,
                     id_opcion: idOpcion
                 })
+
+            if (error) {
+                console.log(
+                    'Error creando voto:',
+                    error.message
+                )
+                return
+            }
         }
 
         cargarVotacion()
     }
-
-    const calcularPorcentaje = (idOpcion, esLugar) => {
-        const lista = esLugar ? opcionesLugares : opcionesFechas;
-        const totalVotosSeccion = lista.reduce((acc, o) => acc + (votosTotales[o.id] || 0), 0);
-        if (totalVotosSeccion === 0) return 0;
-        return Math.round(((votosTotales[idOpcion] || 0) / totalVotosSeccion) * 100);
-    };
 
     return (
         <ScrollView>
@@ -131,8 +159,17 @@ function VotacionJuntada({ route, navigation }) {
             <Text>Fecha y horario</Text>
             <View>
                 {opcionesFechas.map(op => (
-                    <Pressable key={op.id} onPress={() => alternarVoto(op.id)}>
-                        <Text>{op.descripcion} - {calcularPorcentaje(op.id, false)}% {misVotos.includes(op.id) ? "✅" : ""}</Text>
+                    <Pressable
+                        key={op.id}
+                        onPress={() => alternarVoto(op.id)}
+                    >
+                        <Text>
+                            {op.descripcion}
+                            {' - '}
+                            {votosTotales[op.id] || 0} votos
+                            {' '}
+                            {misVotos.includes(op.id) ? '✅' : ''}
+                        </Text>
                     </Pressable>
                 ))}
             </View>
@@ -140,12 +177,22 @@ function VotacionJuntada({ route, navigation }) {
             <Text>Lugar</Text>
             <View>
                 {opcionesLugares.map(op => (
-                    <Pressable key={op.id} onPress={() => alternarVoto(op.id)}>
-                        <Text>{op.descripcion} - {calcularPorcentaje(op.id, true)}% {misVotos.includes(op.id) ? "✅" : ""}</Text>
+                    <Pressable
+                        key={op.id}
+                        onPress={() => alternarVoto(op.id)}
+                    >
+                        <Text>
+                            {op.descripcion}
+                            {' - '}
+                            {votosTotales[op.id] || 0} votos
+                            {' '}
+                            {misVotos.includes(op.id) ? '✅' : ''}
+                        </Text>
                     </Pressable>
                 ))}
             </View>
 
+            
         </ScrollView>
     );
 }
