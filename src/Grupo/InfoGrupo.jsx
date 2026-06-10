@@ -122,10 +122,12 @@ function InfoGrupo() {
                     />
                 </View>
 
-                <TouchableOpacity style={styles.botonSalir}>
-                    <Text style={styles.textoBotonSalir}>
-                        Salir del grupo
-                    </Text>
+                <TouchableOpacity
+                    onPress={async () => {
+                        navigation.replace('Inicio')
+                    }}
+                >
+                    <Text style={styles.botonSalirGrupo}>Salir del grupo</Text>
                 </TouchableOpacity>
 
                 <Modal
