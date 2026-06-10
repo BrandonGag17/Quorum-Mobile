@@ -1,23 +1,21 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, FlatList, Image, TextInput, TouchableOpacity, Modal, Alert } from 'react-native';
-import { useRoute } from '@react-navigation/native';
+import { View, Text, FlatList, Image, TextInput, TouchableOpacity, Modal } from 'react-native';
+import { useRoute, useNavigation } from '@react-navigation/native';
 import supabase from '../supabaseClient';
 import HeaderGrupo from '../Utilidades/HeaderGrupo';
-import BotonVolver from '../Utilidades/BotonVolver'
-import Iconos from '../Utilidades/Iconos'
-import { IconUserFilled } from '@tabler/icons-react-native'
 import ButtonApp from '../Utilidades/BotonesApp'
 import NavBar from '../Utilidades/Navbar'
 
 function InfoGrupo() {
     const route = useRoute();
+    const navigation = useNavigation();
     const { idGrupo } = route.params;
     const [grupo, setGrupo] = useState(null);
     const [miembros, setMiembros] = useState([]);
     const [cargando, setCargando] = useState(false)
 
-
     const [mostrarModal, setMostrarModal] = useState(false);
+    const [mostrarPopupSalir, setMostrarPopupSalir] = useState(false);
     const [miembroUsername, setMiembroUsername] = useState('');
     const [errorMiembro, setErrorMiembro] = useState('');
 
@@ -26,6 +24,8 @@ function InfoGrupo() {
     }, [idGrupo]);
 
     async function cargarGrupoYMiembros() {
+        setCargando(true);
+
         const { data: grupoData } = await supabase
             .from('grupo')
             .select('*')
@@ -35,13 +35,31 @@ function InfoGrupo() {
         const { data: miembrosData } = await supabase
             .from('usuario_grupo')
             .select(`
-                id,
-                usuario ( username, foto_perfil )
-            `)
+            id,
+            usuario ( username, foto_perfil )
+        `)
             .eq('id_grupo', idGrupo);
 
         setGrupo(grupoData);
         setMiembros(miembrosData || []);
+
+        setCargando(false);
+    }
+
+    async function confirmarSalir() {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (user) {
+            const { error } = await supabase
+                .from('usuario_grupo')
+                .delete()
+                .eq('id_grupo', idGrupo)
+                .eq('id_usuario', user.id);
+
+            if (!error) {
+                setMostrarPopupSalir(false); // Primero cerramos el popup
+                navigation.navigate('Inicio'); // Luego navegamos
+            }
+        }
     }
 
     async function agregarMiembro() {
@@ -55,6 +73,15 @@ function InfoGrupo() {
 
         if (!usuarioEncontrado) {
             setErrorMiembro('El usuario no existe');
+            return;
+        }
+
+        const {
+            data: { user }
+        } = await supabase.auth.getUser();
+
+        if (usuarioEncontrado.id === user.id) {
+            setErrorMiembro('No podés agregarte a vos mismo');
             return;
         }
 
@@ -75,14 +102,23 @@ function InfoGrupo() {
         }
     }
 
+    if (cargando) {
+        return (
+            <View style={styles.loadingContainer}>
+                <Text style={styles.loadingText}>
+                    Cargando grupo...
+                </Text>
+            </View>
+        );
+    }
+
     return (
         <View style={styles.container}>
-
+            <HeaderGrupo
+                grupo={grupo}
+                cantidadMiembros={miembros.length}
+            />
             <View style={styles.contenido}>
-                <HeaderGrupo
-                    grupo={grupo}
-                    cantidadMiembros={miembros.length}
-                />
 
 
                 <FlatList
@@ -94,9 +130,7 @@ function InfoGrupo() {
                         <View style={styles.miembroCard}>
                             <Image
                                 source={{
-                                    uri:
-                                        item.usuario?.foto_perfil ||
-                                        'https://placeholder.com'
+                                    uri: item.usuario?.foto_perfil
                                 }}
                                 style={styles.fotoPerfil}
                             />
@@ -116,16 +150,18 @@ function InfoGrupo() {
 
                 <View style={styles.botonContainer}>
                     <ButtonApp
+                        onPress={() => setMostrarModal(true)}
                         nombre={cargando ? 'Cargando...' : '+ Añadir miembros'}
                     />
                 </View>
 
                 <TouchableOpacity
-                    onPress={async () => {
-                        navigation.replace('Inicio')
-                    }}
+                    style={styles.botonSalir}
+                    onPress={() => setMostrarPopupSalir(true)}
                 >
-                    <Text style={styles.botonSalirGrupo}>Salir del grupo</Text>
+                    <Text style={styles.textoBotonSalir}>
+                        Salir del grupo
+                    </Text>
                 </TouchableOpacity>
 
                 <Modal
@@ -174,6 +210,37 @@ function InfoGrupo() {
                         </View>
                     </View>
                 </Modal>
+
+                <Modal
+                    visible={mostrarPopupSalir}
+                    transparent
+                    animationType="fade"
+                >
+                    <View style={styles.modalFondo}>
+                        <View style={styles.modalContenido}>
+                            <Text style={styles.modalTitulo}>
+                                ¿Salir del grupo?
+                            </Text>
+
+                            <Text style={styles.modalTexto}>
+                                Vas a dejar de formar parte del grupo.
+                            </Text>
+
+                            <ButtonApp
+                                nombre="Sí, salir"
+                                onPress={confirmarSalir}
+                            />
+
+                            <TouchableOpacity
+                                onPress={() => setMostrarPopupSalir(false)}
+                            >
+                                <Text style={styles.cancelarTexto}>
+                                    Cancelar
+                                </Text>
+                            </TouchableOpacity>
+                        </View>
+                    </View>
+                </Modal>
             </View>
 
             <NavBar />
@@ -193,6 +260,7 @@ const styles = StyleSheet.create({
 
     contenido: {
         flex: 1,
+        paddingBottom: 90,
     },
 
     miembroCard: {
@@ -245,8 +313,8 @@ const styles = StyleSheet.create({
 
     botonSalir: {
         borderWidth: 2,
-        borderColor: '#ff0000',
-        borderRadius: 8,
+        backgroundColor: '#ff0000',
+        borderRadius: 15,
         paddingVertical: 14,
         alignItems: 'center',
         marginTop: 10,
@@ -257,6 +325,7 @@ const styles = StyleSheet.create({
         color: 'white',
         fontWeight: 'bold',
         fontSize: 16,
+        fontFamily: 'CashMarket'
     },
 
     tituloSeparador: {
@@ -272,9 +341,111 @@ const styles = StyleSheet.create({
         flex: 1
     },
     listaMiembros: {
-        paddingBottom: 20,
+        paddingBottom: 120,
+    },
+    loadingContainer: {
+        flex: 1,
+        backgroundColor: '#15151C',
+        justifyContent: 'center',
+        alignItems: 'center',
     },
 
+    loadingText: {
+        color: 'white',
+        fontSize: 18,
+        fontFamily: 'CashMarket',
+    },
+
+    modalFondo: {
+        flex: 1,
+        backgroundColor: 'rgba(0,0,0,0.75)',
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+
+    modalContenido: {
+        width: '85%',
+        backgroundColor: '#1E1E2D',
+        borderRadius: 20,
+        padding: 20,
+        borderWidth: 1,
+        borderColor: '#4B1F6F',
+    },
+
+    modalTitulo: {
+        color: 'white',
+        fontSize: 20,
+        textAlign: 'center',
+        marginBottom: 10,
+        fontFamily: 'CashMarket',
+    },
+
+    modalTexto: {
+        color: '#D8C7E8',
+        textAlign: 'center',
+        marginBottom: 20,
+        fontFamily: 'Utendo',
+    },
+
+    cancelarTexto: {
+        color: '#AAA',
+        textAlign: 'center',
+        marginTop: 15,
+        fontFamily: 'Utendo',
+    },
+    botonContainer: {
+        marginTop: 10,
+        marginBottom: 10,
+    },
+
+    cerrarModal: {
+        position: 'absolute',
+        top: 15,
+        right: 15,
+        zIndex: 1,
+    },
+
+    textoCerrar: {
+        color: '#FFFFFF',
+        fontSize: 20,
+        fontFamily: 'CashMarket',
+    },
+
+    input: {
+        backgroundColor: '#1B1B29',
+        borderWidth: 1,
+        borderColor: '#4B1F6F',
+        borderRadius: 12,
+        paddingHorizontal: 15,
+        paddingVertical: 12,
+        color: 'white',
+        fontSize: 16,
+        fontFamily: 'Utendo',
+        marginBottom: 15,
+        marginTop: 10,
+    },
+
+    botonModal: {
+        backgroundColor: '#5C3E94',
+        borderRadius: 12,
+        paddingVertical: 14,
+        alignItems: 'center',
+        marginTop: 5,
+    },
+
+    textoBotonModal: {
+        color: '#FFFFFF',
+        fontSize: 16,
+        fontFamily: 'CashMarket',
+    },
+
+    error: {
+        color: '#FF6B6B',
+        textAlign: 'center',
+        marginTop: 12,
+        fontSize: 14,
+        fontFamily: 'Utendo',
+    },
 });
 
 export default InfoGrupo
