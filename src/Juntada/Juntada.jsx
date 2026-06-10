@@ -5,6 +5,8 @@ import { IconUserFilled } from '@tabler/icons-react-native';
 import Iconos from '../Utilidades/Iconos'
 import Navbar from '../Utilidades/Navbar'
 import MaterialIcons from '@expo/vector-icons/MaterialIcons'
+import FontAwesome6 from '@expo/vector-icons/FontAwesome6'
+import Ionicons from '@expo/vector-icons/Ionicons';
 
 function Juntada({ route, navigation }) {
     const { idEvento } = route.params;
@@ -178,16 +180,12 @@ function Juntada({ route, navigation }) {
 
         if (ahora < cierre) return;
 
-        const {
-            error: errorOpciones
-        } = await supabase
+        const { data: opciones } = await supabase
             .from('opcion_encuesta')
-            .insert(opcionesParaInsertar)
+            .select('*')
+            .eq('id_encuesta', encuestaActual.id);
 
-        if (errorOpciones) {
-            setMensaje(errorOpciones.message)
-            return
-        }
+        if (!opciones?.length) return;
 
         const idsOpciones = opciones.map(o => o.id);
 
@@ -316,7 +314,7 @@ function Juntada({ route, navigation }) {
                 <Pressable onPress={() => navigation.navigate('InicioGrupo', { id: evento.id_grupo })}>
                     <Text>Volver al grupo</Text>
                 </Pressable>
-        
+
                 {evento.estado === 'confirmado' ? (
                     <View style={styles.confirmedCard}>
                         <Text style={styles.tituloInfo}>{evento.nombre}</Text>
@@ -329,26 +327,40 @@ function Juntada({ route, navigation }) {
                         <View style={styles.infoJuntada}>
                             <View style={styles.infofechahora}>
 
-                                <Text style={styles.label}>Lugar</Text>
-                                <Text style={styles.value}>{evento.lugar}</Text>
+                                <View style={styles.infoFila}>
+                                    <FontAwesome6 name="calendar-day" size={14} color="white" />
+                                    <Text style={styles.value}>
+                                        {new Date(evento.fecha_hora_inicio).toLocaleDateString()}
+                                    </Text>
+                                </View>
 
-                                <Text style={styles.label}>Lugar</Text>
-                                <Text style={styles.value}>{evento.lugar}</Text>
+                                <View style={styles.infoFila}>
+                                    <Ionicons name="time" size={14} color="white" />
+                                    <Text style={styles.value}>
+                                        {new Date(evento.fecha_hora_inicio).toLocaleTimeString([], {
+                                            hour: '2-digit',
+                                            minute: '2-digit',
+                                        })}
+                                    </Text>
+                                </View>
                             </View>
                             <View style={styles.infoLugarInteg}>
+                                <View style={styles.infoFila}>
+                                    <FontAwesome6 name="location-dot" size={14} color="white" />
+                                    <Text style={styles.value}>{evento.lugar}</Text>
+                                </View>
 
-                                <Text style={styles.label}>Lugar</Text>
-                                <Text style={styles.value}>{evento.lugar}</Text>
+                                <View style={styles.infoFila}>
+                                    <FontAwesome6 name="users" size={14} color="white" />
 
-
-                                <Text style={styles.label}>Personas que van</Text>
-                                {usuariosQueVan.length === 0 ? (
-                                    <Text style={styles.noAssistants}>Nadie confirmó asistencia</Text>
-                                ) : (
-                                    usuariosQueVan.map(usuario => (
-                                        <Text key={usuario.id} style={styles.userItem}>• {usuario.username}</Text>
-                                    ))
-                                )}
+                                    {usuariosQueVan.length === 0 ? (
+                                        <Text style={styles.value}>0 participantes</Text>
+                                    ) : (
+                                        <Text style={styles.value}>
+                                            {usuariosQueVan.length} participantes
+                                        </Text>
+                                    )}
+                                </View>
                             </View>
                         </View>
 
@@ -490,10 +502,9 @@ const styles = StyleSheet.create({
     },
     tituloInfo: {
         color: '#FFFFFF',
-        fontSize: 18,
-        fontWeight: '600',
-        marginBottom: 2,
+        fontSize: 22,
         fontFamily: 'CashMarket',
+        marginBottom: 20,
         alignSelf: 'center'
     },
     textoTitulo: {
@@ -571,58 +582,55 @@ const styles = StyleSheet.create({
 
 
 
-
-    confirmedCard: {
-  backgroundColor: '#5B3FA8',
-  borderRadius: 24,
-  padding: 20,
-  marginVertical: 12,
-  marginBottom: 20
+confirmedCard: {
+    backgroundColor: '#5B3FA8',
+    borderRadius: 20,
+    padding: 18,
+    marginVertical: 12,
 },
-
 infoJuntada: {
-  flexDirection: 'row',
-  justifyContent: 'space-between',
-  marginTop: 20,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginTop: 10,
 },
 
-infofechahora: {
-  flex: 1,
-  paddingRight: 12,
+  infofechahora: {
+    width: '48%',
 },
-
-infoLugarInteg: {
-  flex: 1,
-  paddingLeft: 12,
+  infoLugarInteg: {
+    width: '48%',
 },
-
-label: {
-  color: '#D8D0F5',
-  fontSize: 14,
-  fontWeight: '700',
-  textTransform: 'uppercase',
-  marginBottom: 4,
-},
+    label: {
+        color: '#D8D0F5',
+        fontSize: 14,
+        fontWeight: '700',
+        textTransform: 'uppercase',
+        marginBottom: 4,
+    },
 
 value: {
-  color: '#FFF',
-  fontSize: 16,
-  fontWeight: '500',
-  marginBottom: 18,
+    color: '#FFF',
+    fontSize: 13,
+    marginLeft: 8,
+    marginBottom: 0,
+    fontFamily: 'Utendo',
 },
+    userItem: {
+        color: '#FFF',
+        fontSize: 16,
+        marginTop: 4,
+    },
 
-userItem: {
-  color: '#FFF',
-  fontSize: 16,
-  marginTop: 4,
-},
-
-buttonsCon: {
-  flexDirection: 'row',
-  justifyContent: 'space-evenly',
-  marginTop: 10,
-},
+    buttonsCon: {
+        flexDirection: 'row',
+        justifyContent: 'space-evenly',
+        marginTop: 10,
+    },
+    infoFila: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginBottom: 12,
+    },
 })
 
-
-export default Juntada;
+export default Juntada
