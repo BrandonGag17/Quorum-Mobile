@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, Pressable, ScrollView, StyleSheet } from 'react-native';
+import { View, Text, Pressable, ScrollView, StyleSheet, ActivityIndicator } from 'react-native';
 import supabase from '../supabaseClient'
 import { IconUserFilled } from '@tabler/icons-react-native';
 import Iconos from '../Utilidades/Iconos'
@@ -7,6 +7,9 @@ import Navbar from '../Utilidades/Navbar'
 import MaterialIcons from '@expo/vector-icons/MaterialIcons'
 import FontAwesome6 from '@expo/vector-icons/FontAwesome6'
 import Ionicons from '@expo/vector-icons/Ionicons';
+import { SafeAreaView } from 'react-native-safe-area-context'
+import HeaderGrupo from '../Utilidades/HeaderGrupo';
+import BotonVolver from '../Utilidades/BotonVolver';
 
 function Juntada({ route, navigation }) {
     const { idEvento } = route.params;
@@ -302,18 +305,22 @@ function Juntada({ route, navigation }) {
 
     if (!evento) {
         return (
-            <View>
-                <Text>Cargando...</Text>
-            </View>
-        );
+            <SafeAreaView style={styles.loadingContainer}>
+                <ActivityIndicator
+                    size="large"
+                    color="#B514F6"
+                />
+
+
+                <Navbar pantallaActual="Inicio" />
+            </SafeAreaView>
+        )
     }
 
     return (
         <View style={styles.fondo}>
             <ScrollView>
-                <Pressable onPress={() => navigation.navigate('InicioGrupo', { id: evento.id_grupo })}>
-                    <Text>Volver al grupo</Text>
-                </Pressable>
+                <BotonVolver />
 
                 {evento.estado === 'confirmado' ? (
                     <View style={styles.confirmedCard}>
@@ -428,9 +435,23 @@ function Juntada({ route, navigation }) {
                                 </Text>
                             </View>
                         </Pressable>
-                        <View style={styles.container}>
-                            <Text style={styles.label}>La votación finaliza en:</Text>
-                            <Text style={styles.date}>{tiempoRestante}</Text>
+
+                        <View style={styles.contadorCard}>
+                            <Ionicons
+                                name="time-outline"
+                                size={22}
+                                color="#57C7A3"
+                            />
+
+                            <View style={styles.contadorTexto}>
+                                <Text style={styles.contadorLabel}>
+                                    La votación finaliza en
+                                </Text>
+
+                                <Text style={styles.contadorTiempo}>
+                                    {tiempoRestante}
+                                </Text>
+                            </View>
                         </View>
                     </>
                 )}
@@ -461,6 +482,33 @@ function Juntada({ route, navigation }) {
 }
 
 const styles = StyleSheet.create({
+    contadorCard: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: '#1D1D27',
+        borderRadius: 16,
+        padding: 16,
+        marginTop: 12,
+        marginBottom: 25,
+    },
+
+    contadorTexto: {
+        marginLeft: 12,
+        flex: 1,
+    },
+
+    contadorLabel: {
+        color: '#B8B8B8',
+        fontSize: 13,
+        fontFamily: 'Utendo',
+        marginBottom: 4,
+    },
+
+    contadorTiempo: {
+        color: '#FFFFFF',
+        fontSize: 17,
+        fontFamily: 'CashMarket',
+    },
     fondo: {
         flex: 1,
         backgroundColor: '#15151C',
@@ -474,7 +522,8 @@ const styles = StyleSheet.create({
     tituloSeparador: {
         flexDirection: 'row',
         alignItems: 'center',
-        marginBottom: 12
+        marginTop: 8,
+        marginBottom: 14,
     },
     cardGastos: {
         backgroundColor: '#4B1F6F',
@@ -509,10 +558,10 @@ const styles = StyleSheet.create({
     },
     tituloInfo: {
         color: '#FFFFFF',
-        fontSize: 22,
+        fontSize: 26,
         fontFamily: 'CashMarket',
-        marginBottom: 20,
-        alignSelf: 'center'
+        marginBottom: 25,
+        alignSelf: 'center',
     },
     textoTitulo: {
         color: 'white',
@@ -523,7 +572,7 @@ const styles = StyleSheet.create({
     },
 
     descripcion: {
-        color: '#D8C7E8',
+        color: '#B8B8C5',
         fontSize: 13,
         fontFamily: 'Utendo'
     },
@@ -544,7 +593,7 @@ const styles = StyleSheet.create({
         fontFamily: 'CashMarket'
     },
     infoText: {
-        color: '#C9B8F0',
+        color: '#B8B8C5',
         fontSize: 13,
         fontFamily: 'Utendo'
     },
@@ -571,29 +620,29 @@ const styles = StyleSheet.create({
         fontWeight: '600',
     },
     buttonsCol: {
-        gap: 8,
+        gap: 10,
         alignItems: 'flex-end',
     },
     btnVoy: {
-        backgroundColor: '#3AA683',
-        borderRadius: 10,
-        paddingVertical: 8,
+        backgroundColor: '#57C7A3',
+        borderRadius: 12,
+        paddingVertical: 12,
         paddingHorizontal: 25,
     },
     btnNoVoy: {
-        backgroundColor: '#C70609',
-        borderRadius: 10,
-        paddingVertical: 8,
+        backgroundColor: '#D64545',
+        borderRadius: 12,
+        paddingVertical: 12,
         paddingHorizontal: 15,
     },
 
-
-
     confirmedCard: {
-        backgroundColor: '#5B3FA8',
-        borderRadius: 20,
-        padding: 18,
+        backgroundColor: '#23232D',
+        borderRadius: 24,
+        padding: 22,
         marginVertical: 12,
+        borderWidth: 1,
+        borderColor: '#5E2D82',
     },
     infoJuntada: {
         flexDirection: 'row',
@@ -630,13 +679,19 @@ const styles = StyleSheet.create({
 
     buttonsCon: {
         flexDirection: 'row',
-        justifyContent: 'space-evenly',
-        marginTop: 10,
+        gap: 10,
+        marginTop: 20,
     },
     infoFila: {
         flexDirection: 'row',
         alignItems: 'center',
         marginBottom: 12,
+    },
+    loadingContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: '#15151C'
     },
 })
 

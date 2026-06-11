@@ -235,10 +235,11 @@ const styles = StyleSheet.create({
         padding: 7,
         paddingLeft: 10,
         paddingRight: 10,
-        borderRadius: 8
+        borderRadius: 10,
+        paddingHorizontal: 12,
     },
     botonCrearTexto: {
-        color: '#000000',
+        color: '#15151C',
         fontSize: 15,
         fontFamily: 'CashMarket',
     },
@@ -251,23 +252,24 @@ const styles = StyleSheet.create({
     titulo: {
         color: 'white',
         fontFamily: 'CashMarket',
-        fontSize: 30
+        fontSize: 34,
+        marginBottom: 5,
     },
     buscador: {
         flexDirection: 'row',
         alignItems: 'center',
-        backgroundColor: '#FFFFFF',
-        borderRadius: 15,
+        backgroundColor: '#373749',
+        borderRadius: 16,
         paddingHorizontal: 15,
-        height: 50,
+        height: 52,
         marginBottom: 30,
         marginTop: 20,
-        borderWidth: 2,
-        borderColor: '#d9d9d9',
+        borderWidth: 1,
+        borderColor: '#726c79',
     },
     inputBuscador: {
         flex: 1,
-        color: '#15151C',
+        color: 'white',
         fontFamily: 'Utendo',
         marginLeft: 10,
         fontSize: 16,
@@ -275,7 +277,8 @@ const styles = StyleSheet.create({
     tituloSeparador: {
         flexDirection: 'row',
         alignItems: 'center',
-        marginBottom: 12
+        marginTop: 10,
+        marginBottom: 14,
     },
     textoTitulo: {
         color: 'white',
@@ -298,21 +301,21 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         backgroundColor: '#4A216F',
-        borderRadius: 16,
-        paddingVertical: 8,
+        borderRadius: 18,
+        paddingVertical: 10,
         paddingHorizontal: 12,
-        marginBottom: 8
+        marginBottom: 10,
     },
     grupoNombre: {
         color: 'white',
         fontFamily: 'CashMarket',
-        fontSize: 16
+        fontSize: 17,
     },
     grupoIntegrantes: {
-        color: '#b0a0cc',
+        color: '#A8A8B5',
         fontFamily: 'Utendo',
         fontSize: 13,
-        marginTop: 2
+        marginTop: 2,
     },
     contenido: {
         paddingBottom: 20,

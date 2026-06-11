@@ -92,17 +92,20 @@ const styles = StyleSheet.create({
         textAlign: 'center',
         color: 'white',
         fontSize: 20,
-        padding: 8,
-        margin: 10,
-        backgroundColor: '#e91010',
-        borderRadius: 15,
-        marginBottom: 20
+        backgroundColor: '#2A1A1A',
+        borderWidth: 2,
+        borderColor: '#d30909',
+        borderRadius: 14,
+        paddingVertical: 12,
+        marginBottom: 20,
+        alignItems: 'center',
     },
     textoCopyVersion: {
         color: 'white',
         textAlign: 'center',
         fontFamily: 'Utendo',
-        marginBottom: 10
+        marginBottom: 10,
+        fontSize: 15
     },
     perfil: {
         alignItems: 'center',
@@ -119,13 +122,13 @@ const styles = StyleSheet.create({
     username: {
         color: 'white',
         fontFamily: 'CashMarket',
-        fontSize: 24
+        fontSize: 25
     },
 
     nombreCompleto: {
         color: '#B0B0B0',
         fontFamily: 'Utendo',
-        fontSize: 16,
+        fontSize: 18,
         marginTop: 4
     },
 })

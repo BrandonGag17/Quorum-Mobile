@@ -402,7 +402,8 @@ const styles = StyleSheet.create({
     tituloSeparador: {
         flexDirection: 'row',
         alignItems: 'center',
-        marginBottom: 20
+        marginTop: 8,
+        marginBottom: 16,
     },
     textoTitulo: {
         color: 'white',
@@ -419,10 +420,9 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         gap: 6,
         backgroundColor: '#57C7A3',
-        padding: 7,
-        paddingLeft: 10,
-        paddingRight: 10,
-        borderRadius: 8
+        paddingVertical: 8,
+        paddingHorizontal: 12,
+        borderRadius: 10,
     },
     botonCrearTexto: {
         color: '#000000',
@@ -437,12 +437,6 @@ const styles = StyleSheet.create({
     subtituloModal: {
         color: '#b6b6b6',
         fontFamily: 'Utendo'
-    },
-    headerGrupo: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        marginBottom: 30,
-        padding: 10,
     },
 
     infoGrupo: {

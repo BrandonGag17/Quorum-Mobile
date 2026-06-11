@@ -17,7 +17,6 @@ import { SafeAreaView } from 'react-native-safe-area-context'
 import { useRoute, useNavigation } from '@react-navigation/native'
 import supabase from '../supabaseClient'
 
-import Navbar from './Navbar'
 import Iconos from './Iconos'
 import CardJuntadas from './CardJuntadas'
 import BotonVolver from './BotonVolver'
@@ -79,16 +78,14 @@ function HeaderGrupo({
 
 const styles = StyleSheet.create({
     container: {
-    height: 80,
-    marginBottom: 15,
-},
+        height: 90,
+    },
     headerGrupo: {
         flexDirection: 'row',
         alignItems: 'center',
-        paddingHorizontal: 16,
-        paddingVertical: 10,
-        borderBottomWidth: 1,
-        borderBottomColor: 'rgba(255,255,255,0.08)',
+        paddingBottom: 10,
+        borderBottomWidth: 2,
+        borderBottomColor: 'rgba(255, 255, 255, 0.10)',
         position: 'absolute',
         top: 0,
         left: 0,
@@ -102,21 +99,22 @@ const styles = StyleSheet.create({
     },
 
     fotoGrupo: {
-        width: 40,
-        height: 40,
+        width: 45,
+        height: 45,
         borderRadius: 27,
         marginRight: 14,
     },
 
     nombreGrupo: {
-        fontSize: 17,
+        fontSize: 18,
+        marginBottom: 3,
         color: '#FFFFFF',
         fontFamily: 'CashMarket',
     },
 
     miembrosGrupo: {
         marginTop: 2,
-        fontSize: 11,
+        fontSize: 13,
         color: '#A1A1AA',
         fontFamily: 'Utendo',
     },

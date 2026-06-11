@@ -15,7 +15,9 @@ export default function ErrorMessage({ mensaje }) {
 
 const styles = StyleSheet.create({
     bloqueError: {
-        backgroundColor: 'red',
+        backgroundColor: '#3A1C22',
+        borderColor: '#D84B5A',
+        borderWidth: 1.5,
         borderRadius: 10,
         padding: 10,
         flexDirection: 'row',

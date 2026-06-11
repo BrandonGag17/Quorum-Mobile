@@ -1,7 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, Pressable, ScrollView } from 'react-native';
-import supabase from '../supabaseClient';
-import BotonVolver from '../Utilidades/BotonVolver';
+import { View, Text, Pressable, ScrollView, StyleSheet } from 'react-native'
+import supabase from '../supabaseClient'
+import Navbar from '../Utilidades/Navbar'
+import HeaderGrupo from '../Utilidades/HeaderGrupo'
+import Octicons from '@expo/vector-icons/Octicons'
+import FontAwesome6 from '@expo/vector-icons/FontAwesome6'
+import Ionicons from '@expo/vector-icons/Ionicons'
 
 function VotacionJuntada({ route, navigation }) {
     const { idEvento } = route.params;
@@ -146,55 +150,168 @@ function VotacionJuntada({ route, navigation }) {
     }
 
     return (
-        <ScrollView>
-            <BotonVolver />
+        <View style={styles.fondo}>
 
-            <Text>Votación juntada</Text>
+            <ScrollView>
+                <HeaderGrupo />
 
-            <View>
-                <Text>Votá tus preferencias</Text>
-                <Text>Selecciona las opciones que te convengan. Podés elegir varias por tema y proponer nuevas opciones.</Text>
-            </View>
+                <View style={styles.votaciones}>
+                    <View style={styles.tituloSeparadorPeroOtro}>
+                        <Octicons name="sparkles-fill" size={20} color="white" />
+                        <Text style={styles.titulo}>Votá tus preferencias</Text>
+                    </View>
+                    <Text style={styles.text}>Selecciona las opciones que te convengan. Podés elegir varias por tema y proponer nuevas opciones.</Text>
+                </View>
 
-            <Text>Fecha y horario</Text>
-            <View>
-                {opcionesFechas.map(op => (
-                    <Pressable
-                        key={op.id}
-                        onPress={() => alternarVoto(op.id)}
-                    >
-                        <Text>
-                            {op.descripcion}
-                            {' - '}
-                            {votosTotales[op.id] || 0} votos
-                            {' '}
-                            {misVotos.includes(op.id) ? '✅' : ''}
-                        </Text>
-                    </Pressable>
-                ))}
-            </View>
+                <View style={styles.card}>
+                    <View style={styles.tituloSeparador}>
+                        <Ionicons name="today" size={20} color="white" />
+                        <Text style={styles.sectionTitle}>Fecha y horario</Text>
+                    </View>
+                    {opcionesFechas.map(op => (
+                        <Pressable
+                            key={op.id}
+                            onPress={() => alternarVoto(op.id)}
+                            style={[
+                                styles.option,
+                                misVotos.includes(op.id) && styles.optionSelected
+                            ]}
+                        >
+                            <Text style={styles.optionText}>
+                                {misVotos.includes(op.id) ? '◉ ' : '◯ '}
+                                {op.descripcion}
+                            </Text>
 
-            <Text>Lugar</Text>
-            <View>
-                {opcionesLugares.map(op => (
-                    <Pressable
-                        key={op.id}
-                        onPress={() => alternarVoto(op.id)}
-                    >
-                        <Text>
-                            {op.descripcion}
-                            {' - '}
-                            {votosTotales[op.id] || 0} votos
-                            {' '}
-                            {misVotos.includes(op.id) ? '✅' : ''}
-                        </Text>
-                    </Pressable>
-                ))}
-            </View>
+                            <Text style={styles.votesText}>
+                                {votosTotales[op.id] || 0}
+                            </Text>
+                        </Pressable>
+                    ))}
+                </View>
 
-            
-        </ScrollView>
+
+                <View style={styles.card}>
+                    <View style={styles.tituloSeparador}>
+                        <FontAwesome6 name="location-dot" size={20} color="white" />
+                        <Text style={styles.sectionTitle}>Lugar</Text>
+                    </View>
+                    {opcionesLugares.map(op => (
+                        <Pressable
+                            key={op.id}
+                            onPress={() => alternarVoto(op.id)}
+                            style={[
+                                styles.option,
+                                misVotos.includes(op.id) && styles.optionSelected
+                            ]}
+                        >
+                            <Text style={styles.optionText}>
+                                {misVotos.includes(op.id) ? '◉ ' : '◯ '}
+                                {op.descripcion}
+                            </Text>
+
+                            <Text style={styles.votesText}>
+                                {votosTotales[op.id] || 0}
+                            </Text>
+                        </Pressable>
+                    ))}
+                </View>
+            </ScrollView>
+            <Navbar pantallaActual="Inicio" />
+
+        </View>
     );
 }
+
+const styles = StyleSheet.create({
+    fondo: {
+        flex: 1,
+        backgroundColor: '#15151C',
+        padding: 25,
+        paddingBottom: 90
+    },
+    text: {
+        fontFamily: 'Utendo',
+        color: '#D0D0D0',
+        fontSize: 13,
+        marginTop: 6,
+        lineHeight: 18,
+    },
+    titulo: {
+        fontFamily: 'CashMarket',
+        color: 'white',
+        fontSize: 18,
+    },
+    tituloSeparador: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginTop: 10,
+        marginBottom: 20,
+        gap: 10
+    },
+    tituloSeparadorPeroOtro: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginBottom: 10,
+        gap: 10
+    },
+    votaciones: {
+        borderRadius: 16,
+        borderWidth: 1,
+        borderColor: '#3A2350',
+        backgroundColor: '#4A216F',
+        padding: 16,
+        marginBottom: 20,
+    },
+    sectionTitle: {
+        color: '#FFF',
+        fontSize: 18,
+        fontFamily: 'CashMarket',
+    },
+
+    card: {
+        borderWidth: 2,
+        borderColor: '#5E2D82',
+        borderRadius: 18,
+        padding: 12,
+        marginBottom: 20,
+        backgroundColor: '#11111A',
+    },
+
+    option: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        borderWidth: 1,
+        borderColor: '#2F1B3D',
+        borderRadius: 14,
+        paddingVertical: 14,
+        paddingHorizontal: 14,
+        marginBottom: 10,
+        backgroundColor: '#151520',
+    },
+
+    optionSelected: {
+        backgroundColor: 'rgba(97, 46, 134, 0.35)',
+        borderColor: '#7C3AED',
+    },
+
+    optionText: {
+        color: '#FFF',
+        fontSize: 15,
+        fontFamily: 'Utendo',
+        flex: 1,
+    },
+
+    votesText: {
+        color: '#FFF',
+        fontSize: 13,
+        fontFamily: 'Utendo',
+        backgroundColor: '#58386f',
+        paddingHorizontal: 10,
+        paddingVertical: 4,
+        borderRadius: 12,
+        overflow: 'hidden',
+    },
+});
 
 export default VotacionJuntada;

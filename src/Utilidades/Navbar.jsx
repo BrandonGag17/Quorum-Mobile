@@ -26,12 +26,12 @@ export default function Navbar({ pantallaActual }) {
 
             <View style={[styles.navItem]}>
                 <IconCompassFilled color="#727272" size={30} />
-                <Text style={{color: '#727272'}}>Explorar</Text>
+                <Text style={{ color: '#727272' }}>Explorar</Text>
             </View>
 
             <View style={[styles.navItem]}>
                 <IconBellFilled color="#727272" size={30} />
-                <Text style={{color: '#727272'}}>Notificaciones</Text>
+                <Text style={{ color: '#727272' }}>Notificaciones</Text>
             </View>
 
             <TouchableOpacity
@@ -76,7 +76,9 @@ const styles = StyleSheet.create({
     },
 
     activo: {
-        backgroundColor: '#4D1568',
+        backgroundColor: '#5C2D82',
+        borderWidth: 1,
+        borderColor: '#7F4BC5',
     },
 
     navText: {

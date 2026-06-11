@@ -1,10 +1,13 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, FlatList, Image, TextInput, TouchableOpacity, Modal } from 'react-native';
+import { View, Text, FlatList, Image, TextInput, TouchableOpacity, Modal, ActivityIndicator } from 'react-native';
 import { useRoute, useNavigation } from '@react-navigation/native';
 import supabase from '../supabaseClient';
 import HeaderGrupo from '../Utilidades/HeaderGrupo';
 import ButtonApp from '../Utilidades/BotonesApp'
-import NavBar from '../Utilidades/Navbar'
+import Navbar from '../Utilidades/Navbar'
+import { SafeAreaView } from 'react-native-safe-area-context'
+import Iconos from '../Utilidades/Iconos'
+import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
 
 function InfoGrupo() {
     const route = useRoute();
@@ -104,22 +107,46 @@ function InfoGrupo() {
 
     if (cargando) {
         return (
-            <View style={styles.loadingContainer}>
-                <Text style={styles.loadingText}>
-                    Cargando grupo...
-                </Text>
-            </View>
-        );
+            <SafeAreaView style={styles.loadingContainer}>
+                <ActivityIndicator
+                    size="large"
+                    color="#B514F6"
+                />
+
+
+                <Navbar pantallaActual="Inicio" />
+            </SafeAreaView>
+        )
     }
 
     return (
         <View style={styles.container}>
-            <HeaderGrupo
-                grupo={grupo}
-                cantidadMiembros={miembros.length}
-            />
+            <BotonVolver />
+
+            <View style={styles.headerGrupo}>
+                <Image
+                    source={{ uri: grupo?.foto_perfil }}
+                    style={styles.fotoGrupo}
+                />
+
+                <Text style={styles.nombreGrupo}>
+                    {grupo?.nombre}
+                </Text>
+
+                <Text style={styles.cantidadMiembros}>
+                    {miembros.length} miembros
+                </Text>
+            </View>
+
             <View style={styles.contenido}>
 
+                <View style={styles.tituloSeparador}>
+                    <Iconos
+                        size={36}
+                        icono={<FontAwesome6 name="user-group" size={20} color="black" />}
+                    />
+                    <Text style={styles.textoTitulo}>Miembros</Text>
+                </View>
 
                 <FlatList
                     data={miembros}
@@ -168,23 +195,24 @@ function InfoGrupo() {
                     visible={mostrarModal}
                     transparent
                     animationType="fade"
+                    onRequestClose={() => setMostrarModal(false)}
                 >
-                    <View style={styles.modalFondo}>
-                        <View style={styles.modalContenido}>
-                            <TouchableOpacity
-                                style={styles.cerrarModal}
-                                onPress={() => setMostrarModal(false)}
-                            >
-                                <Text style={styles.textoCerrar}>✕</Text>
-                            </TouchableOpacity>
+                    <View style={styles.modalOverlay}>
+                        <View style={styles.modal}>
 
-                            <Text style={styles.modalTitulo}>
-                                Añadir miembro
-                            </Text>
+                            <View style={styles.headerModal}>
+                                <Text style={styles.modalTitulo}>
+                                    Añadir miembro
+                                </Text>
+
+                                <TouchableOpacity onPress={() => setMostrarModal(false)}>
+                                    <Text style={styles.botonCerrar}>✕</Text>
+                                </TouchableOpacity>
+                            </View>
 
                             <TextInput
                                 style={styles.input}
-                                placeholder="Username"
+                                placeholder="@usuario"
                                 placeholderTextColor="#999"
                                 value={miembroUsername}
                                 onChangeText={(val) => {
@@ -207,6 +235,7 @@ function InfoGrupo() {
                                     {errorMiembro}
                                 </Text>
                             ) : null}
+
                         </View>
                     </View>
                 </Modal>
@@ -215,42 +244,78 @@ function InfoGrupo() {
                     visible={mostrarPopupSalir}
                     transparent
                     animationType="fade"
+                    onRequestClose={() => setMostrarPopupSalir(false)}
                 >
-                    <View style={styles.modalFondo}>
-                        <View style={styles.modalContenido}>
-                            <Text style={styles.modalTitulo}>
-                                ¿Salir del grupo?
-                            </Text>
+                    <View style={styles.modalOverlay}>
+                        <View style={styles.modal}>
 
-                            <Text style={styles.modalTexto}>
+                            <View style={styles.headerModal}>
+                                <Text style={styles.modalTitulo}>
+                                    ¿Salir del grupo?
+                                </Text>
+                            </View>
+
+                            <Text style={styles.modalTextoSalir}>
                                 Vas a dejar de formar parte del grupo.
                             </Text>
 
-                            <ButtonApp
-                                nombre="Sí, salir"
+                            <TouchableOpacity
+                                style={[styles.botonModal, { backgroundColor: '#ff0000' }]}
                                 onPress={confirmarSalir}
-                            />
+                            >
+                                <Text style={styles.textoBotonModal}>
+                                    Sí, salir
+                                </Text>
+                            </TouchableOpacity>
 
                             <TouchableOpacity
                                 onPress={() => setMostrarPopupSalir(false)}
+                                style={styles.cancelarBtn}
                             >
                                 <Text style={styles.cancelarTexto}>
                                     Cancelar
                                 </Text>
                             </TouchableOpacity>
+
                         </View>
                     </View>
                 </Modal>
             </View>
 
-            <NavBar />
+            <Navbar pantallaActual="Inicio" />
         </View>
     )
 }
 
 import { StyleSheet } from 'react-native';
+import BotonVolver from '../Utilidades/BotonVolver';
 
 const styles = StyleSheet.create({
+    headerGrupo: {
+        alignItems: 'center',
+        marginBottom: 30,
+    },
+    fotoGrupo: {
+        width: 110,
+        height: 110,
+        borderRadius: 60,
+        marginBottom: 14,
+        borderWidth: 2,
+        borderColor: '#5E2D82',
+    },
+
+    nombreGrupo: {
+        color: 'white',
+        fontSize: 28,
+        fontFamily: 'CashMarket',
+        marginBottom: 4,
+    },
+
+    cantidadMiembros: {
+        color: '#B8B8B8',
+        fontSize: 14,
+        fontFamily: 'Utendo',
+    },
     container: {
         flex: 1,
         backgroundColor: '#15151C',
@@ -264,7 +329,7 @@ const styles = StyleSheet.create({
     },
 
     miembroCard: {
-        backgroundColor: '#6742a8',
+        backgroundColor: '#4A216F',
         borderRadius: 15,
         paddingVertical: 12,
         paddingHorizontal: 15,
@@ -276,7 +341,7 @@ const styles = StyleSheet.create({
     fotoPerfil: {
         width: 45,
         height: 45,
-        borderRadius: 999,
+        borderRadius: 25,
         marginRight: 12,
     },
 
@@ -287,7 +352,7 @@ const styles = StyleSheet.create({
     nombreUsuario: {
         color: 'white',
         fontFamily: 'CashMarket',
-        fontSize: 15,
+        fontSize: 16,
     },
 
     username: {
@@ -312,19 +377,18 @@ const styles = StyleSheet.create({
     },
 
     botonSalir: {
+        backgroundColor: '#2A1A1A',
         borderWidth: 2,
-        backgroundColor: '#ff0000',
-        borderRadius: 15,
-        paddingVertical: 14,
+        borderColor: '#d30909',
+        borderRadius: 14,
+        paddingVertical: 12,
         alignItems: 'center',
-        marginTop: 10,
-        marginBottom: 20,
     },
 
     textoBotonSalir: {
         color: 'white',
         fontWeight: 'bold',
-        fontSize: 16,
+        fontSize: 18,
         fontFamily: 'CashMarket'
     },
 
@@ -345,9 +409,9 @@ const styles = StyleSheet.create({
     },
     loadingContainer: {
         flex: 1,
-        backgroundColor: '#15151C',
         justifyContent: 'center',
         alignItems: 'center',
+        backgroundColor: '#15151C'
     },
 
     loadingText: {
@@ -355,95 +419,78 @@ const styles = StyleSheet.create({
         fontSize: 18,
         fontFamily: 'CashMarket',
     },
-
-    modalFondo: {
+    modalOverlay: {
         flex: 1,
-        backgroundColor: 'rgba(0,0,0,0.75)',
         justifyContent: 'center',
         alignItems: 'center',
+        backgroundColor: 'rgba(0,0,0,0.5)',
     },
 
-    modalContenido: {
+    modal: {
         width: '85%',
-        backgroundColor: '#1E1E2D',
-        borderRadius: 20,
+        backgroundColor: '#23232D',
         padding: 20,
-        borderWidth: 1,
-        borderColor: '#4B1F6F',
+        borderRadius: 20,
+    },
+
+    headerModal: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        marginBottom: 25,
     },
 
     modalTitulo: {
         color: 'white',
-        fontSize: 20,
-        textAlign: 'center',
-        marginBottom: 10,
+        fontSize: 24,
         fontFamily: 'CashMarket',
     },
 
-    modalTexto: {
-        color: '#D8C7E8',
-        textAlign: 'center',
-        marginBottom: 20,
+    botonCerrar: {
+        color: '#B0B0B0',
+        fontSize: 24,
         fontFamily: 'Utendo',
-    },
-
-    cancelarTexto: {
-        color: '#AAA',
-        textAlign: 'center',
-        marginTop: 15,
-        fontFamily: 'Utendo',
-    },
-    botonContainer: {
-        marginTop: 10,
-        marginBottom: 10,
-    },
-
-    cerrarModal: {
-        position: 'absolute',
-        top: 15,
-        right: 15,
-        zIndex: 1,
-    },
-
-    textoCerrar: {
-        color: '#FFFFFF',
-        fontSize: 20,
-        fontFamily: 'CashMarket',
     },
 
     input: {
-        backgroundColor: '#1B1B29',
-        borderWidth: 1,
-        borderColor: '#4B1F6F',
-        borderRadius: 12,
-        paddingHorizontal: 15,
-        paddingVertical: 12,
+        backgroundColor: '#2E2E3A',
         color: 'white',
-        fontSize: 16,
-        fontFamily: 'Utendo',
+        padding: 12,
+        borderRadius: 10,
         marginBottom: 15,
-        marginTop: 10,
+        fontFamily: 'Utendo',
     },
 
     botonModal: {
         backgroundColor: '#5C3E94',
-        borderRadius: 12,
-        paddingVertical: 14,
+        padding: 12,
+        borderRadius: 10,
         alignItems: 'center',
-        marginTop: 5,
     },
 
     textoBotonModal: {
-        color: '#FFFFFF',
-        fontSize: 16,
+        color: 'white',
         fontFamily: 'CashMarket',
     },
 
     error: {
-        color: '#FF6B6B',
-        textAlign: 'center',
-        marginTop: 12,
-        fontSize: 14,
+        color: '#ff0000',
+        marginTop: 10,
+        fontFamily: 'Utendo',
+    },
+    modalTextoSalir: {
+        color: '#B6B6B6',
+        fontFamily: 'Utendo',
+        marginBottom: 20,
+    },
+
+    cancelarBtn: {
+        marginTop: 15,
+        alignItems: 'center',
+    },
+
+    cancelarTexto: {
+        color: '#9E9E9E',
         fontFamily: 'Utendo',
     },
 });
