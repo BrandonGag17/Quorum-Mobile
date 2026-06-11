@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, Pressable, ScrollView, StyleSheet, ActivityIndicator } from 'react-native';
+import { View, Text, Pressable, ScrollView, StyleSheet, ActivityIndicator, Image } from 'react-native';
 import supabase from '../supabaseClient'
 import { IconUserFilled } from '@tabler/icons-react-native';
 import Iconos from '../Utilidades/Iconos'
@@ -18,6 +18,7 @@ function Juntada({ route, navigation }) {
     const [encuesta, setEncuesta] = useState(null);
 
     const [asistentesCount, setAsistentesCount] = useState(0);
+    const [grupo, setGrupo] = useState(null);
     const [totalGrupo, setTotalGrupo] = useState(0);
     const [usuariosQueVan, setUsuariosQueVan] = useState([]);
     const [tiempoRestante, setTiempoRestante] = useState('');
@@ -49,18 +50,22 @@ function Juntada({ route, navigation }) {
 
         setEvento(eventoData);
 
-        calcularParticipantes(
+        const { data: grupoData } = await supabase
+            .from('grupo')
+            .select('*')
+            .eq('id', eventoData.id_grupo)
+            .single();
+
+        setGrupo(grupoData);
+
+        await calcularParticipantes(
             eventoData.id_grupo,
             eventoData.id
         );
-        if (
-            eventoData.estado ===
-            'confirmado'
-        ) {
-            cargarUsuariosQueVan(
-                eventoData.id
-            );
-        }
+
+        await cargarUsuariosQueVan(
+            eventoData.id
+        );
 
         const { data: encuestaData } = await supabase
             .from('encuesta')
@@ -156,7 +161,7 @@ function Juntada({ route, navigation }) {
 
         const { data: usuarios } = await supabase
             .from('usuario')
-            .select('id, username')
+            .select('id, username, foto_perfil')
             .in('id', idsUsuarios);
 
         setUsuariosQueVan(
@@ -297,20 +302,18 @@ function Juntada({ route, navigation }) {
 
         if (evento) {
             await calcularParticipantes(evento.id_grupo, evento.id);
-            if (evento.estado === 'confirmado') {
-                await cargarUsuariosQueVan(evento.id);
-            }
+            await cargarUsuariosQueVan(evento.id);
         }
     }
 
     if (!evento) {
         return (
             <SafeAreaView style={styles.loadingContainer}>
+
                 <ActivityIndicator
                     size="large"
                     color="#B514F6"
                 />
-
 
                 <Navbar pantallaActual="Inicio" />
             </SafeAreaView>
@@ -320,7 +323,12 @@ function Juntada({ route, navigation }) {
     return (
         <View style={styles.fondo}>
             <ScrollView>
-                <BotonVolver />
+                {grupo && (
+                    <HeaderGrupo
+                        grupo={grupo}
+                        cantidadMiembros={totalGrupo}
+                    />
+                )}
 
                 {evento.estado === 'confirmado' ? (
                     <View style={styles.confirmedCard}>
@@ -386,12 +394,26 @@ function Juntada({ route, navigation }) {
                         <View>
                             <Text style={styles.eventName}>{evento.nombre}</Text>
                             <View style={styles.avatarsRow}>
-                                <Text style={styles.infoText}>Van {asistentesCount}/{totalGrupo}</Text>
-                                {[...Array(asistentesCount)].map((_, i) => (
-                                    <View key={i} style={[styles.avatar, { marginLeft: i === 0 ? 6 : -6 }]}>
-                                        <Text style={styles.avatarText}>👤</Text>
-                                    </View>
+                                <Text style={styles.infoText}>
+                                    Van {asistentesCount}/{totalGrupo}
+                                </Text>
+
+                                {usuariosQueVan.slice(0, 5).map((usuario, i) => (
+                                    <Image
+                                        key={usuario.id}
+                                        source={{ uri: usuario.foto_perfil }}
+                                        style={[
+                                            styles.avatar,
+                                            { marginLeft: i === 0 ? 6 : -6 }
+                                        ]}
+                                    />
                                 ))}
+
+                                {usuariosQueVan.length > 5 && (
+                                    <Text style={styles.masUsuarios}>
+                                        +{usuariosQueVan.length - 5}
+                                    </Text>
+                                )}
                             </View>
                         </View>
                         <View style={styles.buttonsCol}>
@@ -485,10 +507,8 @@ const styles = StyleSheet.create({
     contadorCard: {
         flexDirection: 'row',
         alignItems: 'center',
-        backgroundColor: '#1D1D27',
         borderRadius: 16,
         padding: 16,
-        marginTop: 12,
         marginBottom: 25,
     },
 
@@ -692,6 +712,13 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         backgroundColor: '#15151C'
+    },
+    avatar: {
+        width: 28,
+        height: 28,
+        borderRadius: 14,
+        borderWidth: 2,
+        borderColor: '#3D2E6B',
     },
 })
 

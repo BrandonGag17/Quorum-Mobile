@@ -163,14 +163,10 @@ function Inicio() {
                                     }
                                 >
                                     <Image
-                                        source={
-                                            item.grupo?.foto_perfil
-                                                ? { uri: item.grupo.foto_perfil }
-                                                : require('../assets/img/amiguis.jpg')
-                                        }
+                                        source={{ uri: item.grupo.foto_perfil }}
                                         style={styles.imagen}
                                     />
-
+                                    
                                     <View style={styles.grupoInfo}>
                                         <Text style={styles.grupoNombre}>
                                             {item.grupo?.nombre}

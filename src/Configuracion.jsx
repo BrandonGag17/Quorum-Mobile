@@ -43,11 +43,7 @@ export default function Configuracion() {
             {usuario && (
                 <View style={styles.perfil}>
                     <Image
-                        source={
-                            usuario.foto_perfil
-                                ? { uri: usuario.foto_perfil }
-                                : require('../assets/img/amiguis.jpg')
-                        }
+                        source={{ uri: usuario.foto_perfil }}
                         style={styles.fotoPerfil}
                     />
 

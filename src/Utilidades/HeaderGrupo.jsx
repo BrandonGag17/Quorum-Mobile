@@ -48,11 +48,7 @@ function HeaderGrupo({
                     }
                 >
                     <Image
-                        source={
-                            grupo?.foto_perfil
-                                ? { uri: grupo.foto_perfil }
-                                : require('../../assets/img/amiguis.jpg')
-                        }
+                        source={{ uri: grupo.foto_perfil }}
                         style={styles.fotoGrupo}
                     />
 

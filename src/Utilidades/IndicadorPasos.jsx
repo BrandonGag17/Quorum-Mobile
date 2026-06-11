@@ -68,7 +68,7 @@ const styles = StyleSheet.create({
     },
     barraProgreso: {
         height: '100%',
-        backgroundColor: '#A020F0',
+        backgroundColor: '#7F4BC5',
         borderRadius: 999,
     },
     tituloSeparador: {

@@ -14,6 +14,8 @@ function VotacionJuntada({ route, navigation }) {
     const [opcionesLugares, setOpcionesLugares] = useState([]);
     const [votosTotales, setVotosTotales] = useState({});
     const [misVotos, setMisVotos] = useState([]);
+    const [grupo, setGrupo] = useState(null);
+    const [cantidadMiembros, setCantidadMiembros] = useState(0);
 
     useEffect(() => {
         cargarVotacion();
@@ -36,6 +38,33 @@ function VotacionJuntada({ route, navigation }) {
 
         if (!encuesta) return;
         setEncuesta(encuesta);
+
+        const { data: eventoData } = await supabase
+            .from('evento')
+            .select('id_grupo')
+            .eq('id', idEvento)
+            .single();
+
+        if (eventoData) {
+
+            const { data: grupoData } = await supabase
+                .from('grupo')
+                .select('*')
+                .eq('id', eventoData.id_grupo)
+                .single();
+
+            setGrupo(grupoData);
+
+            const { count } = await supabase
+                .from('usuario_grupo')
+                .select('*', {
+                    count: 'exact',
+                    head: true
+                })
+                .eq('id_grupo', eventoData.id_grupo);
+
+            setCantidadMiembros(count || 0);
+        }
 
         const {
             data: ops,
@@ -153,7 +182,12 @@ function VotacionJuntada({ route, navigation }) {
         <View style={styles.fondo}>
 
             <ScrollView>
-                <HeaderGrupo />
+                {grupo && (
+                    <HeaderGrupo
+                        grupo={grupo}
+                        cantidadMiembros={cantidadMiembros}
+                    />
+                )}
 
                 <View style={styles.votaciones}>
                     <View style={styles.tituloSeparadorPeroOtro}>
