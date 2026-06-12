@@ -91,7 +91,14 @@ function ProponerJuntada({ route, onCreado }) {
 
         if (Platform.OS === 'android') {
             if (pickerMode === 'date') {
-                setPickerMode('time');
+                setDate(currentDate);
+
+                setTimeout(() => {
+                    setPickerMode('time');
+                    setShowPicker(true);
+                }, 0);
+
+                return;
             } else {
                 setShowPicker(false);
                 setPickerMode('date');
@@ -319,18 +326,17 @@ function ProponerJuntada({ route, onCreado }) {
                 const opcionesParaInsertar = [
                     ...opcionesFechas.map(
                         f => ({
-                            id_encuesta:
-                                enc.id,
-                            descripcion: f
+                            id_encuesta: enc.id,
+                            descripcion: f,
+                            tipo: 'fecha'
                         })
                     ),
 
                     ...opcionesLugares.map(
                         l => ({
-                            id_encuesta:
-                                enc.id,
-                            descripcion:
-                                `Lugar: ${l}`
+                            id_encuesta: enc.id,
+                            descripcion: l,
+                            tipo: 'lugar'
                         })
                     )
                 ];
@@ -501,12 +507,12 @@ function ProponerJuntada({ route, onCreado }) {
                     />
 
                     <View style={styles.listaContainer}>
-                        {opcionesLugares.map(l => (
+                        {opcionesLugares.map((l, index) => (
                             <View
-                                key={f}
+                                key={l}
                                 style={[
                                     styles.itemLista,
-                                    index === opcionesFechas.length - 1 && {
+                                    index === opcionesLugares.length - 1 && {
                                         borderBottomWidth: 0
                                     }
                                 ]}

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, Pressable, ScrollView, StyleSheet, ActivityIndicator, Image } from 'react-native';
+import { View, Text, Pressable, ScrollView, StyleSheet, ActivityIndicator, Image, Modal, TouchableOpacity } from 'react-native';
 import supabase from '../supabaseClient'
 import { IconUserFilled } from '@tabler/icons-react-native';
 import Iconos from '../Utilidades/Iconos'
@@ -22,6 +22,9 @@ function Juntada({ route, navigation }) {
     const [totalGrupo, setTotalGrupo] = useState(0);
     const [usuariosQueVan, setUsuariosQueVan] = useState([]);
     const [tiempoRestante, setTiempoRestante] = useState('');
+    const [esCreador, setEsCreador] = useState(false);
+    const [mostrarModalFinalizar, setMostrarModalFinalizar] = useState(false);
+    const [miAsistencia, setMiAsistencia] = useState(null);
 
     useEffect(() => {
         cargarDatosEvento();
@@ -50,6 +53,26 @@ function Juntada({ route, navigation }) {
 
         setEvento(eventoData);
 
+        const {
+            data: { user }
+        } = await supabase.auth.getUser();
+
+        setEsCreador(
+            user?.id === eventoData.id_creador
+        );
+
+        const { data: asistenciaUsuario } =
+            await supabase
+                .from('usuario_evento')
+                .select('asistencia')
+                .eq('id_usuario', user.id)
+                .eq('id_evento', idEvento)
+                .maybeSingle();
+
+        setMiAsistencia(
+            asistenciaUsuario?.asistencia || null
+        );
+
         const { data: grupoData } = await supabase
             .from('grupo')
             .select('*')
@@ -76,8 +99,11 @@ function Juntada({ route, navigation }) {
         if (encuestaData) {
             setEncuesta(encuestaData);
 
-            if (encuestaData.activa) {
-                verificarCierreEncuesta(encuestaData);
+            if (
+                encuestaData.activa &&
+                new Date() >= new Date(encuestaData.cierre_en)
+            ) {
+                await finalizarEncuesta(encuestaData);
             }
         }
     }
@@ -182,12 +208,7 @@ function Juntada({ route, navigation }) {
         ).toISOString();
     }
 
-    async function verificarCierreEncuesta(encuestaActual) {
-        const ahora = new Date();
-        const cierre = new Date(encuestaActual.cierre_en);
-
-        if (ahora < cierre) return;
-
+    async function finalizarEncuesta(encuestaActual) {
         const { data: opciones } = await supabase
             .from('opcion_encuesta')
             .select('*')
@@ -242,10 +263,7 @@ function Juntada({ route, navigation }) {
 
             if (votosOpcion > maxLugar) {
                 maxLugar = votosOpcion;
-                lugarGanador = op.descripcion.replace(
-                    'Lugar: ',
-                    ''
-                );
+                lugarGanador = op.descripcion;
             }
         });
 
@@ -270,7 +288,7 @@ function Juntada({ route, navigation }) {
             })
             .eq('id', encuestaActual.id);
 
-        cargarDatosEvento();
+        await cargarDatosEvento();
     }
 
     async function cambiarAsistencia(estado) {
@@ -299,6 +317,8 @@ function Juntada({ route, navigation }) {
                 ...datos
             });
         }
+
+        setMiAsistencia(estado);
 
         if (evento) {
             await calcularParticipantes(evento.id_grupo, evento.id);
@@ -380,11 +400,37 @@ function Juntada({ route, navigation }) {
                         </View>
 
                         <View style={styles.buttonsCon}>
-                            <Pressable style={styles.btnVoy} onPress={() => cambiarAsistencia('voy')}>
-                                <Text style={styles.text}>Voy</Text>
+                            <Pressable
+                                style={[
+                                    styles.btnVoy,
+                                    miAsistencia === 'voy' &&
+                                    styles.btnSeleccionado
+                                ]}
+                                onPress={() =>
+                                    cambiarAsistencia('voy')
+                                }
+                            >
+                                <Text style={styles.text}>
+                                    {miAsistencia === 'voy'
+                                        ? '✓ Voy'
+                                        : 'Voy'}
+                                </Text>
                             </Pressable>
-                            <Pressable style={styles.btnNoVoy} onPress={() => cambiarAsistencia('no_voy')}>
-                                <Text style={styles.text}>No voy</Text>
+                            <Pressable
+                                style={[
+                                    styles.btnNoVoy,
+                                    miAsistencia === 'no_voy' &&
+                                    styles.btnSeleccionado
+                                ]}
+                                onPress={() =>
+                                    cambiarAsistencia('no_voy')
+                                }
+                            >
+                                <Text style={styles.text}>
+                                    {miAsistencia === 'no_voy'
+                                        ? '✕ No voy'
+                                        : 'No voy'}
+                                </Text>
                             </Pressable>
                         </View>
                     </View>
@@ -417,11 +463,37 @@ function Juntada({ route, navigation }) {
                             </View>
                         </View>
                         <View style={styles.buttonsCol}>
-                            <Pressable style={styles.btnVoy} onPress={() => cambiarAsistencia('voy')}>
-                                <Text style={styles.text}>Voy</Text>
+                            <Pressable
+                                style={[
+                                    styles.btnVoy,
+                                    miAsistencia === 'voy' &&
+                                    styles.btnSeleccionado
+                                ]}
+                                onPress={() =>
+                                    cambiarAsistencia('voy')
+                                }
+                            >
+                                <Text style={styles.text}>
+                                    {miAsistencia === 'voy'
+                                        ? '✓ Voy'
+                                        : 'Voy'}
+                                </Text>
                             </Pressable>
-                            <Pressable style={styles.btnNoVoy} onPress={() => cambiarAsistencia('no_voy')}>
-                                <Text style={styles.text}>No voy</Text>
+                            <Pressable
+                                style={[
+                                    styles.btnNoVoy,
+                                    miAsistencia === 'no_voy' &&
+                                    styles.btnSeleccionado
+                                ]}
+                                onPress={() =>
+                                    cambiarAsistencia('no_voy')
+                                }
+                            >
+                                <Text style={styles.text}>
+                                    {miAsistencia === 'no_voy'
+                                        ? '✕ No voy'
+                                        : 'No voy'}
+                                </Text>
                             </Pressable>
                         </View>
                     </View>
@@ -475,6 +547,18 @@ function Juntada({ route, navigation }) {
                                 </Text>
                             </View>
                         </View>
+                        {esCreador && (
+                            <Pressable
+                                style={styles.btnFinalizar}
+                                onPress={() =>
+                                    setMostrarModalFinalizar(true)
+                                }
+                            >
+                                <Text style={styles.text}>
+                                    Finalizar votación ahora
+                                </Text>
+                            </Pressable>
+                        )}
                     </>
                 )}
 
@@ -497,6 +581,66 @@ function Juntada({ route, navigation }) {
                         <Text style={styles.descripcion}>Divide los gastos del grupo</Text>
                     </View>
                 </Pressable>
+
+                <Modal
+                    visible={mostrarModalFinalizar}
+                    transparent
+                    animationType="fade"
+                    onRequestClose={() =>
+                        setMostrarModalFinalizar(false)
+                    }
+                >
+                    <View style={styles.modalOverlay}>
+                        <View style={styles.modal}>
+
+                            <View style={styles.headerModal}>
+                                <Text style={styles.modalTitulo}>
+                                    ¿Finalizar votación?
+                                </Text>
+                            </View>
+
+                            <Text style={styles.modalTextoSalir}>
+                                Esta acción elegirá la fecha y el lugar ganadores.
+                                No se podrá seguir votando.
+                            </Text>
+
+                            <TouchableOpacity
+                                style={[
+                                    styles.botonModal,
+                                    {
+                                        backgroundColor:
+                                            '#D64545'
+                                    }
+                                ]}
+                                onPress={async () => {
+
+                                    setMostrarModalFinalizar(false);
+
+                                    await finalizarEncuesta(
+                                        encuesta
+                                    );
+
+                                }}
+                            >
+                                <Text style={styles.textoBotonModal}>
+                                    Sí, finalizar
+                                </Text>
+                            </TouchableOpacity>
+
+                            <TouchableOpacity
+                                style={styles.cancelarBtn}
+                                onPress={() =>
+                                    setMostrarModalFinalizar(false)
+                                }
+                            >
+                                <Text style={styles.cancelarTexto}>
+                                    Cancelar
+                                </Text>
+                            </TouchableOpacity>
+
+                        </View>
+                    </View>
+                </Modal>
             </ScrollView>
             <Navbar pantallaActual="Inicio" />
         </View>
@@ -504,6 +648,63 @@ function Juntada({ route, navigation }) {
 }
 
 const styles = StyleSheet.create({
+    btnSeleccionado: {
+        borderWidth: 3,
+        borderColor: '#FFFFFF',
+    },
+    modalOverlay: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: 'rgba(0,0,0,0.5)',
+    },
+
+    modal: {
+        width: '85%',
+        backgroundColor: '#23232D',
+        padding: 20,
+        borderRadius: 20,
+    },
+
+    headerModal: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        marginBottom: 25,
+    },
+
+    modalTitulo: {
+        color: 'white',
+        fontSize: 24,
+        fontFamily: 'CashMarket',
+    },
+
+    modalTextoSalir: {
+        color: '#B6B6B6',
+        fontFamily: 'Utendo',
+        marginBottom: 20,
+    },
+
+    botonModal: {
+        padding: 12,
+        borderRadius: 10,
+        alignItems: 'center',
+    },
+
+    textoBotonModal: {
+        color: 'white',
+        fontFamily: 'CashMarket',
+    },
+
+    cancelarBtn: {
+        marginTop: 15,
+        alignItems: 'center',
+    },
+
+    cancelarTexto: {
+        color: '#9E9E9E',
+        fontFamily: 'Utendo',
+    },
     contadorCard: {
         flexDirection: 'row',
         alignItems: 'center',
@@ -534,10 +735,6 @@ const styles = StyleSheet.create({
         backgroundColor: '#15151C',
         padding: 25,
         paddingBottom: 90
-    },
-    text: {
-        fontFamily: 'CashMarket',
-        color: 'white'
     },
     tituloSeparador: {
         flexDirection: 'row',
@@ -713,12 +910,12 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         backgroundColor: '#15151C'
     },
-    avatar: {
-        width: 28,
-        height: 28,
-        borderRadius: 14,
-        borderWidth: 2,
-        borderColor: '#3D2E6B',
+    btnFinalizar: {
+        backgroundColor: '#D64545',
+        borderRadius: 12,
+        paddingVertical: 14,
+        alignItems: 'center',
+        marginBottom: 20,
     },
 })
 

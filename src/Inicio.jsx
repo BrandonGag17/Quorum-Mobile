@@ -113,17 +113,23 @@ function Inicio() {
                 </View>
 
                 {eventosConfirmados.length > 0 ? (
-                    eventosConfirmados.map(e => (
-                        <CardJuntadas
-                            key={e.id}
-                            evento={e}
-                            navigation={navigation}
-                        />
-                    ))
+                    <ScrollView
+                        horizontal
+                        showsHorizontalScrollIndicator={false}
+                        contentContainerStyle={styles.juntadasContainer}
+                    >
+                        {eventosConfirmados.map(e => (
+                            <CardJuntadas
+                                key={e.id}
+                                evento={e}
+                                navigation={navigation}
+                            />
+                        ))}
+                    </ScrollView>
                 ) : (
                     <View style={styles.noJuntadas}>
                         <Text style={styles.text}>
-                            No hay proximas juntadas
+                            No hay próximas juntadas
                         </Text>
                     </View>
                 )}
@@ -166,7 +172,7 @@ function Inicio() {
                                         source={{ uri: item.grupo.foto_perfil }}
                                         style={styles.imagen}
                                     />
-                                    
+
                                     <View style={styles.grupoInfo}>
                                         <Text style={styles.grupoNombre}>
                                             {item.grupo?.nombre}
@@ -358,6 +364,10 @@ const styles = StyleSheet.create({
         fontFamily: 'CashMarket',
         color: 'white',
         textAlign: 'center'
+    },
+    juntadasContainer: {
+        paddingRight: 25,
+        gap: 12,
     },
 })
 

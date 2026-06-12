@@ -1,5 +1,13 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, Pressable, ScrollView, StyleSheet } from 'react-native'
+import {
+    View,
+    Text,
+    Pressable,
+    ScrollView,
+    StyleSheet,
+    ActivityIndicator
+} from 'react-native'
+import { SafeAreaView } from 'react-native-safe-area-context'
 import supabase from '../supabaseClient'
 import Navbar from '../Utilidades/Navbar'
 import HeaderGrupo from '../Utilidades/HeaderGrupo'
@@ -16,78 +24,88 @@ function VotacionJuntada({ route, navigation }) {
     const [misVotos, setMisVotos] = useState([]);
     const [grupo, setGrupo] = useState(null);
     const [cantidadMiembros, setCantidadMiembros] = useState(0);
+    const [cargando, setCargando] = useState(true);
 
     useEffect(() => {
         cargarVotacion();
     }, [idEvento]);
 
     async function cargarVotacion() {
-        const {
-            data: encuesta,
-            error
-        } = await supabase
-            .from('encuesta')
-            .select('*')
-            .eq('id_evento', idEvento)
-            .single()
-
-        if (error) {
-            console.log(error)
-            return
-        }
-
-        if (!encuesta) return;
-        setEncuesta(encuesta);
-
-        const { data: eventoData } = await supabase
-            .from('evento')
-            .select('id_grupo')
-            .eq('id', idEvento)
-            .single();
-
-        if (eventoData) {
-
-            const { data: grupoData } = await supabase
-                .from('grupo')
+        try {
+            const {
+                data: encuesta,
+                error
+            } = await supabase
+                .from('encuesta')
                 .select('*')
-                .eq('id', eventoData.id_grupo)
+                .eq('id_evento', idEvento)
+                .single()
+
+            if (error) {
+                console.log(error)
+                return
+            }
+
+            if (!encuesta) return;
+            setEncuesta(encuesta);
+
+            const { data: eventoData } = await supabase
+                .from('evento')
+                .select('id_grupo')
+                .eq('id', idEvento)
                 .single();
 
-            setGrupo(grupoData);
+            if (eventoData) {
 
-            const { count } = await supabase
-                .from('usuario_grupo')
-                .select('*', {
-                    count: 'exact',
-                    head: true
-                })
-                .eq('id_grupo', eventoData.id_grupo);
+                const { data: grupoData } = await supabase
+                    .from('grupo')
+                    .select('*')
+                    .eq('id', eventoData.id_grupo)
+                    .single();
 
-            setCantidadMiembros(count || 0);
-        }
+                setGrupo(grupoData);
 
-        const {
-            data: ops,
-            error: errorOps
-        } = await supabase
-            .from('opcion_encuesta')
-            .select('*')
-            .eq('id_encuesta', encuesta.id)
+                const { count } = await supabase
+                    .from('usuario_grupo')
+                    .select('*', {
+                        count: 'exact',
+                        head: true
+                    })
+                    .eq('id_grupo', eventoData.id_grupo);
 
-        if (errorOps) {
-            console.log(errorOps)
-            return
-        }
+                setCantidadMiembros(count || 0);
+            }
 
-        if (ops) {
-            setOpcionesFechas(
-                ops.filter(op => op.tipo === 'fecha')
-            )
+            const {
+                data: ops,
+                error: errorOps
+            } = await supabase
+                .from('opcion_encuesta')
+                .select('*')
+                .eq('id_encuesta', encuesta.id)
 
-            setOpcionesLugares(
-                ops.filter(op => op.tipo === 'lugar')
-            )
-            cargarVotosYPorcentajes(ops);
+            if (errorOps) {
+                console.log(errorOps)
+                return
+            }
+
+            if (ops) {
+                setOpcionesFechas(
+                    ops.filter(op => op.tipo === 'fecha')
+                )
+
+                setOpcionesLugares(
+                    ops.filter(op => op.tipo === 'lugar')
+                )
+                cargarVotosYPorcentajes(ops);
+            }
+        } catch (error) {
+            console.log(
+                'Error cargando votación:',
+                error
+            );
+        } finally {
+            setCargando(false);
         }
     }
 
@@ -135,6 +153,10 @@ function VotacionJuntada({ route, navigation }) {
     }
 
     async function alternarVoto(idOpcion) {
+        if (!encuesta?.activa) {
+            return;
+        }
+
         const {
             data: { user }
         } = await supabase.auth.getUser()
@@ -175,7 +197,29 @@ function VotacionJuntada({ route, navigation }) {
             }
         }
 
-        cargarVotacion()
+        const todasLasOpciones = [
+            ...opcionesFechas,
+            ...opcionesLugares
+        ]
+
+        await cargarVotosYPorcentajes(
+            todasLasOpciones
+        )
+    }
+
+    if (cargando) {
+        return (
+            <SafeAreaView
+                style={styles.loadingContainer}
+            >
+                <ActivityIndicator
+                    size="large"
+                    color="#B514F6"
+                />
+
+                <Navbar pantallaActual="Inicio" />
+            </SafeAreaView>
+        )
     }
 
     return (
@@ -257,6 +301,12 @@ function VotacionJuntada({ route, navigation }) {
 }
 
 const styles = StyleSheet.create({
+    loadingContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: '#15151C'
+    },
     fondo: {
         flex: 1,
         backgroundColor: '#15151C',

@@ -34,25 +34,27 @@ function CardJuntadas({ evento, navigation }) {
                 )
             }
         >
-            <View style={styles.filaFecha}>
-                <FontAwesome6
-                    name="calendar-day"
-                    size={10}
-                    color="#c5c5c5"
-                />
+            <View style={styles.filaSuperior}>
+                <View style={styles.fechaPill}>
+                    <FontAwesome6
+                        name="calendar-day"
+                        size={10}
+                        color="#CFCFCF"
+                    />
 
-                <Text style={styles.textoInfo}>
-                    {fechaTexto}
-                </Text>
+                    <Text style={styles.textoInfo}>
+                        {fechaTexto}
+                    </Text>
+                </View>
 
                 <View style={styles.horaContainer}>
                     <MaterialCommunityIcons
                         name="clock"
-                        size={10}
-                        color="#c5c5c5"
+                        size={11}
+                        color="#57C7A3"
                     />
 
-                    <Text style={styles.textoInfo}>
+                    <Text style={styles.horaTexto}>
                         {horaTexto}
                     </Text>
                 </View>
@@ -62,28 +64,28 @@ function CardJuntadas({ evento, navigation }) {
                 {evento.nombre}
             </Text>
 
-            <View style={styles.filaInfo}>
+            <View style={styles.infoRow}>
                 <FontAwesome6
                     name="users"
-                    size={10}
-                    color="#c5c5c5"
+                    size={11}
+                    color="#B6B6B6"
                 />
 
                 <Text style={styles.textoInfo}>
                     {evento.grupo?.nombre || 'Sin grupo'}
                 </Text>
+            </View>
 
-                <View style={styles.ubicacionContainer}>
-                    <FontAwesome6
-                        name="location-dot"
-                        size={10}
-                        color="#c5c5c5"
-                    />
+            <View style={styles.infoRow}>
+                <FontAwesome6
+                    name="location-dot"
+                    size={11}
+                    color="#B6B6B6"
+                />
 
-                    <Text style={styles.textoInfo}>
-                        {evento.lugar || 'Sin ubicación'}
-                    </Text>
-                </View>
+                <Text style={styles.textoInfo}>
+                    {evento.lugar || 'Sin ubicación'}
+                </Text>
             </View>
         </Pressable>
     )
@@ -92,51 +94,73 @@ function CardJuntadas({ evento, navigation }) {
 const styles = StyleSheet.create({
     card: {
         backgroundColor: '#4A216F',
-        borderRadius: 12,
-        width: 210,
-        paddingVertical: 15,
-        paddingHorizontal: 12,
-        marginBottom: 30,
-        marginTop: 15,
-        marginRight: 10,
-        alignItems: 'flex-start',
+
+        borderRadius: 18,
+
+        width: 220,
+
+        paddingVertical: 16,
+        paddingHorizontal: 14,
+
+        marginTop: 10,
+        marginBottom: 20,
+        marginRight: 12,
     },
-    filaFecha: {
+
+    filaSuperior: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginBottom: 14,
+    },
+
+    fechaPill: {
         flexDirection: 'row',
         alignItems: 'center',
-        width: '100%',
+
+        backgroundColor: '#2A2038',
+
+        paddingHorizontal: 8,
+        paddingVertical: 5,
+
+        borderRadius: 999,
     },
-    filaInfo: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        width: '100%',
-    },
+
     horaContainer: {
         flexDirection: 'row',
         alignItems: 'center',
-        marginLeft: 'auto',
-    },
-    nombre: {
-        fontFamily: 'CashMarket',
-        fontSize: 18,
-        color: 'white',
-        marginBottom: 10,
-        lineHeight: 22,
-        marginTop: 10
-    },
-    textoInfo: {
-        fontFamily: 'Utendo',
-        fontSize: 12,
-        color: '#c5c5c5',
-        marginLeft: 3,
-        marginTop: 3
-    },
-    ubicacionContainer: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        marginLeft: 'auto',
     },
 
+    nombre: {
+        color: '#FFFFFF',
+        fontSize: 20,
+        fontFamily: 'CashMarket',
+
+        marginBottom: 14,
+    },
+
+    infoRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+
+        marginBottom: 8,
+    },
+
+    textoInfo: {
+        color: '#C5C5C5',
+        fontSize: 12,
+        fontFamily: 'Utendo',
+
+        marginLeft: 6,
+    },
+
+    horaTexto: {
+        color: '#57C7A3',
+        fontSize: 12,
+        fontFamily: 'Utendo',
+
+        marginLeft: 4,
+    },
 })
 
 export default CardJuntadas
