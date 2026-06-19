@@ -3,6 +3,7 @@ import { View, Text, Pressable, StyleSheet } from 'react-native'
 import FontAwesome6 from '@expo/vector-icons/FontAwesome6'
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons'
 
+
 function CardJuntadas({ evento, navigation }) {
     const fecha = evento.fecha_hora_inicio
         ? new Date(evento.fecha_hora_inicio)
@@ -169,4 +170,4 @@ const styles = StyleSheet.create({
     },
 })
 
-export default CardJuntadas
+export default React.memo(CardJuntadas)
