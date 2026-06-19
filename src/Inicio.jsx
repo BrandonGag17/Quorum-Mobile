@@ -104,13 +104,11 @@ function Inicio() {
                     />
                 </View>
 
-                <View style={styles.tituloSeparador}>
-                    <Iconos
-                        size={36}
-                        icono={<Ionicons name="calendar" size={25} color="#000000" />}
-                    />
-                    <Text style={styles.textoTitulo}>Proximas juntadas</Text>
-                </View>
+                <Iconos
+                    size={36}
+                    titulo="Proximas juntadas"
+                    icono={<Ionicons name="calendar" size={25} color="#000000" />}
+                />
 
                 {eventosConfirmados.length > 0 ? (
                     <ScrollView
@@ -135,12 +133,12 @@ function Inicio() {
                 )}
 
 
-                <View style={styles.tituloSeparador}>
+                <View style={styles.titulo_crear}>
                     <Iconos
                         size={36}
+                        titulo="Grupos"
                         icono={<IconUserFilled size={25} color="#000000" />}
                     />
-                    <Text style={styles.textoTitulo}>Grupos</Text>
 
 
                     <TouchableOpacity onPress={() => setMostrarModal(true)} style={styles.botonCrear}>
@@ -276,19 +274,6 @@ const styles = StyleSheet.create({
         marginLeft: 10,
         fontSize: 16,
     },
-    tituloSeparador: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        marginTop: 10,
-        marginBottom: 14,
-    },
-    textoTitulo: {
-        color: 'white',
-        marginLeft: 10,
-        fontFamily: 'CashMarket',
-        fontSize: 20,
-        flex: 1
-    },
     imagen: {
         width: 50,
         height: 50,
@@ -368,6 +353,11 @@ const styles = StyleSheet.create({
     juntadasContainer: {
         paddingRight: 25,
         gap: 12,
+    },
+    titulo_crear: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between'
     },
 })
 

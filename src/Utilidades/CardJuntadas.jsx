@@ -64,28 +64,30 @@ function CardJuntadas({ evento, navigation }) {
                 {evento.nombre}
             </Text>
 
-            <View style={styles.infoRow}>
-                <FontAwesome6
-                    name="users"
-                    size={11}
-                    color="#B6B6B6"
-                />
+            <View style={styles.filaInferior}>
+                <View style={styles.infoRow}>
+                    <FontAwesome6
+                        name="users"
+                        size={11}
+                        color="#B6B6B6"
+                    />
 
-                <Text style={styles.textoInfo}>
-                    {evento.grupo?.nombre || 'Sin grupo'}
-                </Text>
-            </View>
+                    <Text style={styles.textoInfo}>
+                        {evento.grupo?.nombre || 'Sin grupo'}
+                    </Text>
+                </View>
 
-            <View style={styles.infoRow}>
-                <FontAwesome6
-                    name="location-dot"
-                    size={11}
-                    color="#B6B6B6"
-                />
+                <View style={styles.infoRow}>
+                    <FontAwesome6
+                        name="location-dot"
+                        size={11}
+                        color="#B6B6B6"
+                    />
 
-                <Text style={styles.textoInfo}>
-                    {evento.lugar || 'Sin ubicación'}
-                </Text>
+                    <Text style={styles.textoInfo}>
+                        {evento.lugar || 'Sin ubicación'}
+                    </Text>
+                </View>
             </View>
         </Pressable>
     )
@@ -110,8 +112,12 @@ const styles = StyleSheet.create({
     filaSuperior: {
         flexDirection: 'row',
         justifyContent: 'space-between',
-        alignItems: 'center',
         marginBottom: 14,
+    },
+    filaInferior: {
+        flexDirection: 'row',
+        justifyContent: 'space-around',
+        gap: 40,
     },
 
     fechaPill: {

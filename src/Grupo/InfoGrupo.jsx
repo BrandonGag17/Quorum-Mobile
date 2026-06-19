@@ -140,13 +140,11 @@ function InfoGrupo() {
 
             <View style={styles.contenido}>
 
-                <View style={styles.tituloSeparador}>
-                    <Iconos
-                        size={36}
-                        icono={<FontAwesome6 name="user-group" size={20} color="black" />}
-                    />
-                    <Text style={styles.textoTitulo}>Miembros</Text>
-                </View>
+                <Iconos
+                    size={36}
+                    titulo="Miembros"
+                    icono={<FontAwesome6 name="user-group" size={20} color="black" />}
+                />
 
                 <FlatList
                     data={miembros}
@@ -390,19 +388,6 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
         fontSize: 18,
         fontFamily: 'CashMarket'
-    },
-
-    tituloSeparador: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        marginBottom: 12
-    },
-    textoTitulo: {
-        color: 'white',
-        marginLeft: 10,
-        fontFamily: 'CashMarket',
-        fontSize: 20,
-        flex: 1
     },
     listaMiembros: {
         paddingBottom: 120,

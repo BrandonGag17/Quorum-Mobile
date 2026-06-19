@@ -501,13 +501,12 @@ function Juntada({ route, navigation }) {
 
                 {encuesta?.activa && (
                     <>
-                        <View style={styles.tituloSeparador}>
-                            <Iconos
-                                size={36}
-                                icono={<IconUserFilled size={25} color="#000000" />}
-                            />
-                            <Text style={styles.textoTitulo}>Votaciones</Text>
-                        </View>
+                        <Iconos
+                            size={36}
+                            titulo="Votaciones"
+                            icono={<IconUserFilled size={25} color="#000000" />}
+                        />
+
                         <Pressable
                             style={styles.cardGastos}
                             onPress={() =>
@@ -562,13 +561,12 @@ function Juntada({ route, navigation }) {
                     </>
                 )}
 
-                <View style={styles.tituloSeparador}>
-                    <Iconos
-                        size={36}
-                        icono={<IconUserFilled size={25} color="#000000" />}
-                    />
-                    <Text style={styles.textoTitulo}>Opcionales</Text>
-                </View>
+                <Iconos
+                    size={36}
+                    titulo="Opcionales"
+                    icono={<IconUserFilled size={25} color="#000000" />}
+                />
+
                 <Pressable
                     style={styles.cardGastos}
                     onPress={() => alert('Próximamente disponible')}
@@ -736,12 +734,6 @@ const styles = StyleSheet.create({
         padding: 25,
         paddingBottom: 90
     },
-    tituloSeparador: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        marginTop: 8,
-        marginBottom: 14,
-    },
     cardGastos: {
         backgroundColor: '#4B1F6F',
         borderRadius: 12,
@@ -780,14 +772,6 @@ const styles = StyleSheet.create({
         marginBottom: 25,
         alignSelf: 'center',
     },
-    textoTitulo: {
-        color: 'white',
-        marginLeft: 10,
-        fontFamily: 'CashMarket',
-        fontSize: 20,
-        flex: 1
-    },
-
     descripcion: {
         color: '#B8B8C5',
         fontSize: 13,

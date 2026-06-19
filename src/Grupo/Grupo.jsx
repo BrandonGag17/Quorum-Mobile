@@ -164,22 +164,11 @@ function Grupo() {
                     cantidadMiembros={cantidadMiembros}
                 />
 
-                <View style={styles.tituloSeparador}>
-                    <Iconos
-                        size={36}
-                        icono={
-                            <Ionicons
-                                name="calendar"
-                                size={25}
-                                color="#000000"
-                            />
-                        }
-                    />
-
-                    <Text style={styles.textoTitulo}>
-                        Proximas juntadas
-                    </Text>
-                </View>
+                <Iconos
+                    size={36}
+                    titulo="Proximas juntadas"
+                    icono={<Ionicons name="calendar" size={25} color="#000000" />}
+                />
 
                 {eventosConfirmados.length > 0 ? (
                     <FlatList
@@ -202,13 +191,12 @@ function Grupo() {
                     </View>
                 )}
 
-                <View style={styles.tituloSeparador}>
+                <View style={styles.titulo_crear}>
                     <Iconos
                         size={36}
-                        icono={<MaterialCommunityIcons name="lightbulb-variant" size={25} color="#000000" />
-                        }
+                        titulo="Propuestas"
+                        icono={<MaterialCommunityIcons name="lightbulb-variant" size={25} color="#000000" />}
                     />
-                    <Text style={styles.textoTitulo}>Propuestas</Text>
 
                     <TouchableOpacity onPress={() => setMostrarModal(true)} style={styles.botonCrear}>
                         <Text style={styles.botonCrearTexto}>+ Crear</Text>
@@ -399,19 +387,6 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         backgroundColor: '#15151C'
     },
-    tituloSeparador: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        marginTop: 8,
-        marginBottom: 16,
-    },
-    textoTitulo: {
-        color: 'white',
-        marginLeft: 10,
-        fontFamily: 'CashMarket',
-        fontSize: 20,
-        flex: 1
-    },
     textosModal: {
         marginLeft: 10
     },
@@ -478,6 +453,11 @@ const styles = StyleSheet.create({
         fontFamily: 'CashMarket',
         color: 'white',
         textAlign: 'center'
+    },
+        titulo_crear: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between'
     },
 })
 
