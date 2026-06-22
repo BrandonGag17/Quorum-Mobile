@@ -1,20 +1,18 @@
 import { useEffect, useState } from 'react'
-import {
-    View, Text, TouchableOpacity, Image,
-    FlatList, TextInput, ScrollView, Modal
-} from 'react-native'
-import { StyleSheet } from 'react-native'
-import { SafeAreaView } from 'react-native-safe-area-context'
 import { useNavigation } from '@react-navigation/native'
+import Feather from '@expo/vector-icons/Feather'
+import Ionicons from '@expo/vector-icons/Ionicons'
+import { IconUserFilled } from '@tabler/icons-react-native'
+
+import { FlatList, Image, Modal, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
+
+import { SafeAreaView } from 'react-native-safe-area-context'
 
 import supabase from './supabaseClient'
-import Navbar from './Utilidades/Navbar'
-import Iconos from '../src/Utilidades/Iconos'
-import Ionicons from '@expo/vector-icons/Ionicons'
-import Feather from '@expo/vector-icons/Feather'
-import CardJuntadas from './Utilidades/CardJuntadas'
-import { IconUserFilled } from '@tabler/icons-react-native'
 import CrearGrupo from './Grupo/CrearGrupo'
+import CardJuntadas from './Utilidades/CardJuntadas'
+import Iconos from './Utilidades/Iconos'
+import Navbar from './Utilidades/Navbar'
 
 let cacheGrupos = null
 
@@ -25,6 +23,8 @@ function Inicio() {
     const [eventos, setEventos] = useState([])
     const [mostrarModal, setMostrarModal] = useState(false)
     const [busqueda, setBusqueda] = useState('')
+    const [cargandoGrupos, setCargandoGrupos] = useState(true)
+    const [cargandoEventos, setCargandoEventos] = useState(true)
 
     useEffect(() => {
         let mounted = true
@@ -39,8 +39,7 @@ function Inicio() {
                 return
             }
 
-            cacheGrupos = null
-            await cargarGrupos(session.user)
+            cargarGrupos(session.user)
         }
 
         init()
@@ -51,7 +50,7 @@ function Inicio() {
 
                 if (event === 'SIGNED_IN' && session?.user) {
                     cacheGrupos = null
-                    await cargarGrupos(session.user)
+                    cargarGrupos(session.user)
                 }
 
                 if (event === 'SIGNED_OUT') {
@@ -69,47 +68,59 @@ function Inicio() {
     }, [])
 
 
-    // 🔥 EVENTOS DEPENDEN DE GRUPOS (ESTO ARREGLA TU BUG)
     useEffect(() => {
-        if (!grupos.length) return
-
-        const ids = grupos.map(g => g.id_grupo)
-        traerEventos(ids)
-
+        traerEventos(grupos.map(g => g.id_grupo))
     }, [grupos])
 
 
     async function cargarGrupos(user) {
         if (!user) return
 
+        setCargandoGrupos(true)
+
         if (cacheGrupos) {
             setGrupos(cacheGrupos)
+            setCargandoGrupos(false)
             return
         }
+
+        const inicio = performance.now()
 
         const { data, error } = await supabase
             .from('usuario_grupo')
             .select(`
             id_grupo,
             grupo (
-                *,
+                nombre,
+                foto_perfil,
                 usuario_grupo (
-                    usuario ( username )
+                    usuario (
+                        username
+                    )
                 )
             )
         `)
             .eq('id_usuario', user.id)
 
+        console.log(
+            `cargarGrupos: ${performance.now() - inicio} ms`
+        )
+
         if (error) {
             console.error(error)
+            setCargandoGrupos(false)
             return
         }
 
         const gruposProcesados = (data || []).map(item => {
-            const integrantes = item.grupo?.usuario_grupo
+            const usernames = item.grupo?.usuario_grupo
                 ?.map(m => m.usuario?.username)
-                .filter(Boolean)
-                .join(', ')
+                .filter(Boolean) || []
+
+            const integrantes =
+                usernames.length > 3
+                    ? `${usernames.slice(0, 3).join(', ')} y más`
+                    : usernames.join(', ')
 
             return {
                 ...item,
@@ -119,14 +130,19 @@ function Inicio() {
 
         cacheGrupos = gruposProcesados
         setGrupos(gruposProcesados)
+        setCargandoGrupos(false)
     }
-
 
     async function traerEventos(idsGrupos) {
         if (!idsGrupos.length) {
             setEventos([])
+            setCargandoEventos(false)
             return
         }
+
+        setCargandoEventos(true)
+
+        const inicio = performance.now()
 
         const ahora = new Date().toISOString()
 
@@ -141,12 +157,18 @@ function Inicio() {
             .gte('fecha_hora_inicio', ahora)
             .order('fecha_hora_inicio', { ascending: true })
 
+        console.log(
+            `traerEventos: ${performance.now() - inicio} ms`
+        )
+
         if (error) {
-            console.log("Error eventos:", error.message)
+            console.log('Error eventos:', error.message)
+            setCargandoEventos(false)
             return
         }
 
         setEventos(data || [])
+        setCargandoEventos(false)
     }
     return (
         <SafeAreaView style={styles.fondo}>
@@ -175,7 +197,13 @@ function Inicio() {
                     icono={<Ionicons name="calendar" size={25} color="#000000" />}
                 />
 
-                {eventos.length > 0 ? (
+                {cargandoEventos ? (
+                    <View style={styles.noJuntadas}>
+                        <Text style={styles.text}>
+                            Cargando juntadas...
+                        </Text>
+                    </View>
+                ) : eventos.length > 0 ? (
                     <FlatList
                         horizontal
                         data={eventos}
@@ -196,7 +224,6 @@ function Inicio() {
                         </Text>
                     </View>
                 )}
-
                 {/* GRUPOS HEADER */}
                 <View style={styles.titulo_crear}>
                     <Iconos
@@ -213,8 +240,13 @@ function Inicio() {
                     </TouchableOpacity>
                 </View>
 
-                {/* GRUPOS LISTA */}
-                {grupos.length > 0 ? (
+                {cargandoGrupos ? (
+                    <View style={styles.noJuntadas}>
+                        <Text style={styles.text}>
+                            Cargando grupos...
+                        </Text>
+                    </View>
+                ) : grupos.length > 0 ? (
                     <FlatList
                         scrollEnabled={false}
                         data={grupos}
@@ -235,7 +267,7 @@ function Inicio() {
 
                                 <View style={styles.grupoInfo}>
                                     <Text style={styles.grupoNombre}>
-                                        {item.grupo?.nombre}
+                                        {item.grupo.nombre}
                                     </Text>
 
                                     <Text style={styles.grupoIntegrantes}>

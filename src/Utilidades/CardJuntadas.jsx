@@ -3,7 +3,6 @@ import { View, Text, Pressable, StyleSheet } from 'react-native'
 import FontAwesome6 from '@expo/vector-icons/FontAwesome6'
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons'
 
-
 function CardJuntadas({ evento, navigation }) {
     const fecha = evento.fecha_hora_inicio
         ? new Date(evento.fecha_hora_inicio)
@@ -117,19 +116,15 @@ const styles = StyleSheet.create({
     },
     filaInferior: {
         flexDirection: 'row',
-        justifyContent: 'space-around',
-        gap: 40,
+        justifyContent: 'space-between',
     },
 
     fechaPill: {
         flexDirection: 'row',
         alignItems: 'center',
-
         backgroundColor: '#2A2038',
-
         paddingHorizontal: 8,
         paddingVertical: 5,
-
         borderRadius: 999,
     },
 
@@ -142,14 +137,12 @@ const styles = StyleSheet.create({
         color: '#FFFFFF',
         fontSize: 20,
         fontFamily: 'CashMarket',
-
         marginBottom: 14,
     },
 
     infoRow: {
         flexDirection: 'row',
         alignItems: 'center',
-
         marginBottom: 8,
     },
 
@@ -165,9 +158,8 @@ const styles = StyleSheet.create({
         color: '#57C7A3',
         fontSize: 12,
         fontFamily: 'Utendo',
-
         marginLeft: 4,
     },
 })
 
-export default React.memo(CardJuntadas)
+export default CardJuntadas
