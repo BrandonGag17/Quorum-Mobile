@@ -1,10 +1,13 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import { useNavigation } from '@react-navigation/native'
 import Feather from '@expo/vector-icons/Feather'
 import Ionicons from '@expo/vector-icons/Ionicons'
 import { IconUserFilled } from '@tabler/icons-react-native'
 
-import { FlatList, Image, Modal, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
+import {
+    FlatList, Image, Modal, ScrollView, StyleSheet,
+    Text, TextInput, TouchableOpacity, View
+} from 'react-native'
 
 import { SafeAreaView } from 'react-native-safe-area-context'
 
@@ -13,8 +16,6 @@ import CrearGrupo from './Grupo/CrearGrupo'
 import CardJuntadas from './Utilidades/CardJuntadas'
 import Iconos from './Utilidades/Iconos'
 import Navbar from './Utilidades/Navbar'
-
-let cacheGrupos = null
 
 function Inicio() {
     const navigation = useNavigation()
@@ -26,85 +27,65 @@ function Inicio() {
     const [cargandoGrupos, setCargandoGrupos] = useState(true)
     const [cargandoEventos, setCargandoEventos] = useState(true)
 
+    // 🔥 control anti doble init
+    const initialized = useRef(false)
+    const authListener = useRef(null)
+
     useEffect(() => {
-        let mounted = true
+        if (initialized.current) return
+        initialized.current = true
 
-        const init = async () => {
-            const { data: { session } } = await supabase.auth.getSession()
+        iniciar()
 
-            if (!mounted) return
-
-            if (!session?.user) {
-                navigation.replace('IniciarSesion')
-                return
-            }
-
-            cargarGrupos(session.user)
-        }
-
-        init()
-
-        const { data: listener } = supabase.auth.onAuthStateChange(
-            async (event, session) => {
-                if (!mounted) return
-
-                if (event === 'SIGNED_IN' && session?.user) {
-                    cacheGrupos = null
-                    cargarGrupos(session.user)
-                }
-
+        authListener.current =
+            supabase.auth.onAuthStateChange(async (event, session) => {
                 if (event === 'SIGNED_OUT') {
-                    cacheGrupos = null
                     setGrupos([])
                     setEventos([])
+                    return
                 }
-            }
-        )
+
+                if (event === 'SIGNED_IN' && session?.user) {
+                    await cargarGrupos(session.user)
+                }
+            })
 
         return () => {
-            mounted = false
-            listener.subscription.unsubscribe()
+            authListener.current?.subscription?.unsubscribe()
         }
     }, [])
 
+    // 🔥 INIT SOLO 1 VEZ
+    async function iniciar() {
+        const { data: { session } } = await supabase.auth.getSession()
 
-    useEffect(() => {
-        traerEventos(grupos.map(g => g.id_grupo))
-    }, [grupos])
+        if (!session?.user) {
+            navigation.replace('IniciarSesion')
+            return
+        }
 
+        await cargarGrupos(session.user)
+    }
 
+    // 🔥 GRUPOS + EVENTOS EN CADENA CONTROLADA
     async function cargarGrupos(user) {
         if (!user) return
 
         setCargandoGrupos(true)
 
-        if (cacheGrupos) {
-            setGrupos(cacheGrupos)
-            setCargandoGrupos(false)
-            return
-        }
-
-        const inicio = performance.now()
-
         const { data, error } = await supabase
             .from('usuario_grupo')
             .select(`
-            id_grupo,
-            grupo (
-                nombre,
-                foto_perfil,
-                usuario_grupo (
-                    usuario (
-                        username
+                id_grupo,
+                grupo (
+                    nombre,
+                    foto_perfil,
+                    usuario_grupo (
+                        usuario ( username )
                     )
                 )
-            )
-        `)
+            `)
             .eq('id_usuario', user.id)
-
-        console.log(
-            `cargarGrupos: ${performance.now() - inicio} ms`
-        )
 
         if (error) {
             console.error(error)
@@ -122,18 +103,17 @@ function Inicio() {
                     ? `${usernames.slice(0, 3).join(', ')} y más`
                     : usernames.join(', ')
 
-            return {
-                ...item,
-                integrantes
-            }
+            return { ...item, integrantes }
         })
 
-        cacheGrupos = gruposProcesados
         setGrupos(gruposProcesados)
         setCargandoGrupos(false)
+
+        // 🔥 LLAMADA DIRECTA (SIN USEEFFECT)
+        await cargarEventos(gruposProcesados.map(g => g.id_grupo))
     }
 
-    async function traerEventos(idsGrupos) {
+    async function cargarEventos(idsGrupos) {
         if (!idsGrupos.length) {
             setEventos([])
             setCargandoEventos(false)
@@ -142,27 +122,21 @@ function Inicio() {
 
         setCargandoEventos(true)
 
-        const inicio = performance.now()
-
         const ahora = new Date().toISOString()
 
         const { data, error } = await supabase
             .from('evento')
             .select(`
-            *,
-            grupo ( nombre )
-        `)
+                *,
+                grupo ( nombre )
+            `)
             .in('id_grupo', idsGrupos)
             .eq('estado', 'confirmado')
             .gte('fecha_hora_inicio', ahora)
             .order('fecha_hora_inicio', { ascending: true })
 
-        console.log(
-            `traerEventos: ${performance.now() - inicio} ms`
-        )
-
         if (error) {
-            console.log('Error eventos:', error.message)
+            console.log(error.message)
             setCargandoEventos(false)
             return
         }
