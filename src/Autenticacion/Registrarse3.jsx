@@ -29,6 +29,11 @@ function Registrarse3() {
     const [cargando, setCargando] = useState(false)
     const [mensaje, setMensaje] = useState('')
 
+    const [textoBusqueda, setTextoBusqueda] = useState('')
+    const [localidadSeleccionada, setLocalidadSeleccionada] = useState(null)
+    const [resultados, setResultados] = useState([])
+    const [buscando, setBuscando] = useState(false)
+
     function formatearFecha(texto) {
         const numeros = texto.replace(/\D/g, '')
 
@@ -57,6 +62,40 @@ function Registrarse3() {
             setFoto(resultado.assets[0])
             setMensaje('')
         }
+    }
+
+    async function buscarLocalidades(texto) {
+        setTextoBusqueda(texto)
+        setLocalidadSeleccionada(null)
+
+        if (texto.length < 3) {
+            setResultados([])
+            return
+        }
+
+        try {
+            setBuscando(true)
+            const response = await fetch(
+                `https://apis.datos.gob.ar/georef/api/localidades?nombre=${encodeURIComponent(texto)}&campos=nombre,provincia&max=8`
+            )
+            const data = await response.json()
+            setResultados(data.localidades)
+        } catch {
+            setResultados([])
+        } finally {
+            setBuscando(false)
+        }
+    }
+
+    function seleccionarLocalidad(item) {
+
+        setLocalidadSeleccionada(item)
+
+        setTextoBusqueda(
+            `${item.nombre}, ${item.provincia.nombre}`
+        )
+
+        setResultados([])
     }
 
     const handleSubmit = async () => {
@@ -90,6 +129,15 @@ function Registrarse3() {
                     setMensaje('Fecha inválida')
                     return
                 }
+            }
+
+            if (textoBusqueda && !localidadSeleccionada) {
+
+                setMensaje(
+                    "Seleccioná una localidad de la lista."
+                )
+
+                return
             }
 
             const { data, error } = await supabase.auth.signUp({
@@ -157,7 +205,8 @@ function Registrarse3() {
                         nombre,
                         apellido,
                         fecha_nacimiento: fechaSQL,
-                        foto_perfil: fotoPerfil
+                        foto_perfil: fotoPerfil,
+                        localidad: localidad || null
                     })
 
             if (errorUsuario) {
@@ -178,6 +227,35 @@ function Registrarse3() {
     return (
         <SafeAreaView style={styles.fondo}>
             <Text style={styles.titulo}>Registrarse</Text>
+
+            <View style={styles.contenedorBusqueda}>
+                <Input
+                    label="Localidad (Opcional)"
+                    placeholder="Escribí tu localidad"
+                    value={textoBusqueda}
+                    onChangeText={buscarLocalidades}
+                />
+
+                {resultados.length > 0 && (
+                    <View style={styles.listaLocalidades}>
+                        {resultados.map((item, index) => (
+                            <TouchableOpacity
+                                key={index}
+                                style={styles.itemLocalidad}
+                                onPress={() => seleccionarLocalidad(item)}
+                            >
+                                <Text style={styles.nombreLocalidad}>
+                                    {item.nombre}
+                                </Text>
+
+                                <Text style={styles.provincia}>
+                                    {item.provincia.nombre}
+                                </Text>
+                            </TouchableOpacity>
+                        ))}
+                    </View>
+                )}
+            </View>
 
             <Input
                 label="Fecha de nacimiento (Opcional)"
@@ -250,6 +328,61 @@ const styles = StyleSheet.create({
         color: '#A846E9',
         fontFamily: 'Utendo',
         fontSize: 16,
+    },
+    contenedorBusqueda: {
+        position: "relative",
+        zIndex: 100
+    },
+
+    listaLocalidades: {
+        position: "absolute",
+
+        top: 88, // ajustar según la altura de tu Input
+
+        left: 0,
+        right: 0,
+
+        backgroundColor: "#252530",
+
+        borderRadius: 15,
+
+        overflow: "hidden",
+
+        elevation: 15,
+        zIndex: 999,
+
+        shadowColor: "#000",
+        shadowOpacity: 0.35,
+        shadowRadius: 10,
+        shadowOffset: {
+            width: 0,
+            height: 5
+        },
+
+        maxHeight: 260
+    },
+
+    itemLocalidad: {
+
+        padding: 15,
+        borderBottomWidth: 1,
+        borderBottomColor: "#333"
+
+    },
+
+    nombreLocalidad: {
+
+        color: "white",
+        fontFamily: "CashMarket",
+        fontSize: 17
+
+    },
+
+    provincia: {
+
+        color: "#9F9F9F",
+        fontFamily: "Utendo"
+
     },
 })
 
