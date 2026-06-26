@@ -206,7 +206,9 @@ function Registrarse3() {
                         apellido,
                         fecha_nacimiento: fechaSQL,
                         foto_perfil: fotoPerfil,
-                        localidad: localidad || null
+                        localidad: localidadSeleccionada
+                            ? `${localidadSeleccionada.nombre}, ${localidadSeleccionada.provincia.nombre}`
+                            : null
                     })
 
             if (errorUsuario) {
