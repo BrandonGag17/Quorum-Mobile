@@ -269,24 +269,22 @@ function Grupo() {
                                     </View>
                                 </TouchableOpacity>
 
-                                <View style={styles.sheetBotonDisabled}>
+                                <TouchableOpacity
+                                    style={styles.sheetBoton}
+                                    onPress={() => {
+                                        setMostrarModal(false)
+
+                                        navigation.navigate('CrearEvento')
+                                    }}
+                                >
                                     <View style={styles.sheetBotonTexto}>
-                                        <IconCalendarEventFilled
-                                            size={35}
-                                            color="#727272"
-                                        />
-
+                                        <IconCalendarEventFilled size={35} />
                                         <View style={styles.textosModal}>
-                                            <Text style={styles.tituloModalDisabled}>
-                                                Crear evento
-                                            </Text>
-
-                                            <Text style={styles.subtituloModalDisabled}>
-                                                Sin votaciones, fecha fija
-                                            </Text>
+                                            <Text style={styles.tituloModal}>Crear evento</Text>
+                                            <Text style={styles.subtituloModal}>Sin votaciones, fecha fija</Text>
                                         </View>
                                     </View>
-                                </View>
+                                </TouchableOpacity>
 
                             </Pressable>
                         </Animated.View>
@@ -454,7 +452,7 @@ const styles = StyleSheet.create({
         color: 'white',
         textAlign: 'center'
     },
-        titulo_crear: {
+    titulo_crear: {
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between'
