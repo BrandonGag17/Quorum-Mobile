@@ -96,14 +96,10 @@ function CardJuntadas({ evento, navigation }) {
 const styles = StyleSheet.create({
     card: {
         backgroundColor: '#4A216F',
-
         borderRadius: 18,
-
         width: 220,
-
         paddingVertical: 16,
         paddingHorizontal: 14,
-
         marginTop: 10,
         marginBottom: 20,
         marginRight: 12,

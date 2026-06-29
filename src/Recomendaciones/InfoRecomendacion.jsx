@@ -17,21 +17,38 @@ export default function InfoRecomendaciones() {
                     style={styles.imagen}
                 />
 
-                <Text style={styles.titulo}>La Hormiga</Text>
+                <Text style={styles.titulo}>
+                    La Hormiga
+                </Text>
 
-                <Text style={styles.estrellas}>★★★★★</Text>
 
-                <View style={styles.direccionContainer}>
-                    <Entypo
-                        name="location-pin"
-                        size={17}
-                        color="#B6B6B6"
-                        style={styles.iconoUbicacion}
-                    />
-
-                    <Text style={styles.direccion}>
-                        Armenia 1680, Palermo
+                <View style={styles.ratingContainer}>
+                    <Text style={styles.rating}>
+                        ⭐ 4.7
                     </Text>
+
+
+                    <View style={styles.categoria}>
+                        <Text style={styles.categoriaTexto}>
+                            Restaurante
+                        </Text>
+                    </View>
+                </View>
+
+
+                <View style={styles.infoCard}>
+                    <View style={styles.filaInfo}>
+                        <Entypo
+                            name="location-pin"
+                            size={20}
+                            color="#57C7A3"
+                        />
+
+
+                        <Text style={styles.infoTexto}>
+                            Armenia 1680, Palermo
+                        </Text>
+                    </View>
                 </View>
 
                 <Iconos
@@ -97,15 +114,15 @@ const styles = StyleSheet.create({
 
     titulo: {
         color: 'white',
-        alignSelf: 'center',
         fontFamily: 'CashMarket',
         fontSize: 24,
         marginTop: 10,
+        marginLeft: 5
     },
 
     estrellas: {
         textAlign: "center",
-        color: "#FFD700",
+        color: "black",
         fontSize: 22,
         letterSpacing: 2,
     },
@@ -164,6 +181,70 @@ const styles = StyleSheet.create({
         marginTop: 5
     },
     iconoUbicacion: {
-    marginBottom: 5,
-},
+        marginBottom: 5,
+    },
+    
+    ratingContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginTop: 12,
+        marginBottom: 20,
+    },
+    rating: {
+        backgroundColor: '#ffecad',
+        color: '#000',
+        paddingHorizontal: 14,
+        paddingVertical: 6,
+        borderRadius: 30,
+        fontFamily: 'CashMarket',
+        fontSize: 12,
+        marginRight: 10,
+    },
+
+    categoria: {
+        backgroundColor: '#57C7A3',
+        paddingHorizontal: 12,
+        paddingVertical: 6,
+        borderRadius: 20,
+    },
+
+    categoriaTexto: {
+        color: '#000',
+        fontFamily: 'CashMarket',
+        fontSize: 13,
+    },
+
+    infoCard: {
+        backgroundColor: '#23232D',
+        borderRadius: 16,
+        padding: 16,
+        marginBottom: 25,
+    },
+
+    filaInfo: {
+        flexDirection: 'row',
+        alignItems: 'center',
+    },
+
+    infoTexto: {
+        color: 'white',
+        marginLeft: 10,
+        fontFamily: 'Utendo',
+        flex: 1,
+    },
+
+    card: {
+        backgroundColor: '#23232D',
+        borderRadius: 16,
+        padding: 18,
+        marginTop: 8,
+        marginBottom: 25,
+    },
+
+    descripcion: {
+        color: 'white',
+        fontFamily: 'Utendo',
+        lineHeight: 24,
+        fontSize: 15,
+    },
 });
