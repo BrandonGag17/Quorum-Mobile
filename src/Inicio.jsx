@@ -1,89 +1,149 @@
-import { useEffect, useState } from 'react'
-import { View, Text, TouchableOpacity, Image, FlatList, StyleSheet, TextInput, ScrollView, Modal } from 'react-native'
-import { SafeAreaView } from 'react-native-safe-area-context'
+import { useEffect, useState, useRef } from 'react'
 import { useNavigation } from '@react-navigation/native'
-import supabase from './supabaseClient'
-import Navbar from './Utilidades/Navbar'
-import Iconos from '../src/Utilidades/Iconos'
-import Ionicons from '@expo/vector-icons/Ionicons'
 import Feather from '@expo/vector-icons/Feather'
-import CardJuntadas from './Utilidades/CardJuntadas'
-import { IconUserFilled } from '@tabler/icons-react-native';
+import Ionicons from '@expo/vector-icons/Ionicons'
+import { IconUserFilled } from '@tabler/icons-react-native'
+
+import {
+    FlatList, Image, Modal, ScrollView, StyleSheet,
+    Text, TextInput, TouchableOpacity, View
+} from 'react-native'
+
+import { SafeAreaView } from 'react-native-safe-area-context'
+
+import supabase from './supabaseClient'
 import CrearGrupo from './Grupo/CrearGrupo'
+import CardJuntadas from './Utilidades/CardJuntadas'
+import Iconos from './Utilidades/Iconos'
+import Navbar from './Utilidades/Navbar'
 
 function Inicio() {
     const navigation = useNavigation()
+
     const [grupos, setGrupos] = useState([])
+    const [eventos, setEventos] = useState([])
     const [mostrarModal, setMostrarModal] = useState(false)
     const [busqueda, setBusqueda] = useState('')
-    const [eventos, setEventos] = useState([])
+    const [cargandoGrupos, setCargandoGrupos] = useState(true)
+    const [cargandoEventos, setCargandoEventos] = useState(true)
+
+    // 🔥 control anti doble init
+    const initialized = useRef(false)
+    const authListener = useRef(null)
 
     useEffect(() => {
-        cargarGrupos()
+        if (initialized.current) return
+        initialized.current = true
+
+        iniciar()
+
+        authListener.current =
+            supabase.auth.onAuthStateChange(async (event, session) => {
+                if (event === 'SIGNED_OUT') {
+                    setGrupos([])
+                    setEventos([])
+                    return
+                }
+
+                if (event === 'SIGNED_IN' && session?.user) {
+                    await cargarGrupos(session.user)
+                }
+            })
+
+        return () => {
+            authListener.current?.subscription?.unsubscribe()
+        }
     }, [])
 
-    async function cargarGrupos() {
+    // 🔥 INIT SOLO 1 VEZ
+    async function iniciar() {
         const { data: { session } } = await supabase.auth.getSession()
 
-        if (!session) {
+        if (!session?.user) {
             navigation.replace('IniciarSesion')
             return
         }
 
-        const user = session.user
+        await cargarGrupos(session.user)
+    }
+
+    // 🔥 GRUPOS + EVENTOS EN CADENA CONTROLADA
+    async function cargarGrupos(user) {
+        if (!user) return
+
+        setCargandoGrupos(true)
 
         const { data, error } = await supabase
             .from('usuario_grupo')
             .select(`
-        id_grupo,
-        grupo (
-            *,
-            usuario_grupo (
-                usuario (
-                    username
+                id_grupo,
+                grupo (
+                    nombre,
+                    foto_perfil,
+                    usuario_grupo (
+                        usuario ( username )
+                    )
                 )
-            )
-        )
-    `)
+            `)
             .eq('id_usuario', user.id)
 
         if (error) {
             console.error(error)
+            setCargandoGrupos(false)
             return
         }
 
-        setGrupos(data)
+        const gruposProcesados = (data || []).map(item => {
+            const usernames = item.grupo?.usuario_grupo
+                ?.map(m => m.usuario?.username)
+                .filter(Boolean) || []
 
-        if (data && data.length > 0) {
-            const idsGrupos = data.map(g => g.id_grupo)
-            traerEventos(idsGrupos)
-        }
+            const integrantes =
+                usernames.length > 3
+                    ? `${usernames.slice(0, 3).join(', ')} y más`
+                    : usernames.join(', ')
+
+            return { ...item, integrantes }
+        })
+
+        setGrupos(gruposProcesados)
+        setCargandoGrupos(false)
+
+        // 🔥 LLAMADA DIRECTA (SIN USEEFFECT)
+        await cargarEventos(gruposProcesados.map(g => g.id_grupo))
     }
 
-    async function traerEventos(idsGrupos) {
+    async function cargarEventos(idsGrupos) {
+        if (!idsGrupos.length) {
+            setEventos([])
+            setCargandoEventos(false)
+            return
+        }
+
+        setCargandoEventos(true)
+
+        const ahora = new Date().toISOString()
+
         const { data, error } = await supabase
             .from('evento')
             .select(`
                 *,
-                grupo (
-                    nombre
-                )
+                grupo ( nombre )
             `)
             .in('id_grupo', idsGrupos)
+            .eq('estado', 'confirmado')
+            .gte('fecha_hora_inicio', ahora)
+            .order('fecha_hora_inicio', { ascending: true })
 
         if (error) {
-            console.log("Error consultando eventos:", error.message)
+            console.log(error.message)
+            setCargandoEventos(false)
             return
         }
+
         setEventos(data || [])
+        setCargandoEventos(false)
     }
-
-    const ahora = new Date().toISOString();
-
-    const eventosConfirmados = eventos.filter(e =>
-        e.estado === 'confirmado' && (e.fecha_hora_inicio > ahora || !e.fecha_hora_inicio)
-    )
-
     return (
         <SafeAreaView style={styles.fondo}>
             <ScrollView
@@ -92,9 +152,9 @@ function Inicio() {
             >
                 <Text style={styles.titulo}>Quórum</Text>
 
+                {/* BUSCADOR */}
                 <View style={styles.buscador}>
                     <Feather name="search" size={22} color="#808080" />
-
                     <TextInput
                         style={styles.inputBuscador}
                         placeholder="Buscar grupos"
@@ -104,26 +164,33 @@ function Inicio() {
                     />
                 </View>
 
+                {/* JUNTADAS */}
                 <Iconos
                     size={36}
-                    titulo="Proximas juntadas"
+                    titulo="Próximas juntadas"
                     icono={<Ionicons name="calendar" size={25} color="#000000" />}
                 />
 
-                {eventosConfirmados.length > 0 ? (
-                    <ScrollView
+                {cargandoEventos ? (
+                    <View style={styles.noJuntadas}>
+                        <Text style={styles.text}>
+                            Cargando juntadas...
+                        </Text>
+                    </View>
+                ) : eventos.length > 0 ? (
+                    <FlatList
                         horizontal
-                        showsHorizontalScrollIndicator={false}
-                        contentContainerStyle={styles.juntadasContainer}
-                    >
-                        {eventosConfirmados.map(e => (
+                        data={eventos}
+                        keyExtractor={(item) => item.id.toString()}
+                        renderItem={({ item }) => (
                             <CardJuntadas
-                                key={e.id}
-                                evento={e}
+                                evento={item}
                                 navigation={navigation}
                             />
-                        ))}
-                    </ScrollView>
+                        )}
+                        showsHorizontalScrollIndicator={false}
+                        contentContainerStyle={styles.juntadasContainer}
+                    />
                 ) : (
                     <View style={styles.noJuntadas}>
                         <Text style={styles.text}>
@@ -131,8 +198,7 @@ function Inicio() {
                         </Text>
                     </View>
                 )}
-
-
+                {/* GRUPOS HEADER */}
                 <View style={styles.titulo_crear}>
                     <Iconos
                         size={36}
@@ -140,49 +206,50 @@ function Inicio() {
                         icono={<IconUserFilled size={25} color="#000000" />}
                     />
 
-
-                    <TouchableOpacity onPress={() => setMostrarModal(true)} style={styles.botonCrear}>
+                    <TouchableOpacity
+                        onPress={() => setMostrarModal(true)}
+                        style={styles.botonCrear}
+                    >
                         <Text style={styles.botonCrearTexto}>+ Crear</Text>
                     </TouchableOpacity>
                 </View>
 
-                {grupos.length > 0 ? (
+                {cargandoGrupos ? (
+                    <View style={styles.noJuntadas}>
+                        <Text style={styles.text}>
+                            Cargando grupos...
+                        </Text>
+                    </View>
+                ) : grupos.length > 0 ? (
                     <FlatList
                         scrollEnabled={false}
                         data={grupos}
                         keyExtractor={(item) => item.id_grupo.toString()}
-                        renderItem={({ item }) => {
-                            const integrantes = item.grupo?.usuario_grupo
-                                ?.map(m => m.usuario?.username)
-                                .filter(Boolean)
-                                .join(', ')
+                        renderItem={({ item }) => (
+                            <TouchableOpacity
+                                style={styles.grupoCard}
+                                onPress={() =>
+                                    navigation.navigate('Grupo', {
+                                        idGrupo: item.id_grupo
+                                    })
+                                }
+                            >
+                                <Image
+                                    source={{ uri: item.grupo.foto_perfil }}
+                                    style={styles.imagen}
+                                />
 
-                            return (
-                                <TouchableOpacity
-                                    style={styles.grupoCard}
-                                    onPress={() =>
-                                        navigation.navigate('Grupo', {
-                                            idGrupo: item.id_grupo
-                                        })
-                                    }
-                                >
-                                    <Image
-                                        source={{ uri: item.grupo.foto_perfil }}
-                                        style={styles.imagen}
-                                    />
+                                <View style={styles.grupoInfo}>
+                                    <Text style={styles.grupoNombre}>
+                                        {item.grupo.nombre}
+                                    </Text>
 
-                                    <View style={styles.grupoInfo}>
-                                        <Text style={styles.grupoNombre}>
-                                            {item.grupo?.nombre}
-                                        </Text>
-
-                                        <Text style={styles.grupoIntegrantes}>
-                                            {integrantes}
-                                        </Text>
-                                    </View>
-                                </TouchableOpacity>
-                            )
-                        }}
+                                    <Text style={styles.grupoIntegrantes}>
+                                        {item.integrantes}
+                                    </Text>
+                                </View>
+                            </TouchableOpacity>
+                        )}
                     />
                 ) : (
                     <View style={styles.noJuntadas}>
@@ -192,6 +259,7 @@ function Inicio() {
                     </View>
                 )}
 
+                {/* MODAL */}
                 {mostrarModal && (
                     <Modal
                         visible={mostrarModal}
@@ -202,16 +270,24 @@ function Inicio() {
                         <View style={styles.modalOverlay}>
                             <View style={styles.modal}>
                                 <View style={styles.headerModal}>
-                                    <Text style={styles.modalTitulo}>Crear grupo</Text>
+                                    <Text style={styles.modalTitulo}>
+                                        Crear grupo
+                                    </Text>
 
                                     <TouchableOpacity onPress={() => setMostrarModal(false)}>
                                         <Text style={styles.botonCerrar}>✕</Text>
                                     </TouchableOpacity>
                                 </View>
+
                                 <CrearGrupo
                                     onGrupoCreado={() => {
+                                        cacheGrupos = null
                                         setMostrarModal(false)
-                                        cargarGrupos()
+                                        supabase.auth.getSession().then(({ data }) => {
+                                            if (data?.session?.user) {
+                                                cargarGrupos(data.session.user)
+                                            }
+                                        })
                                     }}
                                 />
                             </View>
@@ -223,7 +299,6 @@ function Inicio() {
             <Navbar pantallaActual="Inicio" />
         </SafeAreaView>
     )
-
 }
 
 const styles = StyleSheet.create({
