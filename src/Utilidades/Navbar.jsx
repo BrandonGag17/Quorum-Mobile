@@ -31,7 +31,7 @@ export default function Navbar({ pantallaActual }) {
                 ]}
                 onPress={() => navigation.navigate('Recomendaciones')}
             >
-                <IconSettingsFilled color="#FFFFFF" size={30} />
+                <IconCompassFilled color="#FFFFFF" size={30} />
                 <Text style={styles.navText}>Explorar</Text>
             </TouchableOpacity>
 

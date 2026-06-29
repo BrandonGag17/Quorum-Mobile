@@ -30,7 +30,8 @@
     "react-native-screens": "~4.23.0",
     "react-native-svg": "^15.15.3",
     "react-native-url-polyfill": "^3.0.0",
-    "react-native-web": "^0.21.0"
+    "react-native-web": "^0.21.0",
+    "undefined": "@expo/vector-icons/Feather"
   },
   "private": true
 }
