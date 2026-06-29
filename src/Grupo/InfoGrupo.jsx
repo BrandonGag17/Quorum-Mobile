@@ -172,13 +172,11 @@ function InfoGrupo() {
                         </View>
                     )}
                 />
-
-                <View style={styles.botonContainer}>
-                    <ButtonApp
-                        onPress={() => setMostrarModal(true)}
-                        nombre={cargando ? 'Cargando...' : '+ Añadir miembros'}
-                    />
-                </View>
+                
+                <ButtonApp
+                    onPress={() => setMostrarModal(true)}
+                    nombre={cargando ? 'Cargando...' : '+ Añadir miembros'}
+                />
 
                 <TouchableOpacity
                     style={styles.botonSalir}
@@ -447,14 +445,14 @@ const styles = StyleSheet.create({
     },
 
     botonModal: {
-        backgroundColor: '#5C3E94',
+        backgroundColor: '#57C7A3',
         padding: 12,
         borderRadius: 10,
         alignItems: 'center',
     },
 
     textoBotonModal: {
-        color: 'white',
+        color: 'black',
         fontFamily: 'CashMarket',
     },
 

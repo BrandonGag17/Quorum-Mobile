@@ -142,14 +142,17 @@ export default function Recomendaciones() {
                                 {item.properties.name}
                             </Text>
 
-                            <Text numberOfLines={1} style={styles.direccion}>
+                            <View style={styles.direccionContainer}>
                                 <FontAwesome6
                                     name="location-dot"
                                     size={11}
-                                    color="#B6B6B6" 
+                                    color="#B6B6B6"
+                                    style={{ marginRight: 6 }}
                                 />
-                                {item.properties.address_line2 || item.properties.formatted}
-                            </Text>
+                                <Text numberOfLines={1} style={styles.direccion}>
+                                    {item.properties.address_line2 || item.properties.formatted}
+                                </Text>
+                            </View>
                         </View>
 
                     </View>
@@ -165,13 +168,14 @@ const styles = StyleSheet.create({
         flex: 1,
         backgroundColor: '#15151C',
         padding: 25,
-        paddingBottom: 90
+        paddingBottom: 90,
     },
     titulo: {
         color: 'white',
         fontFamily: 'CashMarket',
         fontSize: 24,
-        marginBottom: 5,
+        marginBottom: 10,
+        marginTop: 7
     },
     fila: {
         justifyContent: 'space-between',
@@ -200,10 +204,16 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
     },
 
+    direccionContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginTop: 4,
+    },
+
     direccion: {
+        flex: 1,
         color: '#E7D8FF',
         fontSize: 12,
-        marginTop: 4,
         fontFamily: 'Utendo',
     },
     buscador: {
