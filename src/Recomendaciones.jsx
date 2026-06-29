@@ -9,7 +9,7 @@ import {
     TouchableOpacity
 } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
-
+import { useNavigation } from '@react-navigation/native'
 import Navbar from './Utilidades/Navbar'
 import supabase from './supabaseClient'
 import { obtenerLugares } from '../services/geoapifyService'
@@ -18,6 +18,7 @@ const MI_IMAGEN_ELEGIDA =
     'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTYGR-KyWBs8T4kE2hXYzGhoVTOPsOtmweh3acdYL7jlzmlTqfSXmpBbr8&s=10'
 
 export default function Recomendaciones() {
+    const navigation = useNavigation()
 
     const [lugares, setLugares] = useState([])
     const [cargando, setCargando] = useState(true)
@@ -30,7 +31,6 @@ export default function Recomendaciones() {
     async function cargarLugares() {
 
         try {
-
             setCargando(true)
             setError(false)
 
@@ -53,12 +53,10 @@ export default function Recomendaciones() {
                 let localidad = perfil?.localidad
 
                 if (typeof localidad === 'string') {
-
                     try {
                         localidad = JSON.parse(localidad)
                     }
                     catch { }
-
                 }
 
                 const centroide =
@@ -87,41 +85,28 @@ export default function Recomendaciones() {
                     nuevaLat !== undefined &&
                     nuevaLon !== undefined
                 ) {
-
                     lat = nuevaLat
                     lon = nuevaLon
-
                 }
-
             }
 
             const lugaresEncontrados =
                 await obtenerLugares(
-
                     'catering.restaurant,catering.bar,catering.cafe',
-
                     lat,
-
                     lon
-
                 )
 
             setLugares(lugaresEncontrados)
-
         }
 
         catch (e) {
-
             console.log(e)
-
             setError(true)
-
         }
 
         finally {
-
             setCargando(false)
-
         }
 
     }
@@ -189,7 +174,14 @@ export default function Recomendaciones() {
                 contentContainerStyle={{ paddingBottom: 100 }}
                 renderItem={({ item }) => (
 
-                    <View style={styles.card}>
+                    <TouchableOpacity
+                        style={styles.card}
+                        onPress={() =>
+                            navigation.navigate(
+                                'InfoRecomendacion',
+                                { lugar: item }
+                            )
+                        }>
 
                         <Image
                             source={{
@@ -209,7 +201,7 @@ export default function Recomendaciones() {
                             }
                         </Text>
 
-                    </View>
+                    </TouchableOpacity>
 
                 )}
             />
