@@ -1,17 +1,11 @@
 import { useEffect, useState } from 'react'
-import {
-    StyleSheet,
-    Text,
-    View,
-    FlatList,
-    TextInput,
-    Image
-} from 'react-native'
+import { StyleSheet, Text, View, FlatList, TextInput, Image, TouchableOpacity } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import Navbar from './Utilidades/Navbar'
 import supabase from './supabaseClient'
 import Feather from '@expo/vector-icons/Feather'
 import FontAwesome6 from '@expo/vector-icons/FontAwesome6'
+import { useNavigation } from '@react-navigation/native'
 
 const API_KEY = 'a3b581712a364e97b7c5d371f7f86ee8'
 
@@ -19,6 +13,7 @@ const API_KEY = 'a3b581712a364e97b7c5d371f7f86ee8'
 const MI_IMAGEN_ELEGIDA = 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTYGR-KyWBs8T4kE2hXYzGhoVTOPsOtmweh3acdYL7jlzmlTqfSXmpBbr8&s=10';
 
 export default function Recomendaciones() {
+        const navigation = useNavigation()
 
     const [lugares, setLugares] = useState([])
     const [busqueda, setBusqueda] = useState('')
@@ -130,7 +125,14 @@ export default function Recomendaciones() {
                 keyExtractor={(item) => item.properties.place_id}
                 showsVerticalScrollIndicator={false}
                 renderItem={({ item }) => (
-                    <View style={styles.card}>
+                    <TouchableOpacity
+                        style={styles.card}
+                        onPress={() =>
+                            navigation.navigate(
+                                'InfoRecomendacion',
+                                { lugar: item }
+                            )
+                        }>
 
                         <Image
                             source={{ uri: MI_IMAGEN_ELEGIDA }}
@@ -155,7 +157,7 @@ export default function Recomendaciones() {
                             </View>
                         </View>
 
-                    </View>
+                    </TouchableOpacity>
                 )}
             />
             <Navbar pantallaActual="Recomendaciones" />
