@@ -10,7 +10,8 @@ import {
     TouchableOpacity,
     ScrollView,
     Animated,
-    Image
+    Image,
+    PanResponder
 } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 
@@ -40,6 +41,30 @@ function Grupo() {
     const [cantidadMiembros, setCantidadMiembros] = useState(0)
 
     const translateY = useRef(new Animated.Value(400)).current
+
+    const panResponder = useRef(
+        PanResponder.create({
+            onMoveShouldSetPanResponder: (_, gesture) =>
+                gesture.dy > 10,
+
+            onPanResponderMove: (_, gesture) => {
+                if (gesture.dy > 0) {
+                    translateY.setValue(gesture.dy)
+                }
+            },
+
+            onPanResponderRelease: (_, gesture) => {
+                if (gesture.dy > 120) {
+                    setMostrarModal(false)
+                } else {
+                    Animated.spring(translateY, {
+                        toValue: 0,
+                        useNativeDriver: false
+                    }).start()
+                }
+            }
+        })
+    ).current
 
     useEffect(() => {
         if (mostrarModal) {
@@ -235,9 +260,12 @@ function Grupo() {
                         onPress={() => setMostrarModal(false)}
                     >
                         <Animated.View
+                            {...panResponder.panHandlers}
                             style={[
                                 styles.bottomSheet,
-                                { transform: [{ translateY }] }
+                                {
+                                    transform: [{ translateY }]
+                                }
                             ]}
                         >
                             <Pressable

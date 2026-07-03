@@ -6,16 +6,16 @@ import {
     FlatList,
     Image,
     ActivityIndicator,
-    TouchableOpacity
+    TouchableOpacity,
+    TextInput
 } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { useNavigation } from '@react-navigation/native'
 import Navbar from './Utilidades/Navbar'
 import supabase from './supabaseClient'
 import { obtenerLugares } from '../services/geoapifyService'
-
-const MI_IMAGEN_ELEGIDA =
-    'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTYGR-KyWBs8T4kE2hXYzGhoVTOPsOtmweh3acdYL7jlzmlTqfSXmpBbr8&s=10'
+import Feather from '@expo/vector-icons/Feather'
+import FontAwesome6 from '@expo/vector-icons/FontAwesome6'
 
 export default function Recomendaciones() {
     const navigation = useNavigation()
@@ -23,6 +23,7 @@ export default function Recomendaciones() {
     const [lugares, setLugares] = useState([])
     const [cargando, setCargando] = useState(true)
     const [error, setError] = useState(false)
+    const [busqueda, setBusqueda] = useState('')
 
     useEffect(() => {
         cargarLugares()
@@ -42,36 +43,26 @@ export default function Recomendaciones() {
             } = await supabase.auth.getUser()
 
             if (user) {
-
                 const { data: perfil } =
                     await supabase
                         .from('usuario')
                         .select('localidad')
                         .eq('id', user.id)
                         .single()
-
                 let localidad = perfil?.localidad
-
                 if (typeof localidad === 'string') {
                     try {
                         localidad = JSON.parse(localidad)
                     }
                     catch { }
                 }
-
-                const centroide =
-                    localidad?.centroide ||
-                    localidad?.centroid
-
-                const nuevaLat =
-                    centroide?.lat ??
-                    centroide?.latitude ??
+                const centroide = localidad?.centroide || localidad?.centroid
+                const nuevaLat = centroide?.lat ?? centroide?.latitude ??
                     (
                         Array.isArray(centroide?.coordinates)
                             ? centroide.coordinates[1]
                             : undefined
                     )
-
                 const nuevaLon =
                     centroide?.lon ??
                     centroide?.longitude ??
@@ -80,7 +71,6 @@ export default function Recomendaciones() {
                             ? centroide.coordinates[0]
                             : undefined
                     )
-
                 if (
                     nuevaLat !== undefined &&
                     nuevaLon !== undefined
@@ -89,91 +79,80 @@ export default function Recomendaciones() {
                     lon = nuevaLon
                 }
             }
-
             const lugaresEncontrados =
                 await obtenerLugares(
                     'catering.restaurant,catering.bar,catering.cafe',
                     lat,
                     lon
                 )
-
             setLugares(lugaresEncontrados)
         }
-
         catch (e) {
             console.log(e)
             setError(true)
         }
-
         finally {
             setCargando(false)
         }
-
     }
 
     if (cargando) {
-
         return (
-
             <SafeAreaView style={styles.loadingContainer}>
-
                 <ActivityIndicator
                     size="large"
                     color="#B514F6"
                 />
-
                 <Navbar pantallaActual="Recomendaciones" />
-
             </SafeAreaView>
-
         )
-
     }
 
     if (error) {
-
         return (
-
             <SafeAreaView style={styles.loadingContainer}>
-
                 <Text style={styles.errorTitulo}>
                     No pudimos cargar las recomendaciones.
                 </Text>
-
                 <TouchableOpacity
                     style={styles.botonReintentar}
                     onPress={cargarLugares}
                 >
-
                     <Text style={styles.textoBoton}>
                         Reintentar
                     </Text>
-
                 </TouchableOpacity>
-
                 <Navbar pantallaActual="Recomendaciones" />
-
             </SafeAreaView>
-
         )
-
     }
 
     return (
-
         <SafeAreaView style={styles.fondo}>
 
             <Text style={styles.titulo}>
-                Lugares cerca tuyo
+                Recomendación de lugares
             </Text>
+
+            <View style={styles.buscador}>
+                <Feather name="search" size={22} color="#808080" />
+
+                <TextInput
+                    style={styles.inputBuscador}
+                    placeholder="Buscar lugares"
+                    placeholderTextColor="#808080"
+                    value={busqueda}
+                    onChangeText={setBusqueda}
+                />
+            </View>
 
             <FlatList
                 data={lugares}
-                keyExtractor={(item) => item.properties.place_id}
+                numColumns={2}
+                columnWrapperStyle={styles.fila}
+                keyExtractor={(item) => item.id}
                 showsVerticalScrollIndicator={false}
-                contentContainerStyle={{ paddingBottom: 100 }}
                 renderItem={({ item }) => (
-
                     <TouchableOpacity
                         style={styles.card}
                         onPress={() =>
@@ -184,103 +163,116 @@ export default function Recomendaciones() {
                         }>
 
                         <Image
-                            source={{
-                                uri: MI_IMAGEN_ELEGIDA
-                            }}
+                            source={
+                                item.imagen
+                                    ? { uri: item.imagen }
+                                    : require('../assets/img/Placeholders/laHormiga.png')
+                            }
                             style={styles.fotoCard}
                         />
 
-                        <Text style={styles.nombre}>
-                            {item.properties.name}
-                        </Text>
+                        <View style={styles.info}>
+                            <Text numberOfLines={1} style={styles.nombre}>
+                                {item.nombre}
+                            </Text>
 
-                        <Text style={styles.direccion}>
-                            {
-                                item.properties.address_line2 ||
-                                item.properties.formatted
-                            }
-                        </Text>
+                            <View style={styles.direccionContainer}>
+                                <FontAwesome6
+                                    name="location-dot"
+                                    size={11}
+                                    color="#B6B6B6"
+                                    style={{ marginRight: 6 }}
+                                />
+                                <Text numberOfLines={1} style={styles.direccion}>
+                                    {item.address_line2 || item.formatted}
+                                </Text>
+                            </View>
+                        </View>
 
                     </TouchableOpacity>
-
                 )}
             />
-
             <Navbar pantallaActual="Recomendaciones" />
-
         </SafeAreaView>
-
     )
-
 }
 
 const styles = StyleSheet.create({
-
     fondo: {
         flex: 1,
         backgroundColor: '#15151C',
         padding: 25,
-        paddingBottom: 90
+        paddingBottom: 90,
     },
-
-    loadingContainer: {
-        flex: 1,
-        backgroundColor: '#15151C',
-        justifyContent: 'center',
-        alignItems: 'center'
-    },
-
     titulo: {
         color: 'white',
-        fontSize: 28,
         fontFamily: 'CashMarket',
-        marginBottom: 20
+        fontSize: 24,
+        marginBottom: 10,
+        marginTop: 7
+    },
+    fila: {
+        justifyContent: 'space-between',
     },
 
     card: {
-        backgroundColor: '#23232C',
-        borderRadius: 18,
-        padding: 15,
-        marginBottom: 18
+        width: '48%',
+        backgroundColor: '#66278F',
+        borderRadius: 12,
+        overflow: 'hidden',
+        marginBottom: 16,
     },
 
     fotoCard: {
         width: '100%',
-        height: 150,
-        borderRadius: 12,
-        marginBottom: 12
+        height: 120,
+    },
+
+    info: {
+        padding: 10,
     },
 
     nombre: {
         color: 'white',
-        fontSize: 18,
-        fontFamily: 'CashMarket'
+        fontSize: 16,
+        fontWeight: 'bold',
+    },
+
+    direccionContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginTop: 4,
     },
 
     direccion: {
-        color: '#AFAFAF',
+        flex: 1,
+        color: '#E7D8FF',
+        fontSize: 12,
         fontFamily: 'Utendo',
-        marginTop: 5
     },
-
-    errorTitulo: {
+    buscador: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: '#373749',
+        borderRadius: 16,
+        paddingHorizontal: 15,
+        height: 52,
+        marginBottom: 30,
+        marginTop: 20,
+        borderWidth: 1,
+        borderColor: '#726c79',
+    },
+    inputBuscador: {
+        flex: 1,
         color: 'white',
-        fontFamily: 'CashMarket',
-        fontSize: 20,
-        marginBottom: 20,
-        textAlign: 'center'
+        fontFamily: 'Utendo',
+        marginLeft: 10,
+        fontSize: 16,
     },
-
-    botonReintentar: {
-        backgroundColor: '#57C7A3',
-        paddingHorizontal: 22,
-        paddingVertical: 12,
-        borderRadius: 12
+    loadingContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: '#15151C'
     },
-
-    textoBoton: {
-        color: '#000',
-        fontFamily: 'CashMarket'
-    }
-
-})
+})  

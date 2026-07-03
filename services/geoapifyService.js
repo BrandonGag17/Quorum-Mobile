@@ -1,5 +1,6 @@
-const API_KEY = process.env.EXPO_PUBLIC_GEOAPIFY_KEY
+import { obtenerImagenLugar } from "./unsplashService";
 
+const API_KEY = process.env.EXPO_PUBLIC_GEOAPIFY_KEY
 const BASE_URL =
     "https://api.geoapify.com/v2/places"
 
@@ -34,9 +35,26 @@ export async function obtenerLugares(
         if (!data.features)
             return []
 
-        return data.features.filter(
-            lugar => lugar.properties?.name
-        )
+        const lugares = await Promise.all(
+            data.features.map(async lugar => {
+
+                const imagen = await obtenerImagenLugar(
+                    lugar.properties.name,
+                    lugar.properties.formatted
+                );
+
+                return {
+                    id: lugar.properties.place_id,
+                    nombre: lugar.properties.name,
+                    direccion: lugar.properties.formatted,
+                    latitud: lugar.properties.lat,
+                    longitud: lugar.properties.lon,
+                    imagen
+                };
+            })
+        );
+
+        return lugares;
 
     }
 
