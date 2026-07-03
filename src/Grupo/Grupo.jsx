@@ -233,18 +233,54 @@ function Grupo() {
                         horizontal
                         showsHorizontalScrollIndicator={false}
                         data={propuestasPlanificacion}
-                        keyExtractor={(item) => item.id}
+                        keyExtractor={(item) => item.id.toString()}
+                        contentContainerStyle={{ paddingRight: 10 }}
                         renderItem={({ item }) => (
-                            <CardJuntadas
-                                evento={item}
-                                navigation={navigation}
-                            />
+                            <TouchableOpacity
+                                style={styles.cardPropuesta}
+                                onPress={() =>
+                                    navigation.navigate('DetalleEvento', {
+                                        idEvento: item.id,
+                                    })
+                                }
+                            >
+                                <View style={styles.bordePropuesta} />
+
+                                <View style={styles.contenidoPropuesta}>
+                                    <Text
+                                        style={styles.propuestaTitulo}
+                                        numberOfLines={1}
+                                    >
+                                        {item.nombre}
+                                    </Text>
+
+                                    <View style={styles.propuestaFooter}>
+                                        <View style={styles.propuestaInfo}>
+                                            <Ionicons
+                                                name="people"
+                                                size={15}
+                                                color="#FFFFFF"
+                                            />
+
+                                            <Text style={styles.propuestaTexto}>
+                                                {cantidadMiembros} miembros
+                                            </Text>
+                                        </View>
+
+                                        <Ionicons
+                                            name="chevron-forward"
+                                            size={22}
+                                            color="#FFFFFF"
+                                        />
+                                    </View>
+                                </View>
+                            </TouchableOpacity>
                         )}
                     />
                 ) : (
                     <View style={styles.noJuntadas}>
                         <Text style={styles.text}>
-                            Aquí apareceran las propuestas de juntada.
+                            Aquí aparecerán las propuestas de juntada.
                         </Text>
                     </View>
                 )}
@@ -534,6 +570,54 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between'
+    },
+
+
+
+    cardPropuesta: {
+        width: 250,
+        height: 85,
+        backgroundColor: '#6542A6',
+        borderRadius: 15,
+        marginRight: 12,
+        flexDirection: 'row',
+        overflow: 'hidden',
+    },
+
+    bordePropuesta: {
+        width: 5,
+        backgroundColor: '#57C7A3',
+    },
+
+    contenidoPropuesta: {
+        flex: 1,
+        paddingHorizontal: 14,
+        paddingVertical: 12,
+        justifyContent: 'space-between',
+    },
+
+    propuestaTitulo: {
+        color: '#FFFFFF',
+        fontSize: 20,
+        fontFamily: 'CashMarket',
+    },
+
+    propuestaFooter: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+    },
+
+    propuestaInfo: {
+        flexDirection: 'row',
+        alignItems: 'center',
+    },
+
+    propuestaTexto: {
+        color: '#FFFFFF',
+        fontSize: 13,
+        marginLeft: 5,
+        fontFamily: 'Utendo',
     },
 })
 

@@ -62,7 +62,7 @@ const styles = StyleSheet.create({
         left: 0,
         right: 0,
         flexDirection: 'row',
-        justifyContent: 'space-around',
+        justifyContent: 'space-between',
         alignItems: 'center',
         height: 80,
         paddingHorizontal: 10,
@@ -72,13 +72,15 @@ const styles = StyleSheet.create({
     },
 
     navItem: {
-        flex: 1,
         alignItems: 'center',
         justifyContent: 'center',
         gap: 3,
         marginHorizontal: 3,
         height: 55,
         borderRadius: 15,
+
+        minWidth: 70,
+        paddingHorizontal: 8,
     },
 
     activo: {
