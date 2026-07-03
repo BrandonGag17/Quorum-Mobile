@@ -285,7 +285,57 @@ function Grupo() {
                                         </View>
                                     </View>
                                 </TouchableOpacity>
+                                <TouchableOpacity
+                                    disabled
+                                    style={[
+                                        styles.sheetBoton,
+                                        styles.sheetBotonDisabled
+                                    ]}
+                                >
+                                    <View style={styles.sheetBotonTexto}>
+                                        <MaterialCommunityIcons
+                                            name="robot-outline"
+                                            size={35}
+                                            color="#727272"
+                                        />
 
+                                        <View style={styles.textosModal}>
+                                            <Text style={styles.tituloModalDisabled}>
+                                                Juntada rápida con IA
+                                            </Text>
+
+                                            <Text style={styles.subtituloModalDisabled}>
+                                                Genera una propuesta según los gustos del grupo
+                                            </Text>
+                                        </View>
+                                    </View>
+                                </TouchableOpacity>
+
+                                <TouchableOpacity
+                                    disabled
+                                    style={[
+                                        styles.sheetBoton,
+                                        styles.sheetBotonDisabled
+                                    ]}
+                                >
+                                    <View style={styles.sheetBotonTexto}>
+                                        <Ionicons
+                                            name="calendar-clear"
+                                            size={35}
+                                            color="#727272"
+                                        />
+
+                                        <View style={styles.textosModal}>
+                                            <Text style={styles.tituloModalDisabled}>
+                                                Comparar calendarios
+                                            </Text>
+
+                                            <Text style={styles.subtituloModalDisabled}>
+                                                Encontrá horarios libres entre todos los integrantes
+                                            </Text>
+                                        </View>
+                                    </View>
+                                </TouchableOpacity>
                             </Pressable>
                         </Animated.View>
                     </Pressable>
@@ -308,7 +358,7 @@ const styles = StyleSheet.create({
     },
 
     tituloModalDisabled: {
-        color: '#727272',
+        color: '#979797',
         fontFamily: 'CashMarket',
         marginBottom: 5
     },
