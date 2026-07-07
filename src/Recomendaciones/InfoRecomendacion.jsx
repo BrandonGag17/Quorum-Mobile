@@ -143,13 +143,6 @@ const styles = StyleSheet.create({
         marginLeft: 6,
     },
 
-    descripcion: {
-        color: "white",
-        marginTop: 7,
-        marginBottom: 20,
-        fontFamily: 'Utendo'
-    },
-
     tabla: {
         backgroundColor: "#5C3E94",
         borderRadius: 10,
@@ -232,15 +225,6 @@ const styles = StyleSheet.create({
         fontFamily: 'Utendo',
         flex: 1,
     },
-
-    card: {
-        backgroundColor: '#23232D',
-        borderRadius: 16,
-        padding: 18,
-        marginTop: 8,
-        marginBottom: 25,
-    },
-
     descripcion: {
         color: 'white',
         fontFamily: 'Utendo',

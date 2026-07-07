@@ -183,8 +183,12 @@ export default function Recomendaciones() {
                                     color="#B6B6B6"
                                     style={{ marginRight: 6 }}
                                 />
-                                <Text numberOfLines={1} style={styles.direccion}>
-                                    {item.address_line2 || item.formatted}
+
+                                <Text
+                                    numberOfLines={2}
+                                    style={styles.direccion}
+                                >
+                                    {item.direccion}
                                 </Text>
                             </View>
                         </View>
