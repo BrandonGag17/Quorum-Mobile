@@ -5,6 +5,7 @@ import { IconUserFilled } from '@tabler/icons-react-native';
 import Iconos from '../Utilidades/Iconos'
 import Navbar from '../Utilidades/Navbar'
 import MaterialIcons from '@expo/vector-icons/MaterialIcons'
+import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons'
 import FontAwesome6 from '@expo/vector-icons/FontAwesome6'
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { SafeAreaView } from 'react-native-safe-area-context'
@@ -292,30 +293,33 @@ function Juntada({ route, navigation }) {
     }
 
     async function cambiarAsistencia(estado) {
-        const { data: userData } = await supabase.auth.getUser();
+        const { data: userData, error: authError } = await supabase.auth.getUser();
+        if (authError) {
+            console.log('Error obteniendo usuario:', authError);
+            return;
+        }
+
         const user = userData?.user;
         if (!user) return;
 
-        const { data: registroExistente } = await supabase
-            .from('usuario_evento')
-            .select('id')
-            .eq('id_usuario', user.id)
-            .eq('id_evento', idEvento)
-            .maybeSingle();
-
         const datos = {
+            id_usuario: user.id,
+            id_evento: idEvento,
             asistencia: estado,
             respondio_en: new Date().toISOString()
         };
 
-        if (registroExistente) {
-            await supabase.from('usuario_evento').update(datos).eq('id', registroExistente.id);
-        } else {
-            await supabase.from('usuario_evento').insert({
-                id_usuario: user.id,
-                id_evento: idEvento,
-                ...datos
+        const { error } = await supabase
+            .from('usuario_evento')
+            .upsert(datos, {
+                onConflict: ['id_usuario', 'id_evento'],
+                ignoreDuplicates: false,
+                returning: 'minimal'
             });
+
+        if (error) {
+            console.log('Error guardando asistencia:', error);
+            return;
         }
 
         setMiAsistencia(estado);
@@ -324,6 +328,8 @@ function Juntada({ route, navigation }) {
             await calcularParticipantes(evento.id_grupo, evento.id);
             await cargarUsuariosQueVan(evento.id);
         }
+
+        await cargarDatosEvento();
     }
 
     if (!evento) {
@@ -354,47 +360,40 @@ function Juntada({ route, navigation }) {
                     <View style={styles.confirmedCard}>
                         <Text style={styles.tituloInfo}>{evento.nombre}</Text>
 
-                        {/*                         <Text style={styles.label}>Fecha</Text>
-                       <Text style={styles.value}>{new Date(evento.fecha_hora_inicio).toLocaleString()}</Text>
-
-                        <Text style={styles.label}>Hora</Text>
-                        <Text style={styles.value}>{new Date(evento.fecha_hora_inicio).toLocaleString()}</Text>*/}
                         <View style={styles.infoJuntada}>
                             <View style={styles.infofechahora}>
-
                                 <View style={styles.infoFila}>
                                     <FontAwesome6 name="calendar-day" size={14} color="white" />
                                     <Text style={styles.value}>
-                                        {new Date(evento.fecha_hora_inicio).toLocaleDateString()}
+                                        {evento.fecha_hora_inicio
+                                            ? new Date(evento.fecha_hora_inicio).toLocaleDateString()
+                                            : 'Fecha pendiente'}
                                     </Text>
                                 </View>
 
                                 <View style={styles.infoFila}>
                                     <Ionicons name="time" size={14} color="white" />
                                     <Text style={styles.value}>
-                                        {new Date(evento.fecha_hora_inicio).toLocaleTimeString([], {
-                                            hour: '2-digit',
-                                            minute: '2-digit',
-                                        })}
+                                        {evento.fecha_hora_inicio
+                                            ? new Date(evento.fecha_hora_inicio).toLocaleTimeString([], {
+                                                hour: '2-digit',
+                                                minute: '2-digit',
+                                            })
+                                            : 'Hora pendiente'}
                                     </Text>
                                 </View>
                             </View>
                             <View style={styles.infoLugarInteg}>
                                 <View style={styles.infoFila}>
                                     <FontAwesome6 name="location-dot" size={14} color="white" />
-                                    <Text style={styles.value}>{evento.lugar}</Text>
+                                    <Text style={styles.value}>{evento.lugar || 'Lugar pendiente'}</Text>
                                 </View>
 
                                 <View style={styles.infoFila}>
                                     <FontAwesome6 name="users" size={14} color="white" />
-
-                                    {usuariosQueVan.length === 0 ? (
-                                        <Text style={styles.value}>0 participantes</Text>
-                                    ) : (
-                                        <Text style={styles.value}>
-                                            {usuariosQueVan.length} participantes
-                                        </Text>
-                                    )}
+                                    <Text style={styles.value}>
+                                        {usuariosQueVan.length} participantes
+                                    </Text>
                                 </View>
                             </View>
                         </View>
@@ -434,7 +433,151 @@ function Juntada({ route, navigation }) {
                             </Pressable>
                         </View>
                     </View>
+                ) : evento.estado === 'planificacion' ? (
+                    <>
+                        <View style={styles.estadoCard}>
+                            <View style={styles.estadoHeader}>
+                                <Text style={styles.estadoTitulo} numberOfLines={1}>
+                                    {evento.nombre}
+                                </Text>
+                                <View style={styles.estadoBadge}>
+                                    <Text style={styles.estadoBadgeTexto}>En planificación</Text>
+                                </View>
+                            </View>
 
+                            <Text style={styles.estadoSubtitulo}>
+                                {asistentesCount} de {totalGrupo} participantes confirmados
+                            </Text>
+
+                            <View style={styles.barraFondo}>
+                                <View
+                                    style={[
+                                        styles.barraProgreso,
+                                        {
+                                            width: `${totalGrupo > 0 ? (asistentesCount / totalGrupo) * 100 : 0}%`
+                                        }
+                                    ]}
+                                />
+                            </View>
+
+                            <View style={styles.botonesRespuesta}>
+                                <TouchableOpacity
+                                    style={[
+                                        styles.botonVoy,
+                                        miAsistencia === 'voy' && styles.botonRespuestaSeleccionada
+                                    ]}
+                                    onPress={() => cambiarAsistencia('voy')}
+                                >
+                                    <Ionicons name="checkmark" size={18} color="#000" />
+                                    <Text style={styles.textoVoy}>
+                                        {miAsistencia === 'voy' ? '✓ Voy' : 'Voy'}
+                                    </Text>
+                                </TouchableOpacity>
+
+                                <TouchableOpacity
+                                    style={[
+                                        styles.botonNoVoy,
+                                        miAsistencia === 'no_voy' && styles.botonRespuestaSeleccionada
+                                    ]}
+                                    onPress={() => cambiarAsistencia('no_voy')}
+                                >
+                                    <Ionicons name="close" size={18} color="white" />
+                                    <Text style={styles.textoNoVoy}>
+                                        {miAsistencia === 'no_voy' ? '✕ No voy' : 'No voy'}
+                                    </Text>
+                                </TouchableOpacity>
+                            </View>
+
+                            <View style={styles.timerInline}>
+                                <Ionicons name="time" size={18} color="#57C7A3" />
+                                <Text style={styles.timerInlineText}>
+                                    {tiempoRestante || 'Calculando...'}
+                                </Text>
+                            </View>
+                        </View>
+
+                        <Iconos
+                            size={36}
+                            titulo="Falta decidir"
+                            icono={
+                                <MaterialCommunityIcons
+                                    name="vote"
+                                    size={25}
+                                    color="#000"
+                                />
+                            }
+                        />
+
+                        <TouchableOpacity
+                            style={styles.itemVotacion}
+                            onPress={() =>
+                                navigation.navigate('VotacionJuntada', { idEvento })
+                            }
+                        >
+                            <Ionicons
+                                name="calendar"
+                                size={24}
+                                color="#57C7A3"
+                            />
+                            <View style={styles.itemContenido}>
+                                <Text style={styles.itemTitulo}>Fecha y hora</Text>
+                                <Text style={styles.itemSubtitulo}>Elegí día y horario de juntada</Text>
+                            </View>
+                            <Ionicons name="chevron-forward" size={22} color="#FFFFFF" />
+                        </TouchableOpacity>
+
+                        <TouchableOpacity
+                            style={styles.itemVotacion}
+                            onPress={() =>
+                                navigation.navigate('VotacionJuntada', { idEvento })
+                            }
+                        >
+                            <FontAwesome6
+                                name="location-dot"
+                                size={24}
+                                color="#57C7A3"
+                            />
+                            <View style={styles.itemContenido}>
+                                <Text style={styles.itemTitulo}>Lugar</Text>
+                                <Text style={styles.itemSubtitulo}>Elegí dónde juntarse</Text>
+                            </View>
+                            <Ionicons name="chevron-forward" size={22} color="#FFFFFF" />
+                        </TouchableOpacity>
+
+                        <Iconos
+                            size={36}
+                            titulo="Extras"
+                            icono={
+                                <MaterialCommunityIcons
+                                    name="star-four-points"
+                                    size={25}
+                                    color="#000"
+                                />
+                            }
+                        />
+
+                        <TouchableOpacity style={styles.itemExtra}>
+                            <MaterialCommunityIcons
+                                name="cash"
+                                size={24}
+                                color="#57C7A3"
+                            />
+                            <View style={styles.itemContenido}>
+                                <Text style={styles.itemTitulo}>División de gastos</Text>
+                                <Text style={styles.itemSubtitulo}>Dividí automáticamente los gastos</Text>
+                            </View>
+                            <Ionicons name="chevron-forward" size={22} color="#FFFFFF" />
+                        </TouchableOpacity>
+
+                        {esCreador && encuesta?.activa && (
+                            <TouchableOpacity
+                                style={styles.finalizar}
+                                onPress={() => setMostrarModalFinalizar(true)}
+                            >
+                                <Text style={styles.finalizarTexto}>Finalizar votación</Text>
+                            </TouchableOpacity>
+                        )}
+                    </>
                 ) : (
                     <View style={styles.card}>
                         <View>
@@ -499,86 +642,6 @@ function Juntada({ route, navigation }) {
                     </View>
                 )}
 
-                {encuesta?.activa && (
-                    <>
-                        <Iconos
-                            size={36}
-                            titulo="Votaciones"
-                            icono={<IconUserFilled size={25} color="#000000" />}
-                        />
-
-                        <Pressable
-                            style={styles.cardGastos}
-                            onPress={() =>
-                                navigation.navigate(
-                                    'VotacionJuntada',
-                                    {
-                                        idEvento
-                                    }
-                                )
-                            }
-                        >
-                            <View style={styles.iconoContainer}>
-                                <IconUserFilled size={22} color="#FFFFFF" />
-                            </View>
-                            <View style={styles.textoContainer}>
-                                <Text style={styles.titulo}>Fecha, hora y ubicación</Text>
-                                <Text style={styles.descripcion}>
-                                    Vota las opciones establecidas o sugiere otra opción
-                                </Text>
-                            </View>
-                        </Pressable>
-
-                        <View style={styles.contadorCard}>
-                            <Ionicons
-                                name="time-outline"
-                                size={22}
-                                color="#57C7A3"
-                            />
-
-                            <View style={styles.contadorTexto}>
-                                <Text style={styles.contadorLabel}>
-                                    La votación finaliza en
-                                </Text>
-
-                                <Text style={styles.contadorTiempo}>
-                                    {tiempoRestante}
-                                </Text>
-                            </View>
-                        </View>
-                        {esCreador && (
-                            <Pressable
-                                style={styles.btnFinalizar}
-                                onPress={() =>
-                                    setMostrarModalFinalizar(true)
-                                }
-                            >
-                                <Text style={styles.text}>
-                                    Finalizar votación ahora
-                                </Text>
-                            </Pressable>
-                        )}
-                    </>
-                )}
-
-                <Iconos
-                    size={36}
-                    titulo="Opcionales"
-                    icono={<IconUserFilled size={25} color="#000000" />}
-                />
-
-                <Pressable
-                    style={styles.cardGastos}
-                    onPress={() => alert('Próximamente disponible')}
-                >
-                    <View style={styles.iconoContainer}>
-                        <MaterialIcons name="attach-money" size={24} color="white" />
-                    </View>
-                    <View style={styles.textoContainer}>
-                        <Text style={styles.titulo}>División de Gastos</Text>
-                        <Text style={styles.descripcion}>Divide los gastos del grupo</Text>
-                    </View>
-                </Pressable>
 
                 <Modal
                     visible={mostrarModalFinalizar}
@@ -877,16 +940,176 @@ const styles = StyleSheet.create({
         fontSize: 16,
         marginTop: 4,
     },
-
-    buttonsCon: {
-        flexDirection: 'row',
-        gap: 10,
-        marginTop: 20,
+    estadoCard: {
+        backgroundColor: '#1F1B2C',
+        borderRadius: 22,
+        padding: 20,
+        marginVertical: 20,
+        borderWidth: 1,
+        borderColor: '#4E3B75',
     },
-    infoFila: {
+    estadoHeader: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginBottom: 14,
+    },
+    estadoTitulo: {
+        color: '#FFFFFF',
+        fontSize: 20,
+        fontFamily: 'CashMarket',
+        flex: 1,
+        marginRight: 10,
+    },
+    estadoBadge: {
+        backgroundColor: '#57C7A3',
+        paddingHorizontal: 10,
+        paddingVertical: 6,
+        borderRadius: 999,
+    },
+    estadoBadgeTexto: {
+        color: '#111111',
+        fontSize: 11,
+        fontFamily: 'Utendo',
+        fontWeight: '700',
+    },
+    estadoSubtitulo: {
+        color: '#D0D0D0',
+        fontSize: 13,
+        fontFamily: 'Utendo',
+        marginBottom: 16,
+    },
+    barraFondo: {
+        height: 10,
+        backgroundColor: '#2C243F',
+        borderRadius: 999,
+        overflow: 'hidden',
+        marginBottom: 20,
+    },
+    barraProgreso: {
+        height: '100%',
+        backgroundColor: '#7C3AED',
+    },
+    botonesRespuesta: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        gap: 10,
+    },
+    botonVoy: {
+        flex: 1,
+        backgroundColor: '#57C7A3',
+        borderRadius: 14,
+        paddingVertical: 14,
+        alignItems: 'center',
+        flexDirection: 'row',
+        justifyContent: 'center',
+        gap: 10,
+    },
+    botonNoVoy: {
+        flex: 1,
+        backgroundColor: '#D64545',
+        borderRadius: 14,
+        paddingVertical: 14,
+        alignItems: 'center',
+        flexDirection: 'row',
+        justifyContent: 'center',
+        gap: 10,
+    },
+    botonRespuestaSeleccionada: {
+        borderWidth: 2,
+        borderColor: '#FFFFFF',
+    },
+    textoVoy: {
+        color: '#111111',
+        fontFamily: 'CashMarket',
+        fontSize: 15,
+    },
+    textoNoVoy: {
+        color: '#FFFFFF',
+        fontFamily: 'CashMarket',
+        fontSize: 15,
+    },
+    itemVotacion: {
+        backgroundColor: '#23232D',
+        borderRadius: 18,
+        padding: 16,
+        marginBottom: 14,
         flexDirection: 'row',
         alignItems: 'center',
-        marginBottom: 12,
+        justifyContent: 'space-between',
+        borderWidth: 1,
+        borderColor: '#3D2E6B',
+    },
+    itemContenido: {
+        flex: 1,
+        marginHorizontal: 14,
+    },
+    itemTitulo: {
+        color: '#FFFFFF',
+        fontSize: 16,
+        fontFamily: 'CashMarket',
+    },
+    itemSubtitulo: {
+        color: '#B8B8C5',
+        fontSize: 12,
+        fontFamily: 'Utendo',
+        marginTop: 4,
+    },
+    timerCard: {
+        backgroundColor: '#1F1B2C',
+        borderRadius: 18,
+        padding: 18,
+        marginBottom: 20,
+    },
+    timerGrande: {
+        color: '#FFFFFF',
+        fontSize: 24,
+        fontFamily: 'CashMarket',
+        marginBottom: 6,
+    },
+    timerTexto: {
+        color: '#B8B8C5',
+        fontSize: 13,
+        fontFamily: 'Utendo',
+        lineHeight: 18,
+    },
+    timerInline: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 10,
+        paddingVertical: 14,
+        paddingHorizontal: 16,
+        backgroundColor: '#29243E',
+        borderRadius: 18,
+        marginTop: 20,
+    },
+    timerInlineText: {
+        color: '#FFFFFF',
+        fontSize: 14,
+        fontFamily: 'Utendo',
+    },
+    itemExtra: {
+        backgroundColor: '#23232D',
+        borderRadius: 18,
+        padding: 16,
+        marginBottom: 22,
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        borderWidth: 1,
+        borderColor: '#3D2E6B',
+    },
+    finalizar: {
+        backgroundColor: '#6C3E8E',
+        borderRadius: 16,
+        paddingVertical: 14,
+        alignItems: 'center',
+        marginBottom: 20,
+    },
+    finalizarTexto: {
+        color: '#FFFFFF',
+        fontFamily: 'CashMarket',
+        fontSize: 15,
     },
     loadingContainer: {
         flex: 1,

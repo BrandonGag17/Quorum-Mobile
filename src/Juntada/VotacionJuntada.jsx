@@ -39,14 +39,17 @@ function VotacionJuntada({ route, navigation }) {
                 .from('encuesta')
                 .select('*')
                 .eq('id_evento', idEvento)
-                .single()
+                .maybeSingle()
 
             if (error) {
                 console.log(error)
                 return
             }
 
-            if (!encuesta) return;
+            if (!encuesta) {
+                setEncuesta(null)
+                return
+            }
             setEncuesta(encuesta);
 
             const { data: eventoData } = await supabase
@@ -217,6 +220,17 @@ function VotacionJuntada({ route, navigation }) {
                     color="#B514F6"
                 />
 
+                <Navbar pantallaActual="Inicio" />
+            </SafeAreaView>
+        )
+    }
+
+    if (!encuesta) {
+        return (
+            <SafeAreaView style={styles.emptyContainer}>
+                <Text style={styles.emptyText}>
+                    No hay votación disponible para este evento.
+                </Text>
                 <Navbar pantallaActual="Inicio" />
             </SafeAreaView>
         )
@@ -395,6 +409,19 @@ const styles = StyleSheet.create({
         paddingVertical: 4,
         borderRadius: 12,
         overflow: 'hidden',
+    },
+    emptyContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: '#15151C',
+        padding: 24,
+    },
+    emptyText: {
+        color: '#FFFFFF',
+        fontSize: 16,
+        fontFamily: 'Utendo',
+        textAlign: 'center',
     },
 });
 
