@@ -10,8 +10,7 @@ import {
     TouchableOpacity,
     ScrollView,
     Animated,
-    Image,
-    PanResponder
+    Image
 } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 
@@ -23,6 +22,7 @@ import Iconos from '../Utilidades/Iconos'
 import CardJuntadas from '../Utilidades/CardJuntadas'
 import BotonVolver from '../Utilidades/BotonVolver'
 import HeaderGrupo from '../Utilidades/HeaderGrupo'
+import CardJuntadasPasadas from '../Utilidades/CardJuntadasPasadas'
 
 import Ionicons from '@expo/vector-icons/Ionicons'
 import { IconBulbFilled, IconCalendarEventFilled } from '@tabler/icons-react-native';
@@ -39,32 +39,9 @@ function Grupo() {
     const [mostrarModal, setMostrarModal] = useState(false)
     const [cargando, setCargando] = useState(true)
     const [cantidadMiembros, setCantidadMiembros] = useState(0)
+    const [mostrarJuntadasPasadas, setMostrarJuntadasPasadas] = useState(false);
 
     const translateY = useRef(new Animated.Value(400)).current
-
-    const panResponder = useRef(
-        PanResponder.create({
-            onMoveShouldSetPanResponder: (_, gesture) =>
-                gesture.dy > 10,
-
-            onPanResponderMove: (_, gesture) => {
-                if (gesture.dy > 0) {
-                    translateY.setValue(gesture.dy)
-                }
-            },
-
-            onPanResponderRelease: (_, gesture) => {
-                if (gesture.dy > 120) {
-                    setMostrarModal(false)
-                } else {
-                    Animated.spring(translateY, {
-                        toValue: 0,
-                        useNativeDriver: false
-                    }).start()
-                }
-            }
-        })
-    ).current
 
     useEffect(() => {
         if (mostrarModal) {
@@ -163,6 +140,12 @@ function Grupo() {
         evento => evento.estado === 'planificacion'
     )
 
+    const juntadasPasadas = eventos.filter(
+        evento =>
+            evento.estado === 'confirmado' &&
+            evento.fecha_hora_inicio &&
+            new Date(evento.fecha_hora_inicio) < new Date()
+    );
     if (cargando) {
         return (
             <SafeAreaView style={styles.loadingContainer}>
@@ -220,10 +203,19 @@ function Grupo() {
                     <Iconos
                         size={36}
                         titulo="Propuestas"
-                        icono={<MaterialCommunityIcons name="lightbulb-variant" size={25} color="#000000" />}
+                        icono={
+                            <MaterialCommunityIcons
+                                name="lightbulb-variant"
+                                size={25}
+                                color="#000000"
+                            />
+                        }
                     />
 
-                    <TouchableOpacity onPress={() => setMostrarModal(true)} style={styles.botonCrear}>
+                    <TouchableOpacity
+                        onPress={() => setMostrarModal(true)}
+                        style={styles.botonCrear}
+                    >
                         <Text style={styles.botonCrearTexto}>+ Crear</Text>
                     </TouchableOpacity>
                 </View>
@@ -233,56 +225,64 @@ function Grupo() {
                         horizontal
                         showsHorizontalScrollIndicator={false}
                         data={propuestasPlanificacion}
-                        keyExtractor={(item) => item.id.toString()}
-                        contentContainerStyle={{ paddingRight: 10 }}
+                        keyExtractor={(item) => item.id}
                         renderItem={({ item }) => (
-                            <TouchableOpacity
-                                style={styles.cardPropuesta}
-                                onPress={() =>
-                                    navigation.navigate('DetalleEvento', {
-                                        idEvento: item.id,
-                                    })
-                                }
-                            >
-                                <View style={styles.bordePropuesta} />
-
-                                <View style={styles.contenidoPropuesta}>
-                                    <Text
-                                        style={styles.propuestaTitulo}
-                                        numberOfLines={1}
-                                    >
-                                        {item.nombre}
-                                    </Text>
-
-                                    <View style={styles.propuestaFooter}>
-                                        <View style={styles.propuestaInfo}>
-                                            <Ionicons
-                                                name="people"
-                                                size={15}
-                                                color="#FFFFFF"
-                                            />
-
-                                            <Text style={styles.propuestaTexto}>
-                                                {cantidadMiembros} miembros
-                                            </Text>
-                                        </View>
-
-                                        <Ionicons
-                                            name="chevron-forward"
-                                            size={22}
-                                            color="#FFFFFF"
-                                        />
-                                    </View>
-                                </View>
-                            </TouchableOpacity>
+                            <CardJuntadas
+                                evento={item}
+                                navigation={navigation}
+                            />
                         )}
                     />
                 ) : (
                     <View style={styles.noJuntadas}>
                         <Text style={styles.text}>
-                            Aquí aparecerán las propuestas de juntada.
+                            Aquí apareceran las propuestas de juntada.
                         </Text>
                     </View>
+                )}
+
+                <TouchableOpacity
+                    style={styles.botonVerJuntadas}
+                    onPress={() =>
+                        setMostrarJuntadasPasadas(!mostrarJuntadasPasadas)
+                    }
+                >
+                    <Text style={styles.botonVerJuntadasTexto}>
+                        {mostrarJuntadasPasadas
+                            ? "Ocultar juntadas pasadas"
+                            : "Ver juntadas pasadas"}
+                    </Text>
+
+                    <Ionicons
+                        name={
+                            mostrarJuntadasPasadas
+                                ? "chevron-up"
+                                : "chevron-down"
+                        }
+                        size={20}
+                        color="#4A216F"
+                    />
+                </TouchableOpacity>
+
+                {mostrarJuntadasPasadas && (
+                    juntadasPasadas.length > 0 ? (
+                        <FlatList
+                            data={juntadasPasadas}
+                            scrollEnabled={false}
+                            keyExtractor={(item) => item.id}
+                            renderItem={({ item }) => (
+                                <CardJuntadasPasadas
+                                    evento={item}
+                                />
+                            )}
+                        />
+                    ) : (
+                        <View style={styles.noJuntadas}>
+                            <Text style={styles.text}>
+                                No hay juntadas pasadas.
+                            </Text>
+                        </View>
+                    )
                 )}
 
                 <Modal
@@ -296,17 +296,12 @@ function Grupo() {
                         onPress={() => setMostrarModal(false)}
                     >
                         <Animated.View
-                            {...panResponder.panHandlers}
                             style={[
                                 styles.bottomSheet,
-                                {
-                                    transform: [{ translateY }]
-                                }
+                                { transform: [{ translateY }] }
                             ]}
                         >
-                            <Pressable
-                                onPress={() => { }}
-                            >
+                            <Pressable onPress={() => { }}>
                                 <View style={styles.sheetHandle} />
 
                                 <Text style={styles.sheetTitulo}>
@@ -317,18 +312,18 @@ function Grupo() {
                                     style={styles.sheetBoton}
                                     onPress={() => {
                                         setMostrarModal(false)
-
-                                        navigation.navigate(
-                                            'ProponerJuntada',
-                                            { idGrupo }
-                                        )
+                                        navigation.navigate('ProponerJuntada', { idGrupo })
                                     }}
                                 >
                                     <View style={styles.sheetBotonTexto}>
                                         <IconBulbFilled size={35} />
                                         <View style={styles.textosModal}>
-                                            <Text style={styles.tituloModal}>Proponer juntadas</Text>
-                                            <Text style={styles.subtituloModal}>El grupo vota fechas, lugares y mas</Text>
+                                            <Text style={styles.tituloModal}>
+                                                Proponer juntadas
+                                            </Text>
+                                            <Text style={styles.subtituloModal}>
+                                                El grupo vota fechas, lugares y mas
+                                            </Text>
                                         </View>
                                     </View>
                                 </TouchableOpacity>
@@ -337,73 +332,27 @@ function Grupo() {
                                     style={styles.sheetBoton}
                                     onPress={() => {
                                         setMostrarModal(false)
-
-                                        navigation.navigate('CrearEvento')
+                                        navigation.navigate('CrearEvento', { idGrupo })
                                     }}
                                 >
                                     <View style={styles.sheetBotonTexto}>
                                         <IconCalendarEventFilled size={35} />
                                         <View style={styles.textosModal}>
-                                            <Text style={styles.tituloModal}>Crear evento</Text>
-                                            <Text style={styles.subtituloModal}>Sin votaciones, fecha fija</Text>
-                                        </View>
-                                    </View>
-                                </TouchableOpacity>
-                                <TouchableOpacity
-                                    disabled
-                                    style={[
-                                        styles.sheetBoton,
-                                        styles.sheetBotonDisabled
-                                    ]}
-                                >
-                                    <View style={styles.sheetBotonTexto}>
-                                        <MaterialCommunityIcons
-                                            name="robot-outline"
-                                            size={35}
-                                            color="#727272"
-                                        />
-
-                                        <View style={styles.textosModal}>
-                                            <Text style={styles.tituloModalDisabled}>
-                                                Juntada rápida con IA
+                                            <Text style={styles.tituloModal}>
+                                                Crear evento
                                             </Text>
-
-                                            <Text style={styles.subtituloModalDisabled}>
-                                                Genera una propuesta según los gustos del grupo
+                                            <Text style={styles.subtituloModal}>
+                                                Sin votaciones, fecha fija
                                             </Text>
                                         </View>
                                     </View>
                                 </TouchableOpacity>
 
-                                <TouchableOpacity
-                                    disabled
-                                    style={[
-                                        styles.sheetBoton,
-                                        styles.sheetBotonDisabled
-                                    ]}
-                                >
-                                    <View style={styles.sheetBotonTexto}>
-                                        <Ionicons
-                                            name="calendar-clear"
-                                            size={35}
-                                            color="#727272"
-                                        />
-
-                                        <View style={styles.textosModal}>
-                                            <Text style={styles.tituloModalDisabled}>
-                                                Comparar calendarios
-                                            </Text>
-
-                                            <Text style={styles.subtituloModalDisabled}>
-                                                Encontrá horarios libres entre todos los integrantes
-                                            </Text>
-                                        </View>
-                                    </View>
-                                </TouchableOpacity>
                             </Pressable>
                         </Animated.View>
                     </Pressable>
                 </Modal>
+
             </ScrollView>
 
             <Navbar pantallaActual="Inicio" />
@@ -412,6 +361,18 @@ function Grupo() {
 }
 
 const styles = StyleSheet.create({
+    botonVerJuntadasTexto: {
+        color: '#ffffff',
+    },
+    tituloDesplegable: {
+        marginTop: 15,
+    },
+
+    filaTitulo: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+    },
     /* TEMPORAL POR LA DEMO */
     sheetBotonDisabled: {
         backgroundColor: '#2E2E2E',
@@ -422,7 +383,7 @@ const styles = StyleSheet.create({
     },
 
     tituloModalDisabled: {
-        color: '#979797',
+        color: '#727272',
         fontFamily: 'CashMarket',
         marginBottom: 5
     },
@@ -570,54 +531,6 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between'
-    },
-
-
-
-    cardPropuesta: {
-        width: 250,
-        height: 85,
-        backgroundColor: '#6542A6',
-        borderRadius: 15,
-        marginRight: 12,
-        flexDirection: 'row',
-        overflow: 'hidden',
-    },
-
-    bordePropuesta: {
-        width: 5,
-        backgroundColor: '#57C7A3',
-    },
-
-    contenidoPropuesta: {
-        flex: 1,
-        paddingHorizontal: 14,
-        paddingVertical: 12,
-        justifyContent: 'space-between',
-    },
-
-    propuestaTitulo: {
-        color: '#FFFFFF',
-        fontSize: 20,
-        fontFamily: 'CashMarket',
-    },
-
-    propuestaFooter: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-    },
-
-    propuestaInfo: {
-        flexDirection: 'row',
-        alignItems: 'center',
-    },
-
-    propuestaTexto: {
-        color: '#FFFFFF',
-        fontSize: 13,
-        marginLeft: 5,
-        fontFamily: 'Utendo',
     },
 })
 

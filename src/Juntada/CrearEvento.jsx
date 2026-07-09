@@ -23,20 +23,28 @@ const DateTimePicker =
 
 function CrearEvento({ route, onCreado }) {
     const navigation = useNavigation();
-    const [mensaje, setMensaje] = useState('')
+
+    const eventoBase = route?.params?.eventoBase;
+    const esRehacer = !!eventoBase;
+
     const idGrupo =
         route?.params?.idGrupo ||
         route?.params?.id;
+
+    const [mensaje, setMensaje] = useState('');
 
     // PASOS
     const [paso, setPaso] =
         useState('paso1');
 
     // PASO 1
-    const [nombreJuntada, setNombreJuntada] =
-        useState('');
-    const [descripcion, setDescripcion] =
-        useState('');
+    const [nombreJuntada, setNombreJuntada] = useState(
+        eventoBase?.nombre || ''
+    );
+
+    const [descripcion, setDescripcion] = useState(
+        eventoBase?.descripcion || ''
+    );
     const [cargando, setCargando] =
         useState(false)
 
@@ -53,7 +61,9 @@ function CrearEvento({ route, onCreado }) {
         useState(false);
 
     const [fechaEvento, setFechaEvento] = useState('');
-    const [lugarEvento, setLugarEvento] = useState('');
+    const [lugarEvento, setLugarEvento] = useState(
+        eventoBase?.lugar || ''
+    );
 
     // -------------------------
     // FECHAS PROPUESTAS
@@ -217,6 +227,12 @@ function CrearEvento({ route, onCreado }) {
                         totalPasos={3}
                     />
                 </View>
+
+                {esRehacer && (
+                    <Text style={styles.bannerRehacer}>
+                        🔁 Rehaciendo juntada
+                    </Text>
+                )}
 
                 <View style={styles.formulario}>
                     <Text style={styles.text}>
