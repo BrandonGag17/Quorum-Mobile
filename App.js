@@ -3,7 +3,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack'
 import { useFonts } from 'expo-font'
 import * as SplashScreen from 'expo-splash-screen'
 import { useEffect, useState } from 'react'
-import supabase from './src/supabaseClient'
+import supabase from './src/services/supabaseClient'
 
 import Introduccion from './src/Autenticacion/Introduccion'
 import IniciarSesion from './src/Autenticacion/IniciarSesion'

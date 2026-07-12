@@ -15,7 +15,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context'
 
 import { useRoute, useNavigation } from '@react-navigation/native'
-import supabase from '../supabaseClient'
+import supabase from '../services/supabaseClient'
 
 import Navbar from '../Utilidades/Navbar'
 import Iconos from '../Utilidades/Iconos'

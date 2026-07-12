@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, Pressable, ScrollView, StyleSheet, ActivityIndicator, Image, Modal, TouchableOpacity } from 'react-native';
-import supabase from '../supabaseClient'
+import supabase from '../services/supabaseClient'
 import { IconUserFilled } from '@tabler/icons-react-native';
 import Iconos from '../Utilidades/Iconos'
 import Navbar from '../Utilidades/Navbar'

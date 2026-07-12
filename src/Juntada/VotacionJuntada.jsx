@@ -8,7 +8,7 @@ import {
     ActivityIndicator
 } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
-import supabase from '../supabaseClient'
+import supabase from '../services/supabaseClient'
 import Navbar from '../Utilidades/Navbar'
 import HeaderGrupo from '../Utilidades/HeaderGrupo'
 import Octicons from '@expo/vector-icons/Octicons'

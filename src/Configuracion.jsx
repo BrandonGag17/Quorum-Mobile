@@ -3,7 +3,7 @@ import { SafeAreaView } from 'react-native-safe-area-context'
 import { useNavigation } from '@react-navigation/native'
 import { useEffect, useState } from 'react'
 import Navbar from './Utilidades/Navbar'
-import supabase from './supabaseClient'
+import supabase from './services/supabaseClient'
 
 export default function Configuracion() {
     const navigation = useNavigation()

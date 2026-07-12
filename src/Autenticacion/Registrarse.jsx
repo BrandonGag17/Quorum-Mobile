@@ -5,7 +5,7 @@ import { useState } from 'react'
 import { useNavigation } from '@react-navigation/native'
 import Button from '../Utilidades/Botones'
 import Input from '../Utilidades/Input'
-import supabase from '../supabaseClient'
+import supabase from '../services/supabaseClient'
 import ErrorMessage from '../Utilidades/MensajeError'
 
 function Registrarse() {

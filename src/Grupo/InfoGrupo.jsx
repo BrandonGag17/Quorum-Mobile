@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, FlatList, Image, TextInput, TouchableOpacity, Modal, ActivityIndicator } from 'react-native';
 import { useRoute, useNavigation } from '@react-navigation/native';
-import supabase from '../supabaseClient';
+import supabase from '../services/supabaseClient';
 import HeaderGrupo from '../Utilidades/HeaderGrupo';
 import ButtonApp from '../Utilidades/BotonesApp'
 import Navbar from '../Utilidades/Navbar'

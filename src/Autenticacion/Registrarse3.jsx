@@ -6,7 +6,7 @@ import { useRoute } from '@react-navigation/native'
 import Button from '../Utilidades/Botones'
 import Input from '../Utilidades/Input'
 import * as ImagePicker from 'expo-image-picker'
-import supabase from '../supabaseClient'
+import supabase from '../services/supabaseClient'
 import ErrorMessage from '../Utilidades/MensajeError'
 
 const FOTO_DEFAULT = 'https://fusjhtyvjkshuzxofeqj.supabase.co/storage/v1/object/public/avatars/PlaceholderPerfil.png'

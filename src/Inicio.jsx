@@ -11,7 +11,7 @@ import {
 
 import { SafeAreaView } from 'react-native-safe-area-context'
 
-import supabase from './supabaseClient'
+import supabase from './services/supabaseClient'
 import CrearGrupo from './Grupo/CrearGrupo'
 import CardJuntadas from './Utilidades/CardJuntadas'
 import Iconos from './Utilidades/Iconos'

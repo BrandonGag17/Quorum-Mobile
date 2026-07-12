@@ -12,8 +12,8 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { useNavigation } from '@react-navigation/native'
 import Navbar from './Utilidades/Navbar'
-import supabase from './supabaseClient'
-import { obtenerLugares } from '../services/geoapifyService'
+import supabase from './services/supabaseClient'
+import { obtenerLugares } from './services/geoapifyService'
 import Feather from '@expo/vector-icons/Feather'
 import FontAwesome6 from '@expo/vector-icons/FontAwesome6'
 

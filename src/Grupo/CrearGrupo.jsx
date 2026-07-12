@@ -11,7 +11,7 @@ import {
 } from 'react-native'
 import Input from '../Utilidades/Input'
 import * as ImagePicker from 'expo-image-picker'
-import supabase from '../supabaseClient'
+import supabase from '../services/supabaseClient'
 import ErrorMessage from '../Utilidades/MensajeError'
 import InputApp from '../Utilidades/InputApp'
 import ButtonApp from '../Utilidades/BotonesApp'

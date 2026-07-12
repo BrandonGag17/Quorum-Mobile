@@ -4,10 +4,25 @@ import FontAwesome6 from '@expo/vector-icons/FontAwesome6'
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons'
 import { useNavigation } from '@react-navigation/native'
 
+const formatearFecha = (fechaString) => {
+    const fecha = new Date(fechaString);
+
+    const meses = [
+        'ENE', 'FEB', 'MAR', 'ABR', 'MAY', 'JUN',
+        'JUL', 'AGO', 'SEP', 'OCT', 'NOV', 'DIC'
+    ];
+
+    return {
+        dia: fecha.getDate(),
+        mes: meses[fecha.getMonth()]
+    };
+};
+
 function CardJuntadasPasadas({ evento }) {
     const navigation = useNavigation();
     const fecha = new Date(evento.fecha_hora_inicio);
-    const fechaTexto = fecha.toLocaleDateString('es-AR');
+    const { dia, mes } = formatearFecha(evento.fecha_hora_inicio);
+
     const horaTexto = fecha.toLocaleTimeString('es-AR', {
         hour: '2-digit',
         minute: '2-digit',
@@ -17,53 +32,55 @@ function CardJuntadasPasadas({ evento }) {
     return (
         <>
             <View style={styles.card}>
-
-                {/* CLICK EN CARD */}
                 <Pressable
                     onPress={() =>
-                        navigation.navigate('Juntada', {
-                            idEvento: evento.id
+                        navigation.navigate("Juntada", {
+                            idEvento: evento.id,
                         })
                     }
                 >
-                    <Text style={styles.nombre}>
-                        {evento.nombre}
-                    </Text>
+                    <View style={styles.contenido}>
 
-                    <View style={styles.filaSuperior}>
-                        <View style={styles.fechaPill}>
-                            <Text style={styles.textoInfo}>
-                                {fechaTexto}
-                            </Text>
+                        <View style={styles.fecha}>
+                            <Text style={styles.textoDia}>{dia}</Text>
+                            <Text style={styles.textoMes}>{mes}</Text>
                         </View>
 
-                        <View style={styles.horaContainer}>
-                            <MaterialCommunityIcons
-                                name="clock"
-                                size={11}
-                                color="#57C7A3"
-                            />
-
-                            <Text style={styles.horaTexto}>
-                                {horaTexto}
+                        <View style={styles.info}>
+                            <Text style={styles.nombre}>
+                                {evento.nombre}
                             </Text>
+
+                            <View style={styles.detalles}>
+
+                                <View style={styles.horaContainer}>
+                                    <MaterialCommunityIcons
+                                        name="clock"
+                                        size={15}
+                                        color="white"
+                                    />
+                                    <Text style={styles.horaTexto}>
+                                        {horaTexto}
+                                    </Text>
+                                </View>
+
+                                <View style={styles.infoRow}>
+                                    <FontAwesome6
+                                        name="location-dot"
+                                        size={15}
+                                        color="white"
+                                    />
+                                    <Text style={styles.textoInfo}>
+                                        {evento.lugar || "Sin ubicación"}
+                                    </Text>
+                                </View>
+
+                            </View>
                         </View>
-                    </View>
 
-                    <View style={styles.infoRow}>
-                        <FontAwesome6
-                            name="location-dot"
-                            size={11}
-                            color="#B6B6B6"
-                        />
-
-                        <Text style={styles.textoInfo}>
-                            {evento.lugar || 'Sin ubicación'}
-                        </Text>
                     </View>
                 </Pressable>
 
-                {/* BOTÓN SEPARADO (NO INTERFIERE) */}
                 <Pressable
                     style={styles.botonRehacer}
                     onPress={() => setMostrarModal(true)}
@@ -72,10 +89,8 @@ function CardJuntadasPasadas({ evento }) {
                         Rehacer juntada
                     </Text>
                 </Pressable>
-
             </View>
 
-            {/* MODAL */}
             <Modal
                 visible={mostrarModal}
                 transparent
@@ -97,7 +112,7 @@ function CardJuntadasPasadas({ evento }) {
                                 setMostrarModal(false);
                                 navigation.navigate("ProponerJuntada", {
                                     idGrupo: evento.id_grupo,
-                                    eventoBase: evento
+                                    eventoBase: evento,
                                 });
                             }}
                         >
@@ -112,7 +127,7 @@ function CardJuntadasPasadas({ evento }) {
                                 setMostrarModal(false);
                                 navigation.navigate("CrearEvento", {
                                     idGrupo: evento.id_grupo,
-                                    eventoBase: evento
+                                    eventoBase: evento,
                                 });
                             }}
                         >
@@ -125,9 +140,8 @@ function CardJuntadasPasadas({ evento }) {
                 </Pressable>
             </Modal>
         </>
-    );
+    )
 }
-
 const styles = StyleSheet.create({
     textoModalBoton: {
         color: '#FFFFFF',
@@ -135,20 +149,18 @@ const styles = StyleSheet.create({
         fontFamily: 'Utendo',
     },
     card: {
-        backgroundColor: '#4A216F',
-
-        borderRadius: 18,
-
-        width: 220,
-
-        paddingVertical: 16,
-        paddingHorizontal: 14,
-
+        width: 340,
+        borderRadius: 28,
+        borderWidth: 2,
+        borderColor: "#57C7A3",
+        backgroundColor: "#17171D",
+        padding: 18,
         marginTop: 10,
-        marginBottom: 20,
-        marginRight: 12,
     },
-
+    contenido: {
+        flexDirection: "row",
+        alignItems: "center",
+    },
     filaSuperior: {
         flexDirection: 'row',
         justifyContent: 'space-between',
@@ -171,35 +183,67 @@ const styles = StyleSheet.create({
     horaContainer: {
         flexDirection: 'row',
         alignItems: 'center',
+        marginRight: 12,
     },
-
     nombre: {
-        color: '#FFFFFF',
-        fontSize: 20,
-        fontFamily: 'CashMarket',
-        marginBottom: 14,
+        color: "white",
+        fontSize: 22,
+        fontFamily: "CashMarket",
+        marginBottom: 8,
     },
-
     infoRow: {
         flexDirection: 'row',
         alignItems: 'center',
-        marginBottom: 8,
     },
-
     textoInfo: {
-        color: '#C5C5C5',
-        fontSize: 12,
+        color: 'white',
+        fontSize: 13,
         fontFamily: 'Utendo',
-
-        marginLeft: 6,
+        marginLeft: 5,
     },
-
     horaTexto: {
-        color: '#57C7A3',
-        fontSize: 12,
+        color: 'white',
+        fontSize: 13,
         fontFamily: 'Utendo',
-        marginLeft: 4,
+        marginLeft: 5,
+    },
+    botonRehacer: {
+        alignSelf: "flex-end",
+        backgroundColor: "#66278F",
+        borderRadius: 10,   
+        paddingHorizontal: 14,
+        paddingVertical: 8,
+    },
+    textoBoton: {
+        color: 'white',
+        fontFamily: 'Utendo',
+        fontSize: 12
+    },
+    fecha: {
+        width: 20,
+        alignItems: 'center',
+        justifyContent: 'center',
+        marginRight: 12,
+    },
+    textoDia: {
+        color: 'white',
+        fontSize: 19,
+        fontFamily: 'CashMarket',
+    },
+    textoMes: {
+        color: '#B514F6',
+        fontSize: 14,
+        fontFamily: 'CashMarket',
+        marginTop: -5,
+    },
+    info: {
+        flex: 1,
+    },
+    detalles: {
+        flexDirection: "row",
+        alignItems: "center",
+        flexWrap: "wrap",
     },
 })
 
-export default CardJuntadasPasadas
+export default CardJuntadasPasadas  

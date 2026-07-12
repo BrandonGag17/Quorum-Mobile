@@ -1,5 +1,6 @@
-import { StyleSheet, Text, View, Image, ScrollView, } from "react-native";
+import { StyleSheet, Text, View, Image, ScrollView, TouchableOpacity } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { useRoute } from "@react-navigation/native";
 import Navbar from "../Utilidades/Navbar";
 import BotonVolver from "../Utilidades/BotonVolver";
 import Iconos from "../Utilidades/Iconos";
@@ -7,9 +8,28 @@ import Ionicons from "@expo/vector-icons/Ionicons";
 import Entypo from "@expo/vector-icons/Entypo";
 
 export default function InfoRecomendaciones() {
+    const route = useRoute();
+    const { lugar } = route.params;
+
+    function obtenerCategoria(categorias) {
+        if (!categorias) return "Lugar";
+
+        if (categorias.includes("catering.restaurant"))
+            return "Restaurante";
+
+        if (categorias.includes("catering.cafe"))
+            return "Cafetería";
+
+        if (categorias.includes("catering.bar"))
+            return "Bar";
+
+        return "Gastronomía";
+    }
+
     return (
         <SafeAreaView style={styles.fondo}>
             <ScrollView showsVerticalScrollIndicator={false}>
+
                 <BotonVolver />
 
                 <Image
@@ -18,25 +38,40 @@ export default function InfoRecomendaciones() {
                 />
 
                 <Text style={styles.titulo}>
-                    La Hormiga
+                    {lugar.nombre}
                 </Text>
 
-
                 <View style={styles.ratingContainer}>
-                    <Text style={styles.rating}>
-                        ⭐ 4.7
-                    </Text>
 
+                    <View style={styles.rating}>
+                        <Text style={styles.ratingTexto}>
+                            ⭐ Sin valoraciones
+                        </Text>
+                    </View>
 
                     <View style={styles.categoria}>
                         <Text style={styles.categoriaTexto}>
-                            Restaurante
+                            {obtenerCategoria(lugar.categoria)}
                         </Text>
                     </View>
+
                 </View>
 
 
-                <View style={styles.infoCard}>
+                <Iconos
+                    titulo="Ubicación"
+                    size={36}
+                    icono={
+                        <Entypo
+                            name="location-pin"
+                            size={24}
+                            color="#000"
+                        />
+                    }
+                />
+
+                <View style={styles.card}>
+
                     <View style={styles.filaInfo}>
                         <Entypo
                             name="location-pin"
@@ -44,52 +79,159 @@ export default function InfoRecomendaciones() {
                             color="#57C7A3"
                         />
 
-
                         <Text style={styles.infoTexto}>
-                            Armenia 1680, Palermo
+                            {lugar.direccion}
+                        </Text>
+
+                    </View>
+
+                </View>
+
+
+                <Iconos
+                    titulo="Información"
+                    size={36}
+                    icono={
+                        <Ionicons
+                            name="information-circle"
+                            size={24}
+                            color="#000"
+                        />
+                    }
+                />
+
+                <View style={styles.card}>
+
+                    <View style={styles.infoRow}>
+                        <Text style={styles.label}>Ciudad</Text>
+
+                        <Text style={styles.valor}>
+                            {lugar.properties.city || "-"}
                         </Text>
                     </View>
+
+                    <View style={styles.separador} />
+
+                    <View style={styles.infoRow}>
+                        <Text style={styles.label}>Provincia</Text>
+
+                        <Text style={styles.valor}>
+                            {lugar.properties.state || "-"}
+                        </Text>
+                    </View>
+
+                    <View style={styles.separador} />
+
+                    <View style={styles.infoRow}>
+                        <Text style={styles.label}>Código Postal</Text>
+
+                        <Text style={styles.valor}>
+                            {lugar.properties.postcode || "-"}
+                        </Text>
+                    </View>
+
+                    <View style={styles.separador} />
+
+                    <View style={styles.infoRow}>
+                        <Text style={styles.label}>País</Text>
+
+                        <Text style={styles.valor}>
+                            {lugar.properties.country || "-"}
+                        </Text>
+                    </View>
+
                 </View>
 
-                <Iconos
-                    size={36}
-                    titulo="Descripción"
-                    icono={<Ionicons name="document-text" size={25} color="#000" />}
-                />
 
-                <Text style={styles.descripcion}>
-                    La Hormiga es un restaurante conocido por su ambiente cálido, rústico
-                    y acogedor, con salón de madera. Destaca por sus porciones
-                    abundantes, precios razonables y cocina al horno de barro/parrilla.
-                </Text>
+                {(lugar.properties.datasource?.raw?.phone ||
+                    lugar.properties.datasource?.raw?.website ||
+                    lugar.properties.datasource?.raw?.email) && (
 
-                <Iconos
-                    size={36}
-                    titulo="Horarios"
-                    icono={<Ionicons name="calendar" size={25} color="#000" />}
-                />
+                        <>
+                            <Iconos
+                                titulo="Contacto"
+                                size={36}
+                                icono={
+                                    <Ionicons
+                                        name="call"
+                                        size={24}
+                                        color="#000"
+                                    />
+                                }
+                            />
 
-                <View style={styles.tabla}>
-                    {[
-                        ["Lunes", "11:00 AM - 12:00 AM"],
-                        ["Martes", "11:00 AM - 12:00 AM"],
-                        ["Miércoles", "11:00 AM - 12:00 AM"],
-                        ["Jueves", "11:00 AM - 12:00 AM"],
-                        ["Viernes", "11:00 AM - 12:00 AM"],
-                        ["Sábado", "12:00 PM - 11:00 PM"],
-                    ].map((item, index) => (
-                        <View
-                            key={index}
-                            style={[
-                                styles.fila,
-                                index === 5 && { borderBottomWidth: 0 },
-                            ]}
-                        >
-                            <Text style={styles.dia}>{item[0]}</Text>
-                            <Text style={styles.hora}>{item[1]}</Text>
-                        </View>
-                    ))}
-                </View>
+                            <View style={styles.card}>
+
+                                {lugar.properties.datasource?.raw?.phone && (
+
+                                    <>
+                                        <View style={styles.infoRow}>
+                                            <Text style={styles.label}>
+                                                Teléfono
+                                            </Text>
+
+                                            <Text style={styles.valor}>
+                                                {lugar.properties.datasource.raw.phone}
+                                            </Text>
+                                        </View>
+
+                                        <View style={styles.separador} />
+                                    </>
+
+                                )}
+
+                                {lugar.properties.datasource?.raw?.website && (
+
+                                    <>
+                                        <View style={styles.infoRow}>
+                                            <Text style={styles.label}>
+                                                Sitio web
+                                            </Text>
+
+                                            <Text style={styles.valor}>
+                                                {lugar.properties.datasource.raw.website}
+                                            </Text>
+                                        </View>
+
+                                        <View style={styles.separador} />
+                                    </>
+
+                                )}
+
+                                {lugar.properties.datasource?.raw?.email && (
+
+                                    <View style={styles.infoRow}>
+                                        <Text style={styles.label}>
+                                            Email
+                                        </Text>
+
+                                        <Text style={styles.valor}>
+                                            {lugar.properties.datasource.raw.email}
+                                        </Text>
+                                    </View>
+
+                                )}
+
+                            </View>
+                        </>
+
+                    )}
+
+
+                <TouchableOpacity style={styles.botonMaps}>
+
+                    <Ionicons
+                        name="navigate"
+                        size={22}
+                        color="#000"
+                    />
+
+                    <Text style={styles.textoBoton}>
+                        Abrir en Google Maps
+                    </Text>
+
+                </TouchableOpacity>
+
             </ScrollView>
 
             <Navbar pantallaActual="Recomendaciones" />
@@ -108,127 +250,114 @@ const styles = StyleSheet.create({
     imagen: {
         width: "100%",
         height: 220,
-        borderRadius: 15,
+        borderRadius: 18,
         marginTop: 15,
     },
 
     titulo: {
-        color: 'white',
-        fontFamily: 'CashMarket',
-        fontSize: 24,
-        marginTop: 10,
-        marginLeft: 5
+        color: "white",
+        fontFamily: "CashMarket",
+        fontSize: 28,
+        marginTop: 18,
     },
 
-    estrellas: {
-        textAlign: "center",
-        color: "black",
-        fontSize: 22,
-        letterSpacing: 2,
-    },
-
-    direccionContainer: {
-        flexDirection: "row",
-        justifyContent: "center",
-        alignItems: "center",
-        marginTop: 8,
-        marginBottom: 10,
-        width: "100%",
-    },
-
-    direccion: {
-        color: "#B6B6B6",
-        fontSize: 13,
-        fontFamily: "Utendo",
-        marginLeft: 6,
-    },
-
-    tabla: {
-        backgroundColor: "#5C3E94",
-        borderRadius: 10,
-        overflow: "hidden",
-        marginTop: 10,
-        marginBottom: 30,
-    },
-
-    fila: {
-        flexDirection: "row",
-        justifyContent: "space-between",
-        paddingHorizontal: 15,
-        paddingVertical: 12,
-        borderBottomWidth: 1,
-        borderBottomColor: "rgba(255,255,255,0.2)",
-    },
-
-    dia: {
-        color: "#FFF",
-        fontSize: 15,
-        fontFamily: 'Utendo',
-        marginTop: 2
-    },
-
-    hora: {
-        color: "#FFF",
-        fontSize: 12,
-        fontFamily: 'Utendo',
-        marginTop: 5
-    },
-    iconoUbicacion: {
-        marginBottom: 5,
-    },
-    
     ratingContainer: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        marginTop: 12,
-        marginBottom: 20,
+        flexDirection: "row",
+        alignItems: "center",
+        marginTop: 14,
+        marginBottom: 28,
     },
+
     rating: {
-        backgroundColor: '#ffecad',
-        color: '#000',
+        backgroundColor: "#FFE28A",
+        borderRadius: 25,
         paddingHorizontal: 14,
-        paddingVertical: 6,
-        borderRadius: 30,
-        fontFamily: 'CashMarket',
-        fontSize: 12,
+        paddingVertical: 8,
         marginRight: 10,
     },
 
-    categoria: {
-        backgroundColor: '#57C7A3',
-        paddingHorizontal: 12,
-        paddingVertical: 6,
-        borderRadius: 20,
-    },
-
-    categoriaTexto: {
-        color: '#000',
-        fontFamily: 'CashMarket',
+    ratingTexto: {
+        color: "#000",
+        fontFamily: "CashMarket",
         fontSize: 13,
     },
 
-    infoCard: {
-        backgroundColor: '#23232D',
-        borderRadius: 16,
-        padding: 16,
-        marginBottom: 25,
+    categoria: {
+        backgroundColor: "#57C7A3",
+        borderRadius: 25,
+        paddingHorizontal: 14,
+        paddingVertical: 8,
+    },
+
+    categoriaTexto: {
+        color: "#000",
+        fontFamily: "CashMarket",
+        fontSize: 13,
+    },
+
+    card: {
+        backgroundColor: "#23232D",
+        borderRadius: 18,
+        padding: 18,
+        marginTop: 12,
+        marginBottom: 26,
     },
 
     filaInfo: {
-        flexDirection: 'row',
-        alignItems: 'center',
+        flexDirection: "row",
+        alignItems: "center",
     },
 
     infoTexto: {
-        color: 'white',
-        marginLeft: 10,
-        fontFamily: 'Utendo',
-        flex: 1,
-    },
-    descripcion: {
-        color: 'white',
-        fontFamily: 'Utendo',
-        lineHeight: 24,
+        color: "white",
+        fontFamily: "Utendo",
         fontSize: 15,
+        marginLeft: 10,
+        flex: 1,
+        lineHeight: 22,
+    },
+
+    infoRow: {
+        flexDirection: "row",
+        justifyContent: "space-between",
+        alignItems: "center",
+        paddingVertical: 12,
+    },
+
+    label: {
+        color: "#BDBDC7",
+        fontFamily: "CashMarket",
+        fontSize: 14,
+    },
+
+    valor: {
+        color: "white",
+        fontFamily: "Utendo",
+        fontSize: 14,
+        flex: 1,
+        textAlign: "right",
+        marginLeft: 20,
+    },
+
+    separador: {
+        height: 1,
+        backgroundColor: "#39394A",
+    },
+
+    botonMaps: {
+        backgroundColor: "#57C7A3",
+        borderRadius: 16,
+        height: 58,
+        justifyContent: "center",
+        alignItems: "center",
+        flexDirection: "row",
+        marginBottom: 30,
+    },
+
+    textoBoton: {
+        color: "#000",
+        fontFamily: "CashMarket",
+        fontSize: 16,
+        marginLeft: 10,
     },
 });

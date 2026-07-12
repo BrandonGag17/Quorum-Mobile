@@ -9,7 +9,7 @@ import {
     StyleSheet,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import supabase from '../supabaseClient'
+import supabase from '../services/supabaseClient'
 import InputApp from '../Utilidades/InputApp'
 import ButtonApp from '../Utilidades/BotonesApp'
 import IndicadorPasos from '../Utilidades/IndicadorPasos'
