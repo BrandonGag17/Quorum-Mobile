@@ -1,0 +1,91 @@
+Quorum-Mobile/
+├─ App.js
+├─ index.js
+├─ src/
+│  ├─ screens/
+│  │  ├─ auth/
+│  │  │  ├─ Introduccion.jsx
+│  │  │  ├─ IniciarSesion.jsx
+│  │  │  ├─ Registrarse.jsx
+│  │  │  ├─ Registrarse2.jsx
+│  │  │  ├─ Registrarse3.jsx
+│  │  │  └─ Exito.jsx
+│  │  │
+│  │  ├─ home/
+│  │  │  ├─ Inicio.jsx
+│  │  │  ├─ Grupo.jsx
+│  │  │  ├─ Juntada.jsx
+│  │  │  ├─ ProponerJuntada.jsx
+│  │  │  ├─ CrearEvento.jsx
+│  │  │  ├─ VotacionJuntada.jsx
+│  │  │  └─ CrearGrupo.jsx
+│  │  │
+│  │  ├─ recommendations/
+│  │  │  ├─ Recomendaciones.jsx
+│  │  │  └─ InfoRecomendacion.jsx
+│  │  │
+│  │  ├─ notifications/
+│  │  │  └─ Notificaciones.jsx
+│  │  │
+│  │  └─ settings/
+│  │     └─ Configuracion.jsx
+│  │
+│  ├─ data/
+│  │  ├─ services/
+│  │  │  ├─ supabaseClient.js
+│  │  │  ├─ authService.js
+│  │  │  ├─ groupService.js
+│  │  │  ├─ eventService.js
+│  │  │  └─ placesService.js
+│  │  │
+│  │  ├─ hooks/
+│  │  │  ├─ useSession.js
+│  │  │  ├─ useGroups.js
+│  │  │  ├─ useGroupDetail.js
+│  │  │  ├─ useEvents.js
+│  │  │  └─ useRecommendations.js
+
+│  │
+│  ├─ components/
+│  │  ├─ common/
+│  │  │  ├─ Navbar.jsx
+│  │  │  ├─ Button.jsx
+│  │  │  └─ EmptyState.jsx
+│  │  │
+│  │  ├─ home/
+│  │  │  ├─ GroupListItem.jsx
+│  │  │  ├─ EventCard.jsx
+│  │  │  └─ SearchBar.jsx
+│  │  │
+│  │  ├─ groups/
+│  │  │  ├─ GroupHeader.jsx
+│  │  │  └─ GroupMembersList.jsx
+│  │  │
+│  │  └─ recommendations/
+│  │     ├─ PlaceCard.jsx
+│  │     └─ PlaceDetailCard.jsx
+│  │
+│  ├─ navigation/
+│  │  ├─ AuthStack.js
+│  │  ├─ AppTabs.js
+│  │  ├─ HomeStack.js
+│  │  └─ routes.js
+│  │
+│  ├─ utils/
+│  │  ├─ dateHelpers.js
+│  │  ├─ formatters.js
+│  │  └─ normalize.js
+│  │
+│  └─ store/
+│     ├─ authSlice.js
+│     ├─ groupsSlice.js
+│     ├─ eventsSlice.js
+│     └─ recommendationsSlice.js
+│
+└─ assets/
+
+Cada pantalla carga solo lo que necesita.
+No cargas todo "por si acaso".
+No repites datos en varios estados.
+No hicies fetchs dentro del render.
+No mezclas data + UI + navegación en una sola vista.
