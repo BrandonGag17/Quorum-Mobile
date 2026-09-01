@@ -383,7 +383,7 @@ export default function ProponerJuntada() {
                         totalPasos={3}
                     />
 
-                </View>
+                </View> 
 
                 <View style={styles.formulario}>
 

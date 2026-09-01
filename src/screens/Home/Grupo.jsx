@@ -167,7 +167,7 @@ export default function Grupo({ navigation }) {
                   <TouchableOpacity
                     style={styles.proposalCard}
                     onPress={() =>
-                      navigation.navigate("VotacionJuntada", {
+                      navigation.navigate("Juntada", {
                         idEvento: item.evento?.id,
                       })
                     }
