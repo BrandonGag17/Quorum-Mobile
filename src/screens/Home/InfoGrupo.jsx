@@ -31,6 +31,7 @@ function InfoGrupo() {
     error,
     addMemberByUsername,
     addMemberById,
+    removeMember,
     leaveGroup,
   } = useGroupInfo(idGrupo);
 
@@ -90,6 +91,19 @@ function InfoGrupo() {
     setMostrarModal(false);
   }
 
+  async function sacarMiembroSeleccionado() {
+    if (!miembroSeleccionado?.usuario?.id) {
+      return;
+    }
+
+    const res = await removeMember(miembroSeleccionado.usuario.id);
+
+    if (!res?.error) {
+      setMostrarPopupMiembro(false);
+      setMiembroSeleccionado(null);
+    }
+  }
+
   if (loading) {
     return (
       <SafeAreaView style={styles.loadingContainer}>
@@ -116,6 +130,8 @@ function InfoGrupo() {
           <Text style={styles.profileCount}>{memberCount} miembros</Text>
         </View>
 
+        {error ? <Text style={styles.error}>{error}</Text> : null}
+
         <View style={styles.sectionHeader}>
           <FontAwesome6 name="user-group" size={20} color="#FFFFFF" />
           <Text style={styles.sectionTitle}>Miembros</Text>
@@ -123,7 +139,7 @@ function InfoGrupo() {
 
         <FlatList
           data={members}
-          keyExtractor={(item) => item.id?.toString() || item.usuario?.id}
+          keyExtractor={(item, index) => String(item.id ?? item.id_usuario ?? item.usuario?.id ?? index)}
           showsVerticalScrollIndicator={members.length > 4}
           scrollEnabled={members.length > 4}
           contentContainerStyle={styles.listaMiembros}
@@ -140,11 +156,11 @@ function InfoGrupo() {
 
               <View style={styles.infoUsuario}>
                 <Text style={styles.nombreUsuario}>
-                  {item.usuario?.username}
+                  {item.usuario?.username || 'Sin usuario'}
                 </Text>
 
                 <Text style={styles.username}>
-                  @{item.usuario?.username}
+                  {item.usuario?.username ? `@${item.usuario.username}` : 'Usuario no disponible'}
                 </Text>
               </View>
             </TouchableOpacity>
@@ -261,7 +277,7 @@ function InfoGrupo() {
                 />
 
                 <Text style={styles.popupNombre}>
-                  {miembroSeleccionado.usuario?.username}
+                  {miembroSeleccionado.usuario?.username || 'Sin usuario'}
                 </Text>
 
                 <Text style={styles.popupInfo}>
@@ -270,9 +286,7 @@ function InfoGrupo() {
 
                 <TouchableOpacity
                   style={styles.botonSalir}
-                  onPress={() => {
-                    setMostrarPopupMiembro(false);
-                  }}
+                  onPress={sacarMiembroSeleccionado}
                 >
                   <Text style={styles.textoBotonSalir}>Sacar del grupo</Text>
                 </TouchableOpacity>

@@ -23,40 +23,90 @@ export default function UserSearch({
   const [suggestions, setSuggestions] = useState([]);
   const [loading, setLoading] = useState(false);
   const timeoutRef = useRef(null);
+  const requestRef = useRef(0);
+
+  const normalizeQuery = (text) => (text || "").replace(/^@/, "").trim();
+
+  const escapeLike = (text) => text.replace(/[\\%_]/g, "\\$&");
 
   useEffect(() => {
     if (timeoutRef.current) clearTimeout(timeoutRef.current);
 
-    const q = (value || "").replace(/^@/, "").trim();
+    const q = normalizeQuery(value);
     if (!q) {
       setSuggestions([]);
+      setLoading(false);
       return;
     }
 
+    const currentRequest = requestRef.current + 1;
+    requestRef.current = currentRequest;
+
     timeoutRef.current = setTimeout(() => {
-      buscar(q);
+      buscar(q, currentRequest);
     }, debounceMs);
 
     return () => {
       if (timeoutRef.current) clearTimeout(timeoutRef.current);
     };
-  }, [value]);
+  }, [value, debounceMs, excludeIds]);
 
-  async function buscar(q) {
+  async function buscar(q, requestId) {
     setLoading(true);
     try {
-      const { data } = await supabase
-        .from("usuario")
-        .select("id,username,foto_perfil")
-        .ilike("username", `${q}%`)
-        .limit(limit);
+      const likeValue = `${escapeLike(q)}%`;
 
-      const filtered = (data || []).filter((u) => !excludeIds.includes(u.id));
-      setSuggestions(filtered);
+      const [usernamesRes, nombresRes, apellidosRes] = await Promise.all([
+        supabase
+          .from("usuario")
+          .select("id,username,foto_perfil,nombre,apellido")
+          .ilike("username", likeValue)
+          .limit(limit),
+        supabase
+          .from("usuario")
+          .select("id,username,foto_perfil,nombre,apellido")
+          .ilike("nombre", likeValue)
+          .limit(limit),
+        supabase
+          .from("usuario")
+          .select("id,username,foto_perfil,nombre,apellido")
+          .ilike("apellido", likeValue)
+          .limit(limit),
+      ]);
+
+      const allResults = [
+        ...(usernamesRes.data || []),
+        ...(nombresRes.data || []),
+        ...(apellidosRes.data || []),
+      ];
+
+      const byId = new Map();
+      allResults.forEach((user) => {
+        if (user && !byId.has(user.id)) {
+          byId.set(user.id, user);
+        }
+      });
+
+      const filtered = [...byId.values()].filter(
+        (u) => !excludeIds.includes(u.id)
+      );
+
+      const error = usernamesRes.error || nombresRes.error || apellidosRes.error;
+      if (error) {
+        throw error;
+      }
+
+      if (requestRef.current === requestId) {
+        setSuggestions(filtered);
+      }
     } catch (err) {
-      setSuggestions([]);
+      if (requestRef.current === requestId) {
+        setSuggestions([]);
+      }
     } finally {
-      setLoading(false);
+      if (requestRef.current === requestId) {
+        setLoading(false);
+      }
     }
   }
 
@@ -88,7 +138,7 @@ export default function UserSearch({
         <View style={styles.suggestionsContainer}>
           <FlatList
             data={suggestions}
-            keyExtractor={(item) => item.id}
+            keyExtractor={(item, index) => String(item.id ?? index)}
             renderItem={({ item }) => (
               <TouchableOpacity
                 style={styles.suggestionItem}
@@ -100,7 +150,14 @@ export default function UserSearch({
                   }}
                   style={styles.avatar}
                 />
-                <Text style={styles.suggestionText}>@{item.username}</Text>
+                <View style={styles.suggestionTextWrap}>
+                  <Text style={styles.suggestionText}>@{item.username}</Text>
+                  {(item.nombre || item.apellido) ? (
+                    <Text style={styles.suggestionMeta} numberOfLines={1}>
+                      {[item.nombre, item.apellido].filter(Boolean).join(" ")}
+                    </Text>
+                  ) : null}
+                </View>
               </TouchableOpacity>
             )}
           />
@@ -134,7 +191,9 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
   },
   avatar: { width: 34, height: 34, borderRadius: 17, marginRight: 10 },
+  suggestionTextWrap: { flex: 1 },
   suggestionText: { color: "white", fontFamily: "Utendo" },
+  suggestionMeta: { color: "#B8B8B8", fontFamily: "Utendo", fontSize: 12 },
   loadingRow: {
     flexDirection: "row",
     alignItems: "center",

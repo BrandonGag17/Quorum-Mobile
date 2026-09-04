@@ -49,11 +49,19 @@ const styles = StyleSheet.create({
 
   input: {
     borderRadius: 15,
-    borderColor: "#4F4F55",
+    borderColor: "#57575c",
     borderWidth: 2,
-    backgroundColor: "#2A2A2E",
+    backgroundColor: "#36363a",
     padding: 15,
     color: "white",
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 5,
+    },
+    shadowOpacity: 0.35,
+    shadowRadius: 5,
+    elevation: 6,
   },
 });
 
