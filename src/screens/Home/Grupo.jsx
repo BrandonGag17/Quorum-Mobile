@@ -27,8 +27,9 @@ import GroupHeader from "../../components/GroupHeader";
 
 import ErrorMessage from "../../components/MensajeError";
 import Loading from "../../components/Loading";
+import CardJuntadas from "../../components/CardJuntadas";
 
-import BackButton from "../../components/BackButton";
+import { useHomeSummary } from "../../hooks/useHome";
 
 export default function Grupo({ navigation }) {
   const route = useRoute();
@@ -45,6 +46,8 @@ export default function Grupo({ navigation }) {
   } = useGroupDetail(idGrupo);
 
   const [mostrarCrear, setMostrarCrear] = useState(false);
+  const { events } = useHomeSummary();
+
   const [mostrarJuntadasPasadas, setMostrarJuntadasPasadas] = useState(false);
 
   const translateY = useRef(new Animated.Value(500)).current;
@@ -107,35 +110,24 @@ export default function Grupo({ navigation }) {
               </View>
             </View>
 
-            {upcomingEvents.length > 0 ? (
+            {events.length > 0 ? (
               <FlatList
                 horizontal
-                data={upcomingEvents}
+                data={events}
+                renderItem={({ item }) => (
+                  <CardJuntadas
+                    evento={item}
+                    navigation={navigation}
+                  />
+                )}
                 keyExtractor={(item) => item.id.toString()}
                 showsHorizontalScrollIndicator={false}
-                contentContainerStyle={styles.horizontalList}
-                renderItem={({ item }) => (
-                  <TouchableOpacity
-                    style={styles.eventCard}
-                    onPress={() =>
-                      navigation.navigate("Juntada", {
-                        idEvento: item.id,
-                      })
-                    }
-                  >
-                    <Text style={styles.eventTitle}>{item.nombre}</Text>
-
-                    <Text style={styles.eventDate}>
-                      {item.fecha_hora_inicio
-                        ? new Date(item.fecha_hora_inicio).toLocaleString()
-                        : "Fecha no definida"}
-                    </Text>
-                  </TouchableOpacity>
-                )}
+                contentContainerStyle={styles.eventList}
               />
+
             ) : (
               <View style={styles.emptyState}>
-                <Text style={styles.emptyText}>No hay próximas juntadas</Text>
+                <Text style={styles.emptyText}>No tenés próximas juntadas</Text>
               </View>
             )}
 

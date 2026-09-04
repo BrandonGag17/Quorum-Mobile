@@ -366,6 +366,7 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     alignItems: "center",
     marginTop: 4,
+    bottom: 60
   },
   textoBotonSalir: {
     color: "white",
