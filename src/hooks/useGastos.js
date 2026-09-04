@@ -67,6 +67,28 @@ export default function useGastos(eventId) {
     )
   }, [gastos])
 
+  // Conservamos cada gasto individual en Supabase, pero para la pantalla los
+  // agrupamos por persona. Así cada asistente aparece una sola vez con su total
+  // y todavía podemos mostrar el detalle de todo lo que pagó.
+  const gastosPorPersona = useMemo(() => {
+    return personas.map((persona) => {
+      const gastosDeLaPersona = gastos.filter(
+        (gasto) => gasto.id_pagador === persona.id
+      )
+
+      const total = gastosDeLaPersona.reduce(
+        (suma, gasto) => suma + Number(gasto.monto || 0),
+        0
+      )
+
+      return {
+        persona,
+        gastos: gastosDeLaPersona,
+        total,
+      }
+    })
+  }, [gastos, personas])
+
   const agregarGasto = useCallback(async ({
     pagadorId,
     descripcion,
@@ -103,6 +125,7 @@ export default function useGastos(eventId) {
 
   return {
     gastos,
+    gastosPorPersona,
     personas,
     totalGastado,
     loading,

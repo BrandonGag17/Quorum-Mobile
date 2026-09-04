@@ -19,11 +19,13 @@ export default function DivisionGastos({ route, navigation }) {
     const [pagadorSeleccionado, setPagadorSeleccionado] = useState(null)
     const [monto, setMonto] = useState('')
     const [descripcion, setDescripcion] = useState('')
+    const [personaExpandidaId, setPersonaExpandidaId] = useState(null)
 
     const eventId = route?.params?.idEvento
 
     const {
         gastos,
+        gastosPorPersona,
         personas,
         totalGastado,
         loading,
@@ -54,6 +56,20 @@ export default function DivisionGastos({ route, navigation }) {
         currency: 'ARS',
         maximumFractionDigits: 0,
     }).format(totalGastado)
+
+    function formatearMonto(valor) {
+        return new Intl.NumberFormat('es-AR', {
+            style: 'currency',
+            currency: 'ARS',
+            maximumFractionDigits: 0,
+        }).format(valor)
+    }
+
+    function alternarDetallePersona(personaId) {
+        setPersonaExpandidaId((idActual) =>
+            idActual === personaId ? null : personaId
+        )
+    }
 
     return (
         <SafeAreaView>
@@ -110,15 +126,37 @@ export default function DivisionGastos({ route, navigation }) {
                                     </Text>
                                 </View>
                             ) : (
-                                gastos.map((gasto) => (
-                                    <View key={gasto.id}>
-                                        <Text>
-                                            {gasto.pagador?.nombre || gasto.pagador?.username || 'Persona'}
-                                        </Text>
-                                        <Text>{gasto.descripcion}</Text>
-                                        <Text>${gasto.monto}</Text>
-                                    </View>
-                                ))
+                                gastosPorPersona
+                                    .filter((resumen) => resumen.gastos.length > 0)
+                                    .map((resumen) => {
+                                        const estaExpandida = personaExpandidaId === resumen.persona.id
+
+                                        return (
+                                            <View key={resumen.persona.id}>
+                                                <Pressable
+                                                    onPress={() => alternarDetallePersona(resumen.persona.id)}
+                                                >
+                                                    <Text>
+                                                        {resumen.persona.nombre || resumen.persona.username || 'Persona'}
+                                                    </Text>
+                                                    <Text>{formatearMonto(resumen.total)}</Text>
+                                                    <Ionicons
+                                                        name={estaExpandida ? 'chevron-up' : 'chevron-down'}
+                                                        size={18}
+                                                    />
+                                                </Pressable>
+
+                                                {estaExpandida
+                                                    ? resumen.gastos.map((gasto) => (
+                                                        <View key={gasto.id}>
+                                                            <Text>{gasto.descripcion}:</Text>
+                                                            <Text>{formatearMonto(gasto.monto)}</Text>
+                                                        </View>
+                                                    ))
+                                                    : null}
+                                            </View>
+                                        )
+                                    })
                             )}
                         </View>
                     </>
