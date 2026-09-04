@@ -58,55 +58,35 @@ export async function getPersonasByEventId(eventId) {
       },
     }
   }
-
-  // Un gasto conoce el evento, pero los integrantes pertenecen al grupo.
-  // Primero averiguamos a qué grupo corresponde la juntada.
-  const { data: evento, error: errorEvento } = await supabase
-    .from('evento')
-    .select('id_grupo')
-    .eq('id', eventId)
-    .single()
-
-  if (errorEvento) {
-    return { data: [], error: errorEvento }
-  }
-
-  if (!evento?.id_grupo) {
-    return {
-      data: [],
-      error: {
-        message: 'La juntada no tiene un grupo asociado',
-      },
-    }
-  }
-
-  // Después traemos los perfiles que se mostrarán en el selector de pagador.
   const { data, error } = await supabase
-    .from('usuario_grupo')
+    .from('usuario_evento')
     .select(`
-      id_usuario,
-      usuario (
-        id,
-        username,
-        nombre,
-        apellido,
-        foto_perfil
-      )
-    `)
-    .eq('id_grupo', evento.id_grupo)
+    id_usuario,
+    usuario (
+      id,
+      username,
+      nombre,
+      apellido,
+      foto_perfil
+    )
+  `)
+    .eq('id_evento', eventId)
+    .eq('asistencia', 'voy')
 
   if (error) {
     return { data: [], error }
   }
 
   const personas = (data || [])
-    .map((membresia) => membresia.usuario)
+    .map((participacion) => participacion.usuario)
     .filter(Boolean)
 
   return {
     data: personas,
     error: null,
   }
+
+
 }
 
 export async function createGasto({
@@ -133,7 +113,7 @@ export async function createGasto({
     return {
       data: null,
       error: {
-        message: 'Ingresá un monto mayor a cero',
+        message: 'Ingresá un monto numérico mayor a 0',
       },
     }
   }
