@@ -2,11 +2,13 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import {
   createGasto,
   getGastosByEventId,
+  getHistorialGastosByEventId,
   getPersonasByEventId,
 } from '../services/gastoService'
 
 export default function useGastos(eventId) {
   const [gastos, setGastos] = useState([])
+  const [historial, setHistorial] = useState([])
   const [personas, setPersonas] = useState([])
   const [loading, setLoading] = useState(true)
   const [guardando, setGuardando] = useState(false)
@@ -15,6 +17,7 @@ export default function useGastos(eventId) {
   const cargarGastos = useCallback(async () => {
     if (!eventId) {
       setGastos([])
+      setHistorial([])
       setPersonas([])
       setError('No se recibió el evento para cargar sus gastos')
       setLoading(false)
@@ -27,27 +30,37 @@ export default function useGastos(eventId) {
     try {
       // Gastos y personas no dependen entre sí, así que pueden consultarse al
       // mismo tiempo para reducir la espera de la pantalla.
-      const [respuestaGastos, respuestaPersonas] = await Promise.all([
-        getGastosByEventId(eventId),
-        getPersonasByEventId(eventId),
+      const [
+        respuestaGastos, respuestaPersonas, respuestaHistorial,
+      ] = await Promise.all([getGastosByEventId(eventId), getPersonasByEventId(eventId), getHistorialGastosByEventId(eventId),
       ])
 
-      if (respuestaGastos.error || respuestaPersonas.error) {
+      if (
+        respuestaGastos.error ||
+        respuestaPersonas.error ||
+        respuestaHistorial.error
+      ) {
         setGastos([])
         setPersonas([])
+        setHistorial([])
+
         setError(
           respuestaGastos.error?.message ||
           respuestaPersonas.error?.message ||
+          respuestaHistorial.error?.message ||
           'No se pudieron cargar los gastos'
         )
+
         return
       }
 
       setGastos(respuestaGastos.data)
       setPersonas(respuestaPersonas.data)
+      setHistorial(respuestaHistorial.data)
     } catch (err) {
       setGastos([])
       setPersonas([])
+      setHistorial([])
       setError(err?.message || 'No se pudieron cargar los gastos')
     } finally {
       setLoading(false)
@@ -126,6 +139,7 @@ export default function useGastos(eventId) {
   return {
     gastos,
     gastosPorPersona,
+    historial,
     personas,
     totalGastado,
     loading,

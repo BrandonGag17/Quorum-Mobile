@@ -28,11 +28,15 @@ export default function DivisionGastos({ route, navigation }) {
         gastosPorPersona,
         personas,
         totalGastado,
+        historial,
         loading,
         guardando,
         error,
         agregarGasto,
     } = useGastos(eventId)
+
+    const modoHistorial = route?.params?.modoHistorial ?? false
+    const nombreEvento = route?.params?.nombreEvento ?? ''
 
     async function handleRegistrarGasto() {
         const { error: errorCreacion } = await agregarGasto({
@@ -64,6 +68,16 @@ export default function DivisionGastos({ route, navigation }) {
             maximumFractionDigits: 0,
         }).format(valor)
     }
+    function formatearFecha(fecha) {
+        if (!fecha) {
+            return 'Fecha desconocida'
+        }
+
+        return new Intl.DateTimeFormat('es-AR', {
+            day: 'numeric',
+            month: 'long',
+        }).format(new Date(fecha))
+    }
 
     function alternarDetallePersona(personaId) {
         setPersonaExpandidaId((idActual) =>
@@ -86,15 +100,19 @@ export default function DivisionGastos({ route, navigation }) {
                     <Text>División de gastos</Text>
                 </View>
 
-                <View>
-                    <Pressable onPress={() => setPestanaActiva('actual')}>
-                        <Text>Actual</Text>
-                    </Pressable>
+                {modoHistorial ? (
+                    <Text>{nombreEvento}</Text>
+                ) : (
+                    <View>
+                        <Pressable onPress={() => setPestanaActiva('actual')}>
+                            <Text>Actual</Text>
+                        </Pressable>
 
-                    <Pressable onPress={() => setPestanaActiva('historial')}>
-                        <Text>Historial</Text>
-                    </Pressable>
-                </View>
+                        <Pressable onPress={() => setPestanaActiva('historial')}>
+                            <Text>Historial</Text>
+                        </Pressable>
+                    </View>
+                )}
 
                 {loading ? <Text>Cargando gastos...</Text> : null}
                 {error ? <Text>{error}</Text> : null}
@@ -111,10 +129,12 @@ export default function DivisionGastos({ route, navigation }) {
                             <View>
                                 <Text>Personas</Text>
 
-                                <Pressable onPress={() => setModalVisible(true)}>
-                                    <Ionicons name="add" size={16} />
-                                    <Text>Agregar</Text>
-                                </Pressable>
+                                {!modoHistorial ? (
+                                    <Pressable onPress={() => setModalVisible(true)}>
+                                        <Ionicons name="add" size={16} />
+                                        <Text>Agregar</Text>
+                                    </Pressable>
+                                ) : null}
                             </View>
 
                             {!loading && gastos.length === 0 ? (
@@ -163,8 +183,34 @@ export default function DivisionGastos({ route, navigation }) {
                 ) : (
                     <View>
                         <FontAwesome6 name="clock-rotate-left" size={28} />
-                        <Text>Todavía no hay historial</Text>
-                        <Text>Las divisiones de gastos anteriores aparecerán acá.</Text>
+                        <Text>Historial de gastos</Text>
+
+                        {historial.length === 0 ? (
+                            <View>
+                                <Text>Todavía no hay historial</Text>
+                                <Text>
+                                    Las divisiones de gastos anteriores aparecerán acá.
+                                </Text>
+                            </View>
+                        ) : (
+                            historial.map((evento) => (
+                                <Pressable
+                                    key={evento.id}
+                                    onPress={() =>
+                                        navigation.push('DivisionGastos', {
+                                            idEvento: evento.id,
+                                            modoHistorial: true,
+                                            nombreEvento: evento.nombre,
+                                        })
+                                    }
+                                >
+                                    <Text>{evento.nombre}</Text>
+                                    <Text>{formatearMonto(evento.total)}</Text>
+                                    <Text>{formatearFecha(evento.fecha_hora_inicio)}</Text>
+                                    <Text>{evento.personas.length} personas</Text>
+                                </Pressable>
+                            ))
+                        )}
                     </View>
                 )}
             </ScrollView>
@@ -176,74 +222,74 @@ export default function DivisionGastos({ route, navigation }) {
             >
                 <View>
                     <View>
-                    <View>
-                        <Text>¿Qué gasto desea registrar?</Text>
+                        <View>
+                            <Text>¿Qué gasto desea registrar?</Text>
+
+                            <Pressable
+                                onPress={() => setModalVisible(false)}
+                            >
+                                <Ionicons name="close" size={24} color="#222" />
+                            </Pressable>
+                        </View>
+
+                        <Text>¿Quién pagó?</Text>
+
+                        <View>
+                            {personas.map((persona) => (
+                                <Pressable
+                                    key={persona.id}
+                                    onPress={() => setPagadorSeleccionado(persona)}
+                                >
+                                    <Text>
+                                        {persona.nombre || persona.username}
+                                        {pagadorSeleccionado?.id === persona.id
+                                            ? ' - Seleccionado'
+                                            : ''}
+                                    </Text>
+                                </Pressable>
+                            ))}
+                        </View>
+
+                        {personas.length === 0 ? (
+                            <Text>No hay asistentes confirmados.</Text>
+                        ) : null}
+
+                        <Text>Monto</Text>
+
+                        <TextInput
+                            value={monto}
+                            onChangeText={setMonto}
+                            placeholder="Monto $"
+                            keyboardType="numeric"
+                        />
+
+                        <Text>Nombre del gasto</Text>
+
+                        <TextInput
+                            value={descripcion}
+                            onChangeText={setDescripcion}
+                            placeholder="Ejemplo: Choripanes"
+                            maxLength={50}
+                        />
+
+                        <Text>{descripcion.length}/50</Text>
+
+                        {error ? <Text>{error}</Text> : null}
+
+                        <Pressable
+                            onPress={handleRegistrarGasto}
+                            disabled={guardando}
+                        >
+                            <Text>
+                                {guardando ? 'Guardando...' : 'Registrar gasto'}
+                            </Text>
+                        </Pressable>
 
                         <Pressable
                             onPress={() => setModalVisible(false)}
                         >
-                            <Ionicons name="close" size={24} color="#222" />
+                            <Text>Cerrar</Text>
                         </Pressable>
-                    </View>
-
-                    <Text>¿Quién pagó?</Text>
-
-                    <View>
-                    {personas.map((persona) => (
-                        <Pressable
-                            key={persona.id}
-                            onPress={() => setPagadorSeleccionado(persona)}
-                        >
-                            <Text>
-                                {persona.nombre || persona.username}
-                                {pagadorSeleccionado?.id === persona.id
-                                    ? ' - Seleccionado'
-                                    : ''}
-                            </Text>
-                        </Pressable>
-                    ))}
-                    </View>
-
-                    {personas.length === 0 ? (
-                        <Text>No hay asistentes confirmados.</Text>
-                    ) : null}
-
-                    <Text>Monto</Text>
-
-                    <TextInput
-                        value={monto}
-                        onChangeText={setMonto}
-                        placeholder="Monto $"
-                        keyboardType="numeric"
-                    />
-
-                    <Text>Nombre del gasto</Text>
-
-                    <TextInput
-                        value={descripcion}
-                        onChangeText={setDescripcion}
-                        placeholder="Ejemplo: Choripanes"
-                        maxLength={50}
-                    />
-
-                    <Text>{descripcion.length}/50</Text>
-
-                    {error ? <Text>{error}</Text> : null}
-
-                    <Pressable
-                        onPress={handleRegistrarGasto}
-                        disabled={guardando}
-                    >
-                        <Text>
-                            {guardando ? 'Guardando...' : 'Registrar gasto'}
-                        </Text>
-                    </Pressable>
-
-                    <Pressable
-                        onPress={() => setModalVisible(false)}
-                    >
-                        <Text>Cerrar</Text>
-                    </Pressable>
                     </View>
                 </View>
             </Modal>
