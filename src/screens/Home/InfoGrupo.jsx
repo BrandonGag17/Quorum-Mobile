@@ -437,7 +437,6 @@ const styles = StyleSheet.create({
   modalTextoSalir: {
     color: "#B6B6B6",
     fontFamily: "Utendo",
-    marginBottom: 20,
   },
   cancelarBtn: {
     marginTop: 15,

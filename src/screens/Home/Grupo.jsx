@@ -28,6 +28,8 @@ import GroupHeader from "../../components/GroupHeader";
 import ErrorMessage from "../../components/MensajeError";
 import Loading from "../../components/Loading";
 
+import BackButton from "../../components/BackButton";
+
 export default function Grupo({ navigation }) {
   const route = useRoute();
   const { idGrupo } = route.params;
@@ -362,6 +364,8 @@ const styles = StyleSheet.create({
     backgroundColor: "#4A216F",
     borderRadius: 10,
     padding: 10,
+    borderBottomWidth: 1,
+    borderColor: 'white'
   },
 
   avatar: {
