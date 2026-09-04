@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import {
     View,
     Text,
@@ -66,6 +66,38 @@ export default function ProponerJuntada() {
 
     const [lugarTemporal, setLugarTemporal] =
         useState('')
+
+    // La pantalla de recomendaciones devuelve objetos completos de Geoapify.
+    // Aquí los convertimos al texto que actualmente guarda la encuesta.
+    useEffect(() => {
+
+        const recomendados =
+            route?.params?.lugaresRecomendados
+
+        if (!Array.isArray(recomendados) || recomendados.length === 0) {
+            return
+        }
+
+        const nuevosLugares = recomendados.map(
+            lugar => [lugar.nombre, lugar.direccion]
+                .filter(Boolean)
+                .join(' — ')
+        )
+
+        setOpcionesLugares(actuales => [
+            ...actuales,
+            ...nuevosLugares.filter(
+                lugar => lugar && !actuales.includes(lugar)
+            )
+        ])
+
+        // Consumimos el parámetro para que un render posterior no vuelva a
+        // agregar las mismas opciones.
+        navigation.setParams({
+            lugaresRecomendados: undefined
+        })
+
+    }, [navigation, route?.params?.lugaresRecomendados])
 
     const [fechaTextoTemporal, setFechaTextoTemporal] =
         useState('')
@@ -351,7 +383,7 @@ export default function ProponerJuntada() {
                         totalPasos={3}
                     />
 
-                </View>
+                </View> 
 
                 <View style={styles.formulario}>
 
@@ -580,6 +612,15 @@ export default function ProponerJuntada() {
                         nombre="+ Agregar lugar"
                         onPress={añadirLugar}
                         disabled={cargando}
+                    />
+
+                    <ButtonApp
+                        nombre="Recomendar lugares para el grupo"
+                        onPress={() => navigation.navigate(
+                            'RecomendacionesGrupo',
+                            { idGrupo }
+                        )}
+                        disabled={cargando || !idGrupo}
                     />
 
                     {opcionesLugares.length > 0 && (

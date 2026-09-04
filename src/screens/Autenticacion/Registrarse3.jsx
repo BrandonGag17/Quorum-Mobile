@@ -116,7 +116,13 @@ function Registrarse3() {
             nombre,
             apellido,
             fecha_nacimiento: fechaNacimiento,
-            barrio: localidadSeleccionada ? `${localidadSeleccionada.nombre}, ${localidadSeleccionada.provincia.nombre}` : '',
+            barrio: localidadSeleccionada
+                ? JSON.stringify({
+                    nombre: localidadSeleccionada.nombre,
+                    provincia: localidadSeleccionada.provincia?.nombre || '',
+                    centroide: localidadSeleccionada.centroide,
+                })
+                : '',
             fotoUri: foto?.uri || null,
         })
 

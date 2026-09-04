@@ -167,7 +167,7 @@ export default function Grupo({ navigation }) {
                   <TouchableOpacity
                     style={styles.proposalCard}
                     onPress={() =>
-                      navigation.navigate("VotacionJuntada", {
+                      navigation.navigate("Juntada", {
                         idEvento: item.evento?.id,
                       })
                     }
@@ -281,54 +281,13 @@ export default function Grupo({ navigation }) {
                     <Text style={styles.modalTitle}>Crear evento</Text>
 
                     <Text style={styles.modalSubtitle}>
-                      Sin votaciones, fecha fija
+                      Sin votaciones, fecha, hora y lugares fijos
                     </Text>
                   </View>
                 </View>
               </TouchableOpacity>
 
-              <TouchableOpacity
-                disabled
-                style={[styles.sheetButton, styles.sheetButtonDisabled]}
-              >
-                <View style={styles.sheetButtonContent}>
-                  <MaterialCommunityIcons
-                    name="robot-outline"
-                    size={35}
-                    color="#727272"
-                  />
-
-                  <View style={styles.modalTexts}>
-                    <Text style={styles.modalTitleDisabled}>
-                      Juntada rápida con IA
-                    </Text>
-
-                    <Text style={styles.modalSubtitleDisabled}>
-                      Genera una propuesta según los gustos del grupo
-                    </Text>
-                  </View>
-                </View>
-              </TouchableOpacity>
-
-              <TouchableOpacity
-                disabled
-                style={[styles.sheetButton, styles.sheetButtonDisabled]}
-              >
-                <View style={styles.sheetButtonContent}>
-                  <Ionicons name="calendar-clear" size={35} color="#727272" />
-
-                  <View style={styles.modalTexts}>
-                    <Text style={styles.modalTitleDisabled}>
-                      Comparar calendarios
-                    </Text>
-
-                    <Text style={styles.modalSubtitleDisabled}>
-                      Encontrá horarios libres entre todos los integrantes
-                    </Text>
-                  </View>
-                </View>
-              </TouchableOpacity>
-
+            
               <TouchableOpacity
                 onPress={cerrarCrear}
                 style={styles.cancelButton}

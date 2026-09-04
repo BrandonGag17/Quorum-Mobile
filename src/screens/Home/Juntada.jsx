@@ -63,17 +63,17 @@ export default function Juntada({ route, navigation }) {
 
   const fechaTexto = fechaInicio
     ? fechaInicio.toLocaleDateString('es-AR', {
-        weekday: 'long',
-        day: 'numeric',
-        month: 'long'
-      })
+      weekday: 'long',
+      day: 'numeric',
+      month: 'long'
+    })
     : 'Fecha pendiente'
 
   const horaTexto = fechaInicio
     ? fechaInicio.toLocaleTimeString('es-AR', {
-        hour: '2-digit',
-        minute: '2-digit'
-      })
+      hour: '2-digit',
+      minute: '2-digit'
+    })
     : 'Hora pendiente'
 
   const renderAsistencia = () => (
@@ -224,6 +224,13 @@ export default function Juntada({ route, navigation }) {
             ) : null}
           </View>
         ) : null}
+
+        <TouchableOpacity
+          style={styles.voteButton}
+          onPress={() => navigation.navigate('DivisionGastos', { idEvento: event.id })}
+        >
+          <Text style={styles.voteButtonText}>Division de gastos</Text>
+        </TouchableOpacity>
       </ScrollView>
     </SafeAreaView>
   )
