@@ -1,5 +1,6 @@
 import React from "react";
-import { View, Text, Image, TouchableOpacity, StyleSheet } from "react-native";
+import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
+import Ionicons from "@expo/vector-icons/Ionicons";
 
 export default function GroupHeader({
   group,
@@ -12,10 +13,13 @@ export default function GroupHeader({
       onPress={onPress}
       activeOpacity={onPress ? 0.75 : 1}
     >
-      <Image
-        source={{ uri: group?.foto_perfil }}
-        style={styles.avatar}
-      />
+      <View style={styles.avatar}>
+        <Ionicons
+          name="people"
+          size={30}
+          color="#15151C"
+        />
+      </View>
 
       <View style={styles.headerInfo}>
         <Text style={styles.groupName} numberOfLines={1}>
@@ -36,15 +40,18 @@ const styles = StyleSheet.create({
   header: {
     flexDirection: "row",
     alignItems: "center",
+    marginTop: 30,
     marginBottom: 30,
-    padding: 10,
-    marginTop: 30
+    paddingHorizontal: 35,
   },
 
   avatar: {
     width: 50,
     height: 50,
-    borderRadius: 26,
+    borderRadius: 25,
+    backgroundColor: "#57C7A3",
+    justifyContent: "center",
+    alignItems: "center",
   },
 
   headerInfo: {

@@ -237,153 +237,90 @@ export default function Juntada({ route, navigation }) {
 
   return (
     <SafeAreaView style={styles.container}>
-      <View style={styles.screen}>
-        <ScrollView
-          showsVerticalScrollIndicator={false}
-          contentContainerStyle={styles.scrollContent}
-        >
-          <View style={styles.headerContainer}>
-            <GroupHeader
-              group={event.grupo}
-              memberCount={memberCount}
-              onPress={() =>
-                navigation.navigate("InfoGrupo", {
-                  idGrupo: event.grupo?.id,
-                })
-              }
-            />
-          </View>
-          <View style={styles.nextRow}>
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={styles.scrollContent}
+      >
+        <View>
+          <GroupHeader
+            group={event.grupo}
+            memberCount={memberCount}
+            onPress={() =>
+              navigation.navigate("InfoGrupo", {
+                idGrupo: event.grupo?.id,
+              })
+            }
+          />
+        </View>
+        <View style={styles.nextRow}>
 
-            <Text style={styles.nextText}>
-              Próximo encuentro
-            </Text>
+          <Text style={styles.nextText}>
+            Próximo encuentro
+          </Text>
 
-            <Text style={styles.daysText}>
-              {timeRemaining || 'En 12 Días'}
-            </Text>
+          <Text style={styles.daysText}>
+            {timeRemaining || 'En 12 Días'}
+          </Text>
 
-          </View>
+        </View>
 
-          <View style={styles.eventCard}>
+        <View style={styles.eventCard}>
 
-            <View style={styles.eventMain}>
+          <View style={styles.eventMain}>
 
-              <View style={styles.dateBox}>
+            <View style={styles.dateBox}>
 
-                <Text style={styles.dateMonth}>
-                  {mes}
-                </Text>
+              <Text style={styles.dateMonth}>
+                {mes}
+              </Text>
 
-                <Text style={styles.dateDay}>
-                  {dia}
-                </Text>
+              <Text style={styles.dateDay}>
+                {dia}
+              </Text>
 
-                <Text style={styles.dateYear}>
-                  {anio}
-                </Text>
-
-              </View>
-
-              <View style={styles.eventInfo}>
-
-                <Text
-                  style={styles.eventName}
-                  numberOfLines={2}
-                >
-                  {nombreEvento}
-                </Text>
-
-                <View style={styles.detailRow}>
-
-                  <Ionicons
-                    name="time-outline"
-                    size={15}
-                    color="#FFFFFF"
-                  />
-
-                  <Text style={styles.detailText}>
-                    {hora}
-                  </Text>
-
-                </View>
-
-                <View style={styles.detailRow}>
-
-                  <Ionicons
-                    name="location-outline"
-                    size={16}
-                    color="#FFFFFF"
-                  />
-
-                  <Text
-                    style={styles.detailText}
-                    numberOfLines={1}
-                  >
-                    {lugar}
-                  </Text>
-
-                </View>
-
-              </View>
+              <Text style={styles.dateYear}>
+                {anio}
+              </Text>
 
             </View>
 
-            <View style={styles.eventSeparator} />
+            <View style={styles.eventInfo}>
 
-            <View style={styles.confirmedContainer}>
+              <Text
+                style={styles.eventName}
+                numberOfLines={2}
+              >
+                {nombreEvento}
+              </Text>
 
-              <View style={styles.confirmedTop}>
+              <View style={styles.detailRow}>
 
                 <Ionicons
-                  name="people"
+                  name="time-outline"
                   size={15}
                   color="#FFFFFF"
                 />
 
-                <Text style={styles.confirmedText}>
-                  {confirmados} de {participantes} confirmados
+                <Text style={styles.detailText}>
+                  {hora}
                 </Text>
-
-                {renderAvatars()}
 
               </View>
 
-              <View style={styles.buttonsRow}>
+              <View style={styles.detailRow}>
 
-                <TouchableOpacity
-                  activeOpacity={0.8}
-                  onPress={handleVoy}
-                  disabled={actionLoading}
-                  style={[
-                    styles.goButton,
-                    myAttendance === 'voy' &&
-                    styles.goButtonSelected,
-                    actionLoading &&
-                    styles.disabled
-                  ]}
-                >
-                  <Text style={styles.goText}>
-                    Voy
-                  </Text>
-                </TouchableOpacity>
+                <Ionicons
+                  name="location-outline"
+                  size={16}
+                  color="#FFFFFF"
+                />
 
-                <TouchableOpacity
-                  activeOpacity={0.8}
-                  onPress={handleNoVoy}
-                  disabled={actionLoading}
-                  style={[
-                    styles.noGoButton,
-                    myAttendance === 'no_voy' &&
-                    styles.noGoButtonSelected,
-                    actionLoading &&
-                    styles.disabled
-                  ]}
+                <Text
+                  style={styles.detailText}
+                  numberOfLines={1}
                 >
-                  <Text style={styles.noGoText}>
-                    No voy
-                  </Text>
-                </TouchableOpacity>
+                  {lugar}
+                </Text>
 
               </View>
 
@@ -391,57 +328,118 @@ export default function Juntada({ route, navigation }) {
 
           </View>
 
-          <View style={styles.organize}>
+          <View style={styles.eventSeparator} />
 
-            <Text style={styles.organizeSmall}>
-              Organizá tu grupo
-            </Text>
+          <View style={styles.confirmedContainer}>
 
-            <Text style={styles.organizeTitle}>
-              Todo en un solo lugar
-            </Text>
+            <View style={styles.confirmedTop}>
+
+              <Ionicons
+                name="people"
+                size={15}
+                color="#FFFFFF"
+              />
+
+              <Text style={styles.confirmedText}>
+                {confirmados} de {participantes} confirmados
+              </Text>
+
+              {renderAvatars()}
+
+            </View>
+
+            <View style={styles.buttonsRow}>
+
+              <TouchableOpacity
+                activeOpacity={0.8}
+                onPress={handleVoy}
+                disabled={actionLoading}
+                style={[
+                  styles.goButton,
+                  myAttendance === 'voy' &&
+                  styles.goButtonSelected,
+                  actionLoading &&
+                  styles.disabled
+                ]}
+              >
+                <Text style={styles.goText}>
+                  Voy
+                </Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                activeOpacity={0.8}
+                onPress={handleNoVoy}
+                disabled={actionLoading}
+                style={[
+                  styles.noGoButton,
+                  myAttendance === 'no_voy' &&
+                  styles.noGoButtonSelected,
+                  actionLoading &&
+                  styles.disabled
+                ]}
+              >
+                <Text style={styles.noGoText}>
+                  No voy
+                </Text>
+              </TouchableOpacity>
+
+            </View>
 
           </View>
 
+        </View>
 
-          <ActionCard
-            backgroundColor="#316D61"
-            icon="calendar-outline"
-            title="Fecha y hora"
-            subtitle="Si te arrepentís de tu voto podes volver a votar"
-            onPress={() => {
-              if (survey?.activa) {
-                navigation.navigate(
-                  'VotacionJuntada',
-                  {
-                    idEvento: event.id
-                  }
-                )
-              }
-            }}
-          />
+        <View style={styles.organize}>
 
-          <ActionCard
-            backgroundColor="#571674"
-            icon="cash-outline"
-            title="División de Gastos"
-            subtitle="Divide los gastos del grupo"
-            onPress={() => { }}
-          />
+          <Text style={styles.organizeSmall}>
+            Organizá tu grupo
+          </Text>
 
-          <ActionCard
-            backgroundColor="#3D2154"
-            icon="images-outline"
-            title="Galería"
-            subtitle="Ve las fotos super que sacaste"
-            onPress={() => { }}
-          />
+          <Text style={styles.organizeTitle}>
+            Todo en un solo lugar
+          </Text>
 
-        </ScrollView>
+        </View>
 
 
-      </View>
-    </SafeAreaView>
+        <ActionCard
+          backgroundColor="#316D61"
+          icon="calendar-outline"
+          title="Fecha y hora"
+          subtitle="Si te arrepentís de tu voto podes volver a votar"
+          onPress={() => {
+            if (survey?.activa) {
+              navigation.navigate(
+                'VotacionJuntada',
+                {
+                  idEvento: event.id
+                }
+              )
+            }
+          }}
+        />
+
+        <ActionCard
+          backgroundColor="#571674"
+          icon="cash-outline"
+          title="División de Gastos"
+          subtitle="Divide los gastos del grupo"
+          onPress={() => { }}
+        />
+
+        <ActionCard
+          backgroundColor="#3D2154"
+          icon="images-outline"
+          title="Galería"
+          subtitle="Ve las fotos super que sacaste"
+          onPress={() => { }}
+        />
+
+      </ScrollView>
+
+
+    </SafeAreaView >
   )
 }
 

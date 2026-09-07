@@ -88,17 +88,18 @@ export default function Grupo({ navigation }) {
 
   return (
     <SafeAreaView style={styles.container}>
-      <View style={styles.content}>
-        <GroupHeader
-          group={group}
-          memberCount={memberCount}
-          onPress={() =>
-            navigation.navigate("InfoGrupo", {
-              idGrupo: group?.id,
-            })
-          }
-        />
 
+      <GroupHeader
+        group={group}
+        memberCount={memberCount}
+        onPress={() =>
+          navigation.navigate("InfoGrupo", {
+            idGrupo: group?.id,
+          })
+        }
+      />
+
+      <View style={styles.content}>
         {events.length > 0 ? (
           <FlatList
             horizontal
