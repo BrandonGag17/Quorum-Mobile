@@ -1,12 +1,19 @@
 import { StyleSheet, Text, TouchableOpacity } from 'react-native'
 
-function Button({ nombre, onPress, disabled = false }) {
+function Button({ nombre, onPress, disabled = false, backgroundColor }) {
     return (
         <TouchableOpacity
             onPress={onPress}
             disabled={disabled}
         >
-            <Text style={styles.botones}>{nombre}</Text>
+            <Text
+                style={[
+                    styles.botones,
+                    backgroundColor && { backgroundColor }
+                ]}
+            >
+                {nombre}
+            </Text>
         </TouchableOpacity>
     )
 }
@@ -23,6 +30,14 @@ const styles = StyleSheet.create({
         backgroundColor: '#5E2D82',
         borderRadius: 15,
         bottom: 60
+        shadowColor: "#000",
+        shadowOffset: {
+            width: 0,
+            height: 5,
+        },
+        shadowOpacity: 0.35,
+        shadowRadius: 5,
+        elevation: 6,
     }
 })
 

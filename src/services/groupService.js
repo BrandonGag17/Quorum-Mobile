@@ -1,5 +1,73 @@
 import supabase from './supabaseClient'
 
+export async function createGroup({ nombre, fotoPerfil = null, creatorId, miembros = [] }) {
+  if (!nombre?.trim() || !creatorId || !Array.isArray(miembros)) {
+    return { data: null, error: { message: 'Faltan datos válidos para crear el grupo.' } }
+  }
+
+  const integrantes = [...new Set([creatorId, ...miembros].filter(Boolean))]
+  let grupo
+
+  try {
+    const { data, error } = await supabase
+      .from('grupo')
+      .insert({
+        nombre: nombre.trim(),
+        foto_perfil: fotoPerfil,
+        id_creador: creatorId,
+      })
+      .select()
+      .single()
+
+    if (error) return { data: null, error }
+    grupo = data
+  } catch (error) {
+    return { data: null, error: { message: error?.message || 'No se pudo crear el grupo.' } }
+  }
+
+  let miembrosError
+  try {
+    const { error } = await supabase
+      .from('usuario_grupo')
+      .insert(integrantes.map(idUsuario => ({
+        id_grupo: grupo.id,
+        id_usuario: idUsuario,
+      })))
+    if (!error) return { data: grupo, error: null }
+    miembrosError = error
+  } catch (error) {
+    miembrosError = error
+  }
+
+  // Son dos solicitudes: intentamos retirar el grupo recién creado si falla
+  // la incorporación de integrantes, y avisamos si no se puede deshacer.
+  try {
+    const { data: eliminado, error: cleanupError } = await supabase
+      .from('grupo')
+      .delete()
+      .eq('id', grupo.id)
+      .eq('id_creador', creatorId)
+      .select('id')
+      .maybeSingle()
+
+    if (!cleanupError && eliminado) {
+      return {
+        data: null,
+        error: { message: `No se pudieron agregar los integrantes. ${miembrosError?.message || 'Intentá nuevamente.'}` },
+      }
+    }
+  } catch {
+    // El resultado parcial se informa abajo también si falla la conexión.
+  }
+
+  return {
+    data: grupo,
+    error: {
+      message: `El grupo se creó (ID: ${grupo.id}), pero no se pudo confirmar la incorporación de integrantes ni deshacer la creación. Revisá ese grupo antes de reintentar. ${miembrosError?.message || ''}`,
+    },
+  }
+}
+
 export async function getGroupById(groupId) {
   const { data, error } = await supabase
     .from('grupo')

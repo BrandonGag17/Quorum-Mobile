@@ -14,16 +14,24 @@ export function useSession() {
         setLoading(true)
         setError(null)
 
-        const { data, error: sessionError } = await getSession()
+        try {
+            const { data, error: sessionError } = await getSession()
 
-        if (sessionError) {
-            setError(sessionError.message)
-            setSession(null)
-        } else {
+            if (sessionError) {
+                setError(sessionError.message)
+                setSession(null)
+                return
+            }
+
             setSession(data?.session ?? null)
+        } catch (err) {
+            setError(
+                err?.message || 'No se pudo recuperar la sesión.'
+            )
+            setSession(null)
+        } finally {
+            setLoading(false)
         }
-
-        setLoading(false)
     }, [])
 
     useEffect(() => {
@@ -34,36 +42,55 @@ export function useSession() {
         setLoading(true)
         setError(null)
 
-        const { data, error: loginError } = await signInWithEmail(email, password)
+        try {
+            const { data, error: loginError } =
+                await signInWithEmail(email, password)
 
-        if (loginError) {
-            setError(loginError.message)
+            if (loginError) {
+                setError(loginError.message)
+                return { success: false, error: loginError.message }
+            }
+
+            setSession(data?.session ?? null)
+            return { success: true, session: data?.session }
+        } catch (err) {
+            const message =
+                err?.message || 'No se pudo iniciar sesión. Intentá nuevamente.'
+
+            setError(message)
+            return { success: false, error: message }
+        } finally {
             setLoading(false)
-            return { success: false, error: loginError.message }
         }
-
-        setSession(data?.session ?? null)
-        setLoading(false)
-        return { success: true, session: data?.session }
     }, [])
 
     const logout = useCallback(async () => {
         setLoading(true)
         setError(null)
 
-        const { error: logoutError } = await signOut()
+        try {
+            const { error: logoutError } = await signOut()
 
-        if (logoutError) {
-            setError(logoutError.message)
+            if (logoutError) {
+                setError(logoutError.message)
+                return { success: false, error: logoutError.message }
+            }
+
+            setSession(null)
+            return { success: true }
+        } catch (err) {
+            const message =
+                err?.message || 'No se pudo cerrar sesión. Intentá nuevamente.'
+
+            setError(message)
+            return { success: false, error: message }
+        } finally {
             setLoading(false)
-            return { success: false, error: logoutError.message }
         }
-
-        setSession(null)
-        setLoading(false)
-        return { success: true }
     }, [])
-
+    const clearError = useCallback(() => {
+        setError(null)
+    }, [])
     return {
         session,
         loading,
@@ -71,5 +98,6 @@ export function useSession() {
         login,
         logout,
         refreshSession,
+        clearError,
     }
 }

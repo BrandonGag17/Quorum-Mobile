@@ -103,9 +103,7 @@ const styles = StyleSheet.create({
     height: 100,
     borderRadius: 55,
     marginBottom: 12,
-    borderRadius: 60,
-    borderWidth: 3,
-    borderColor: "#5E2D82",
+    borderRadius: 25,
   },
   username: {
     color: "white",
@@ -120,11 +118,20 @@ const styles = StyleSheet.create({
   },
   botonCerrar: {
     backgroundColor: "#d30909",
-    borderWidth: 2,
+    borderWidth: 1.5,
+    borderColor: "#a00a0a",
     borderRadius: 15,
     paddingVertical: 12,
     marginBottom: 20,
     alignItems: "center",
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 5,
+    },
+    shadowOpacity: 0.35,
+    shadowRadius: 5,
+    elevation: 6,
   },
   botonCerrarDisabled: {
     opacity: 0.7,
