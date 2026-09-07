@@ -243,7 +243,6 @@ function InfoGrupo() {
         onRequestClose={() => setMostrarPopupMiembro(false)}
       >
         <View style={styles.popupMiembroOverlay}>
-          {/* Permite cerrar tocando fuera */}
           <TouchableOpacity
             style={styles.popupZonaCerrar}
             activeOpacity={1}
