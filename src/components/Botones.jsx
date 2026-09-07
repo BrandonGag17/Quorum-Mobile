@@ -23,12 +23,13 @@ const styles = StyleSheet.create({
         fontFamily: 'CashMarket',
         textAlign: 'center',
         color: 'white',
-        fontSize: 17,
+        fontSize: 19,
         padding: 10,
         marginTop: 10,
         marginBottom: 10,
         backgroundColor: '#5E2D82',
         borderRadius: 15,
+        bottom: 60
         shadowColor: "#000",
         shadowOffset: {
             width: 0,

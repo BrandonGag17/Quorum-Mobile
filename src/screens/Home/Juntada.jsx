@@ -8,13 +8,13 @@ import {
   TouchableOpacity,
   Image
 } from 'react-native'
-import Ionicons from '@expo/vector-icons/Ionicons'
-import FontAwesome6 from '@expo/vector-icons/FontAwesome6'
 
-import GroupHeader from '../../components/GroupHeader'
+import Ionicons from '@expo/vector-icons/Ionicons'
+
 import Loading from '../../components/Loading'
 import ErrorMessage from '../../components/MensajeError'
 import { useJuntadaDetail } from '../../hooks/useJuntadaDetail'
+import GroupHeader from "../../components/GroupHeader";
 
 export default function Juntada({ route, navigation }) {
   const eventId = route?.params?.idEvento
@@ -30,9 +30,7 @@ export default function Juntada({ route, navigation }) {
     actionLoading,
     error,
     timeRemaining,
-    isCreator,
-    changeAttendance,
-    finalizeSurvey
+    changeAttendance
   } = useJuntadaDetail(eventId)
 
   if (loading) {
@@ -42,7 +40,7 @@ export default function Juntada({ route, navigation }) {
   if (error) {
     return (
       <SafeAreaView style={styles.container}>
-        <View style={styles.content}>
+        <View style={styles.errorContainer}>
           <ErrorMessage mensaje={error} />
         </View>
       </SafeAreaView>
@@ -52,434 +50,653 @@ export default function Juntada({ route, navigation }) {
   if (!event) {
     return (
       <SafeAreaView style={styles.container}>
-        <View style={styles.content}>
-          <Text style={styles.title}>Juntada no disponible</Text>
+        <View style={styles.errorContainer}>
+          <Text style={styles.errorTitle}>
+            Juntada no disponible
+          </Text>
         </View>
       </SafeAreaView>
     )
   }
 
-  const fechaInicio = event.fecha_hora_inicio ? new Date(event.fecha_hora_inicio) : null
 
-  const fechaTexto = fechaInicio
-    ? fechaInicio.toLocaleDateString('es-AR', {
-      weekday: 'long',
-      day: 'numeric',
-      month: 'long'
-    })
-    : 'Fecha pendiente'
+  const fecha = event.fecha_hora_inicio
+    ? new Date(event.fecha_hora_inicio)
+    : null
 
-  const horaTexto = fechaInicio
-    ? fechaInicio.toLocaleTimeString('es-AR', {
+  const dia = fecha
+    ? fecha.getDate()
+    : 30
+
+  const mes = fecha
+    ? fecha
+      .toLocaleDateString('es-AR', {
+        month: 'short'
+      })
+      .replace('.', '')
+      .toLowerCase()
+    : 'abr'
+
+  const anio = fecha
+    ? fecha.getFullYear()
+    : 2026
+
+  const hora = fecha
+    ? fecha.toLocaleTimeString('es-AR', {
       hour: '2-digit',
       minute: '2-digit'
     })
-    : 'Hora pendiente'
+    : '19:00'
 
-  const renderAsistencia = () => (
-    <View style={styles.attendanceCard}>
-      <Text style={styles.sectionTitle}>Tu respuesta</Text>
+  const nombreEvento =
+    event.nombre || 'Feria del libro'
 
-      <View style={styles.buttonsRow}>
-        <TouchableOpacity
-          style={[
-            styles.buttonYes,
-            myAttendance === 'voy' && styles.buttonSelected,
-            actionLoading && styles.buttonDisabled
-          ]}
-          onPress={() => changeAttendance('voy')}
-          disabled={actionLoading}
-        >
-          <Ionicons name="checkmark" size={18} color="#111111" />
-          <Text style={styles.buttonYesText}>
-            {myAttendance === 'voy' ? '✓ Voy' : 'Voy'}
-          </Text>
-        </TouchableOpacity>
+  const lugar =
+    event.lugar || 'La Rural'
 
-        <TouchableOpacity
-          style={[
-            styles.buttonNo,
-            myAttendance === 'no_voy' && styles.buttonSelected,
-            actionLoading && styles.buttonDisabled
-          ]}
-          onPress={() => changeAttendance('no_voy')}
-          disabled={actionLoading}
-        >
-          <Ionicons name="close" size={18} color="#FFFFFF" />
-          <Text style={styles.buttonNoText}>
-            {myAttendance === 'no_voy' ? '✕ No voy' : 'No voy'}
-          </Text>
-        </TouchableOpacity>
+  const nombreGrupo =
+    event.grupo?.nombre ||
+    event.grupo?.nombre_grupo ||
+    'Grupo'
+
+  const participantes =
+    memberCount || 6
+
+  const confirmados =
+    goingCount || 4
+
+  const inicial =
+    nombreGrupo.charAt(0).toUpperCase()
+
+
+  const renderAvatars = () => {
+    const usuarios =
+      Array.isArray(goingUsers)
+        ? goingUsers
+        : []
+
+    if (usuarios.length === 0) {
+      return (
+        <View style={styles.fakeAvatars}>
+          <View
+            style={[
+              styles.miniAvatar,
+              { backgroundColor: '#00B9FF' }
+            ]}
+          />
+
+          <View
+            style={[
+              styles.miniAvatar,
+              styles.avatarOverlap,
+              { backgroundColor: '#F0D000' }
+            ]}
+          />
+
+          <View
+            style={[
+              styles.miniAvatar,
+              styles.avatarOverlap,
+              { backgroundColor: '#EF3340' }
+            ]}
+          />
+        </View>
+      )
+    }
+
+    return (
+      <View style={styles.fakeAvatars}>
+        {usuarios.slice(0, 4).map((usuario, index) => {
+          const foto =
+            usuario?.usuario?.foto_perfil
+
+          if (foto) {
+            return (
+              <Image
+                key={usuario.id_usuario || index}
+                source={{ uri: foto }}
+                style={[
+                  styles.miniAvatar,
+                  index > 0 && styles.avatarOverlap
+                ]}
+              />
+            )
+          }
+
+          return (
+            <View
+              key={usuario.id_usuario || index}
+              style={[
+                styles.miniAvatar,
+                styles.avatarFallback,
+                index > 0 && styles.avatarOverlap
+              ]}
+            >
+              <Ionicons
+                name="person"
+                size={10}
+                color="#111111"
+              />
+            </View>
+          )
+        })}
       </View>
-    </View>
-  )
+    )
+  }
+
+  const handleVoy = () => {
+    if (!actionLoading) {
+      changeAttendance('voy')
+    }
+  }
+
+  const handleNoVoy = () => {
+    if (!actionLoading) {
+      changeAttendance('no_voy')
+    }
+  }
+
+  const ActionCard = ({
+    backgroundColor,
+    icon,
+    title,
+    subtitle,
+    onPress
+  }) => {
+    return (
+      <TouchableOpacity
+        activeOpacity={0.85}
+        onPress={onPress}
+        style={[
+          styles.actionCard,
+          {
+            backgroundColor
+          }
+        ]}
+      >
+        <View style={styles.actionIcon}>
+          <Ionicons
+            name={icon}
+            size={31}
+            color="#FFFFFF"
+          />
+        </View>
+
+        <View style={styles.actionContent}>
+          <Text style={styles.actionTitle}>
+            {title}
+          </Text>
+
+          <Text style={styles.actionSubtitle}>
+            {subtitle}
+          </Text>
+        </View>
+      </TouchableOpacity>
+    )
+  }
 
   return (
     <SafeAreaView style={styles.container}>
-      <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
-        <GroupHeader
-          group={event.grupo}
-          memberCount={memberCount}
-          onPress={() => navigation.navigate('InfoGrupo', { idGrupo: event.id_grupo })}
-          avatarSize={52}
-          compact
-        />
-
-        <View style={styles.heroCard}>
-          <View style={styles.heroTopRow}>
-            <Text style={styles.title}>{event.nombre}</Text>
-            <View style={styles.badge}>
-              <Text style={styles.badgeText}>
-                {event.estado === 'confirmado' ? 'Confirmada' : 'En planificación'}
-              </Text>
-            </View>
-          </View>
-
-          {event.descripcion ? (
-            <Text style={styles.subtitle}>{event.descripcion}</Text>
-          ) : null}
-
-          {event.estado === 'confirmado' ? (
-            <View style={styles.infoGrid}>
-              <View style={styles.infoBlock}>
-                <FontAwesome6 name="calendar-day" size={14} color="#57C7A3" />
-                <Text style={styles.infoLabel}>Fecha</Text>
-                <Text style={styles.infoValue}>{fechaTexto}</Text>
-              </View>
-
-              <View style={styles.infoBlock}>
-                <Ionicons name="time" size={16} color="#57C7A3" />
-                <Text style={styles.infoLabel}>Hora</Text>
-                <Text style={styles.infoValue}>{horaTexto}</Text>
-              </View>
-
-              <View style={styles.infoBlockWide}>
-                <FontAwesome6 name="location-dot" size={14} color="#57C7A3" />
-                <Text style={styles.infoLabel}>Lugar</Text>
-                <Text style={styles.infoValue}>{event.lugar || 'Lugar pendiente'}</Text>
-              </View>
-            </View>
-          ) : (
-            <View style={styles.planCard}>
-              <Text style={styles.planLabel}>Votación activa</Text>
-              <Text style={styles.planValue}>{timeRemaining || 'Calculando...'}</Text>
-
-              {survey?.activa ? (
-                <TouchableOpacity
-                  style={styles.voteButton}
-                  onPress={() => navigation.navigate('VotacionJuntada', { idEvento: event.id })}
-                >
-                  <Text style={styles.voteButtonText}>Ir a votar</Text>
-                </TouchableOpacity>
-              ) : null}
-            </View>
-          )}
-        </View>
-
-        <View style={styles.summaryCard}>
-          <View style={styles.summaryHeader}>
-            <Text style={styles.sectionTitle}>Participación</Text>
-            <Text style={styles.summaryCount}>{goingCount}/{memberCount}</Text>
-          </View>
-
-          <View style={styles.avatarRow}>
-            {goingUsers.slice(0, 5).map((usuario, index) => {
-              const avatarUri = usuario?.usuario?.foto_perfil
-
-              return avatarUri ? (
-                <Image
-                  key={usuario.id_usuario}
-                  source={{ uri: avatarUri }}
-                  style={[styles.avatar, { marginLeft: index === 0 ? 0 : -8 }]}
-                />
-              ) : (
-                <View key={usuario.id_usuario} style={[styles.avatarFallback, { marginLeft: index === 0 ? 0 : -8 }]}>
-                  <FontAwesome6 name="user" size={12} color="#E8E8E8" />
-                </View>
-              )
-            })}
-
-            {goingCount > 5 ? (
-              <View style={styles.moreBadge}>
-                <Text style={styles.moreBadgeText}>+{goingCount - 5}</Text>
-              </View>
-            ) : null}
-          </View>
-        </View>
-
-        {renderAsistencia()}
-
-        {survey?.activa ? (
-          <View style={styles.surveyCard}>
-            <Text style={styles.sectionTitle}>Votación</Text>
-            <Text style={styles.surveyText}>
-              {survey.pregunta || 'La votación sigue abierta.'}
-            </Text>
-            <Text style={styles.surveyTimer}>{timeRemaining || 'Calculando...'}</Text>
-
-            {isCreator ? (
-              <TouchableOpacity style={styles.finalizeButton} onPress={finalizeSurvey} disabled={actionLoading}>
-                <Text style={styles.finalizeButtonText}>Finalizar votación</Text>
-              </TouchableOpacity>
-            ) : null}
-          </View>
-        ) : null}
-
-        <TouchableOpacity
-          style={styles.voteButton}
-          onPress={() => navigation.navigate('DivisionGastos', { idEvento: event.id })}
+      <View style={styles.screen}>
+        <ScrollView
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={styles.scrollContent}
         >
-          <Text style={styles.voteButtonText}>Division de gastos</Text>
-        </TouchableOpacity>
-      </ScrollView>
+          <View style={styles.headerContainer}>
+            <GroupHeader
+              group={event.grupo}
+              memberCount={memberCount}
+              onPress={() =>
+                navigation.navigate("InfoGrupo", {
+                  idGrupo: event.grupo?.id,
+                })
+              }
+            />
+          </View>
+          <View style={styles.nextRow}>
+
+            <Text style={styles.nextText}>
+              Próximo encuentro
+            </Text>
+
+            <Text style={styles.daysText}>
+              {timeRemaining || 'En 12 Días'}
+            </Text>
+
+          </View>
+
+          <View style={styles.eventCard}>
+
+            <View style={styles.eventMain}>
+
+              <View style={styles.dateBox}>
+
+                <Text style={styles.dateMonth}>
+                  {mes}
+                </Text>
+
+                <Text style={styles.dateDay}>
+                  {dia}
+                </Text>
+
+                <Text style={styles.dateYear}>
+                  {anio}
+                </Text>
+
+              </View>
+
+              <View style={styles.eventInfo}>
+
+                <Text
+                  style={styles.eventName}
+                  numberOfLines={2}
+                >
+                  {nombreEvento}
+                </Text>
+
+                <View style={styles.detailRow}>
+
+                  <Ionicons
+                    name="time-outline"
+                    size={15}
+                    color="#FFFFFF"
+                  />
+
+                  <Text style={styles.detailText}>
+                    {hora}
+                  </Text>
+
+                </View>
+
+                <View style={styles.detailRow}>
+
+                  <Ionicons
+                    name="location-outline"
+                    size={16}
+                    color="#FFFFFF"
+                  />
+
+                  <Text
+                    style={styles.detailText}
+                    numberOfLines={1}
+                  >
+                    {lugar}
+                  </Text>
+
+                </View>
+
+              </View>
+
+            </View>
+
+            <View style={styles.eventSeparator} />
+
+            <View style={styles.confirmedContainer}>
+
+              <View style={styles.confirmedTop}>
+
+                <Ionicons
+                  name="people"
+                  size={15}
+                  color="#FFFFFF"
+                />
+
+                <Text style={styles.confirmedText}>
+                  {confirmados} de {participantes} confirmados
+                </Text>
+
+                {renderAvatars()}
+
+              </View>
+
+              <View style={styles.buttonsRow}>
+
+                <TouchableOpacity
+                  activeOpacity={0.8}
+                  onPress={handleVoy}
+                  disabled={actionLoading}
+                  style={[
+                    styles.goButton,
+                    myAttendance === 'voy' &&
+                    styles.goButtonSelected,
+                    actionLoading &&
+                    styles.disabled
+                  ]}
+                >
+                  <Text style={styles.goText}>
+                    Voy
+                  </Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  activeOpacity={0.8}
+                  onPress={handleNoVoy}
+                  disabled={actionLoading}
+                  style={[
+                    styles.noGoButton,
+                    myAttendance === 'no_voy' &&
+                    styles.noGoButtonSelected,
+                    actionLoading &&
+                    styles.disabled
+                  ]}
+                >
+                  <Text style={styles.noGoText}>
+                    No voy
+                  </Text>
+                </TouchableOpacity>
+
+              </View>
+
+            </View>
+
+          </View>
+
+          <View style={styles.organize}>
+
+            <Text style={styles.organizeSmall}>
+              Organizá tu grupo
+            </Text>
+
+            <Text style={styles.organizeTitle}>
+              Todo en un solo lugar
+            </Text>
+
+          </View>
+
+
+          <ActionCard
+            backgroundColor="#316D61"
+            icon="calendar-outline"
+            title="Fecha y hora"
+            subtitle="Si te arrepentís de tu voto podes volver a votar"
+            onPress={() => {
+              if (survey?.activa) {
+                navigation.navigate(
+                  'VotacionJuntada',
+                  {
+                    idEvento: event.id
+                  }
+                )
+              }
+            }}
+          />
+
+          <ActionCard
+            backgroundColor="#571674"
+            icon="cash-outline"
+            title="División de Gastos"
+            subtitle="Divide los gastos del grupo"
+            onPress={() => { }}
+          />
+
+          <ActionCard
+            backgroundColor="#3D2154"
+            icon="images-outline"
+            title="Galería"
+            subtitle="Ve las fotos super que sacaste"
+            onPress={() => { }}
+          />
+
+        </ScrollView>
+
+
+      </View>
     </SafeAreaView>
   )
 }
 
 const styles = StyleSheet.create({
+
   container: {
     flex: 1,
     backgroundColor: '#15151C'
   },
-  scrollContent: {
-    padding: 20,
-    paddingBottom: 110,
-  },
-  title: {
-    color: '#FFFFFF',
-    fontSize: 24,
-    fontFamily: 'CashMarket',
+
+  screen: {
     flex: 1,
-    marginRight: 12
+    backgroundColor: '#15151C'
   },
-  subtitle: {
-    color: '#B8B8C5',
-    fontSize: 14,
-    fontFamily: 'Utendo',
-    marginBottom: 18,
-    lineHeight: 20
+
+  scrollContent: {
+    paddingTop: 4,
+    paddingBottom: 100
   },
-  heroCard: {
-    backgroundColor: '#23232D',
-    borderRadius: 22,
-    padding: 18,
-    borderWidth: 1,
-    borderColor: '#3D2E6B',
-    marginBottom: 14
+
+  nextRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 35,
+    paddingTop: 17,
+    paddingBottom: 8
   },
-  heroTopRow: {
+
+  nextText: {
+    color: '#9999A5',
+    fontSize: 13,
+    fontFamily: 'Utendo'
+  },
+
+  daysText: {
+    color: '#57C7A3',
+    fontSize: 11,
+    fontFamily: 'CashMarket'
+  },
+
+  eventCard: {
+    backgroundColor: '#22222D',
+    borderRadius: 17,
+    marginHorizontal: 27,
+    overflow: 'hidden',
+    marginBottom: 31
+  },
+
+  eventMain: {
+    flexDirection: 'row',
+    paddingTop: 9,
+    paddingLeft: 10,
+    paddingRight: 12,
+    paddingBottom: 7
+  },
+
+  dateBox: {
+    width: 64,
+    height: 59,
+    backgroundColor: '#57C7A3',
+    borderRadius: 16,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 12,
+    alignSelf: 'center'
+  },
+
+  dateMonth: {
+    color: '#111111',
+    fontSize: 11,
+    fontFamily: 'CashMarket'
+  },
+
+  dateDay: {
+    color: '#111111',
+    fontSize: 28,
+    lineHeight: 29,
+    fontFamily: 'CashMarket'
+  },
+
+  dateYear: {
+    color: '#111111',
+    fontSize: 11,
+    fontFamily: 'CashMarket'
+  },
+
+  eventInfo: {
+    flex: 1,
+    justifyContent: 'center'
+  },
+
+  eventName: {
+    color: '#FFFFFF',
+    fontSize: 17,
+    lineHeight: 19,
+    fontFamily: 'CashMarket',
+    marginBottom: 7
+  },
+
+  detailRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 10
+    marginTop: 5
   },
-  badge: {
-    backgroundColor: '#57C7A3',
-    paddingHorizontal: 10,
-    paddingVertical: 6,
-    borderRadius: 999
-  },
-  badgeText: {
-    color: '#111111',
-    fontFamily: 'Utendo',
-    fontSize: 11,
-    fontWeight: '700'
-  },
-  infoGrid: {
-    gap: 12
-  },
-  infoBlock: {
-    backgroundColor: '#1A1A24',
-    borderRadius: 16,
-    padding: 14,
-    borderWidth: 1,
-    borderColor: '#2E2942'
-  },
-  infoBlockWide: {
-    backgroundColor: '#1A1A24',
-    borderRadius: 16,
-    padding: 14,
-    borderWidth: 1,
-    borderColor: '#2E2942'
-  },
-  infoLabel: {
-    color: '#B8B8C5',
+
+  detailText: {
+    color: '#FFFFFF',
     fontSize: 12,
     fontFamily: 'Utendo',
-    marginTop: 6,
-    marginBottom: 4
+    marginLeft: 6
   },
-  infoValue: {
+
+  eventSeparator: {
+    height: 1,
+    backgroundColor: '#656570'
+  },
+
+  confirmedContainer: {
+    paddingHorizontal: 9,
+    paddingTop: 9,
+    paddingBottom: 7
+  },
+
+  confirmedTop: {
+    height: 23,
+    flexDirection: 'row',
+    alignItems: 'center'
+  },
+
+  confirmedText: {
+    color: '#FFFFFF',
+    fontSize: 11,
+    fontFamily: 'CashMarket',
+    marginLeft: 4
+  },
+
+  fakeAvatars: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginLeft: 7
+  },
+
+  miniAvatar: {
+    width: 18,
+    height: 18,
+    borderRadius: 9,
+  },
+
+  avatarFallback: {
+    backgroundColor: '#57C7A3',
+    justifyContent: 'center',
+    alignItems: 'center'
+  },
+
+  buttonsRow: {
+    flexDirection: 'row',
+    marginTop: 7
+  },
+
+  goButton: {
+    flex: 1,
+    height: 40,
+    borderRadius: 8,
+    borderWidth: 2,
+    borderColor: '#57C7A3',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 7
+  },
+
+  noGoButton: {
+    flex: 1,
+    height: 40,
+    borderRadius: 8,
+    borderWidth: 2,
+    borderColor: '#7225A4',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginLeft: 7
+  },
+
+  goButtonSelected: {
+    backgroundColor: '#57C7A3'
+  },
+
+  noGoButtonSelected: {
+    backgroundColor: '#7225A4'
+  },
+
+  goText: {
     color: '#FFFFFF',
     fontSize: 14,
     fontFamily: 'CashMarket'
   },
-  planCard: {
-    backgroundColor: '#1A1A24',
-    borderRadius: 16,
-    padding: 14,
-    borderWidth: 1,
-    borderColor: '#2E2942'
-  },
-  planLabel: {
-    color: '#57C7A3',
-    fontFamily: 'Utendo',
-    fontSize: 12,
-    marginBottom: 4
-  },
-  planValue: {
+
+  noGoText: {
     color: '#FFFFFF',
-    fontFamily: 'CashMarket',
-    fontSize: 16
+    fontSize: 14,
+    fontFamily: 'CashMarket'
   },
-  voteButton: {
-    marginTop: 12,
-    backgroundColor: '#57C7A3',
-    borderRadius: 12,
-    paddingVertical: 11,
-    alignItems: 'center'
+
+  disabled: {
+    opacity: 0.5
   },
-  voteButtonText: {
-    color: '#111111',
-    fontFamily: 'CashMarket',
-    fontSize: 14
+
+  organize: {
+    marginHorizontal: 28,
+    marginBottom: 13
   },
-  summaryCard: {
-    backgroundColor: '#1F1B2C',
-    borderRadius: 20,
-    padding: 18,
-    borderWidth: 1,
-    borderColor: '#3D2E6B',
-    marginBottom: 14
-  },
-  summaryHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 12
-  },
-  sectionTitle: {
-    color: '#FFFFFF',
-    fontFamily: 'CashMarket',
-    fontSize: 16
-  },
-  summaryCount: {
-    color: '#57C7A3',
-    fontFamily: 'CashMarket',
-    fontSize: 15
-  },
-  avatarRow: {
-    flexDirection: 'row',
-    alignItems: 'center'
-  },
-  avatar: {
-    width: 34,
-    height: 34,
-    borderRadius: 17,
-    borderWidth: 2,
-    borderColor: '#1F1B2C',
-    backgroundColor: '#3A3A3A'
-  },
-  avatarFallback: {
-    width: 34,
-    height: 34,
-    borderRadius: 17,
-    borderWidth: 2,
-    borderColor: '#1F1B2C',
-    backgroundColor: '#3A3A3A',
-    justifyContent: 'center',
-    alignItems: 'center'
-  },
-  moreBadge: {
-    marginLeft: 6,
-    backgroundColor: '#29243E',
-    borderRadius: 999,
-    paddingHorizontal: 10,
-    paddingVertical: 6
-  },
-  moreBadgeText: {
-    color: '#FFFFFF',
-    fontFamily: 'Utendo',
-    fontSize: 12
-  },
-  attendanceCard: {
-    backgroundColor: '#23232D',
-    borderRadius: 20,
-    padding: 18,
-    borderWidth: 1,
-    borderColor: '#3D2E6B',
-    marginBottom: 14
-  },
-  buttonsRow: {
-    flexDirection: 'row',
-    gap: 10,
-    marginTop: 12
-  },
-  buttonYes: {
-    flex: 1,
-    backgroundColor: '#57C7A3',
-    borderRadius: 14,
-    paddingVertical: 13,
-    justifyContent: 'center',
-    alignItems: 'center',
-    flexDirection: 'row',
-    gap: 8
-  },
-  buttonNo: {
-    flex: 1,
-    backgroundColor: '#D64545',
-    borderRadius: 14,
-    paddingVertical: 13,
-    justifyContent: 'center',
-    alignItems: 'center',
-    flexDirection: 'row',
-    gap: 8
-  },
-  buttonSelected: {
-    borderWidth: 2,
-    borderColor: '#FFFFFF'
-  },
-  buttonDisabled: {
-    opacity: 0.75
-  },
-  buttonYesText: {
-    color: '#111111',
-    fontFamily: 'CashMarket',
-    fontSize: 14
-  },
-  buttonNoText: {
-    color: '#FFFFFF',
-    fontFamily: 'CashMarket',
-    fontSize: 14
-  },
-  surveyCard: {
-    backgroundColor: '#1F1B2C',
-    borderRadius: 20,
-    padding: 18,
-    borderWidth: 1,
-    borderColor: '#3D2E6B'
-  },
-  surveyText: {
-    color: '#D0D0D0',
-    fontFamily: 'Utendo',
+
+  organizeSmall: {
+    color: '#9999A5',
     fontSize: 13,
-    marginTop: 8,
-    marginBottom: 8
+    fontFamily: 'Utendo',
+    marginBottom: 2
   },
-  surveyTimer: {
-    color: '#57C7A3',
-    fontFamily: 'CashMarket',
-    fontSize: 15,
-    marginBottom: 12
-  },
-  finalizeButton: {
-    backgroundColor: '#6C3E8E',
-    borderRadius: 14,
-    paddingVertical: 13,
-    alignItems: 'center'
-  },
-  finalizeButtonText: {
+
+  organizeTitle: {
     color: '#FFFFFF',
+    fontSize: 19,
+    fontFamily: 'CashMarket'
+  },
+
+  actionCard: {
+    height: 72,
+    borderRadius: 14,
+    marginHorizontal: 23,
+    marginBottom: 12,
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 12,
+  },
+
+  actionIcon: {
+    width: 40,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 8
+  },
+
+  actionContent: {
+    flex: 1
+  },
+
+  actionTitle: {
+    color: '#FFFFFF',
+    fontSize: 17,
     fontFamily: 'CashMarket',
-    fontSize: 14
+    marginBottom: 1
+  },
+
+  actionSubtitle: {
+    color: '#FFFFFF',
+    fontSize: 10,
+    fontFamily: 'Utendo'
   },
 })

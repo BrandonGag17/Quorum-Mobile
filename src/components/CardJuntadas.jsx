@@ -117,7 +117,7 @@ function CardJuntadas({ evento, navigation }) {
 const styles = StyleSheet.create({
     card: {
         width: 245,
-        height: 160,
+        height: 150,
         backgroundColor: '#4A216F',
         borderRadius: 18,
         borderWidth: 1,
@@ -158,16 +158,13 @@ const styles = StyleSheet.create({
     fechaBox: {
         width: 48,
         height: 48,
-
         backgroundColor: '#32184B',
-
         borderRadius: 12,
-
         alignItems: 'center',
         justifyContent: 'center',
-
         borderWidth: 1,
         borderColor: '#5E3280',
+        marginBottom: 7
     },
 
     dia: {
@@ -192,15 +189,13 @@ const styles = StyleSheet.create({
     horaRow: {
         flexDirection: 'row',
         alignItems: 'center',
-        marginBottom: 6
     },
 
     hora: {
         color: '#57C7A3',
-        fontSize: 10,
+        fontSize: 9,
         fontFamily: 'Utendo',
         marginLeft: 4,
-        marginBottom: 6
     },
 
     /*
@@ -251,14 +246,10 @@ const styles = StyleSheet.create({
      */
     nombre: {
         color: '#FFFFFF',
-
         fontSize: 20,
         lineHeight: 23,
-
         fontFamily: 'CashMarket',
-
         paddingRight: 5,
-
         marginBottom: 10,
     },
 })
