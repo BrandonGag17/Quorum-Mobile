@@ -1,7 +1,7 @@
 import { useEffect, useState, useCallback } from 'react'
 import {
   getGroupById,
-  getGroupMembers
+  getGroupMemberCount
 } from '../services/groupService'
 import {
   getConfirmedEventsByGroupId,
@@ -43,7 +43,7 @@ export function useGroupDetail(groupId) {
         proposalsRes
       ] = await Promise.all([
         getGroupById(groupId),
-        getGroupMembers(groupId),
+        getGroupMemberCount(groupId),
         getConfirmedEventsByGroupId(groupId),
         getPastEventsByGroupId(groupId),
         getProposalsByGroupId(groupId)
@@ -60,7 +60,7 @@ export function useGroupDetail(groupId) {
       if (countRes.error) {
         errors.push(countRes.error.message)
       } else {
-        setMemberCount((countRes.data ?? []).length)
+        setMemberCount(countRes.data ?? 0)
       }
 
       if (upcomingRes.error) {
