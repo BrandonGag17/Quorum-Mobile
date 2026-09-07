@@ -1,71 +1,66 @@
-import React from 'react'
-import { TouchableOpacity, View, Text, Image, StyleSheet } from 'react-native'
-import Ionicons from '@expo/vector-icons/Ionicons'
+import React from "react";
+import { View, Text, Image, TouchableOpacity, StyleSheet } from "react-native";
 
-export default function GroupHeader({ group, memberCount, onPress, avatarSize = 110, compact = false }) {
-  const avatarStyle = { width: avatarSize, height: avatarSize, borderRadius: avatarSize / 2 }
+export default function GroupHeader({
+  group,
+  memberCount,
+  onPress,
+}) {
   return (
     <TouchableOpacity
-      style={[styles.container, compact && styles.compact]}
+      style={styles.header}
       onPress={onPress}
       activeOpacity={onPress ? 0.75 : 1}
     >
-      <Image source={{ uri: group?.foto_perfil }} style={[styles.avatar, avatarStyle]} />
+      <Image
+        source={{ uri: group?.foto_perfil }}
+        style={styles.avatar}
+      />
 
-      <View style={styles.info}>
-        <Text style={[styles.name, compact && styles.nameCompact]} numberOfLines={1}>
-          {group?.nombre || ''}
+      <View style={styles.headerInfo}>
+        <Text style={styles.groupName} numberOfLines={1}>
+          {group?.nombre || group?.nombre_grupo || "Grupo"}
         </Text>
 
         {memberCount !== undefined && (
-          <Text style={[styles.count, compact && styles.countCompact]}>
+          <Text style={styles.memberCount}>
             {memberCount} miembros
           </Text>
         )}
       </View>
-
-      {onPress ? <Ionicons name="chevron-forward" size={22} color="#FFFFFF" style={styles.chevron} /> : null}
     </TouchableOpacity>
-  )
+  );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-    paddingVertical: 8,
-    marginBottom: 30
+  header: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 30,
+    padding: 10,
+    marginTop: 30
   },
-  compact: {
-    paddingVertical: 4,
-  },
+
   avatar: {
-    backgroundColor: '#3a3a3a',
+    width: 50,
+    height: 50,
+    borderRadius: 26,
   },
-  info: {
-    flex: 1,
-    justifyContent: 'center',
+
+  headerInfo: {
+    marginLeft: 14,
   },
-  name: {
-    color: 'white',
-    fontSize: 25,
-    fontFamily: 'CashMarket',
+
+  groupName: {
+    color: "#FFFFFF",
+    fontSize: 19,
+    fontFamily: "CashMarket",
   },
-  nameCompact: {
-    fontSize: 18,
-    marginBottom: 1
+
+  memberCount: {
+    color: "#9E9E9E",
+    fontSize: 12,
+    fontFamily: "Utendo",
+    marginTop: 3,
   },
-  count: {
-    color: '#B8B8B8',
-    fontSize: 14,
-    fontFamily: 'Utendo',
-    marginTop: 2,
-  },
-  countCompact: {
-    fontSize: 14,
-  },
-  chevron: {
-    marginLeft: 8,
-  },
-})
+});

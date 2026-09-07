@@ -31,6 +31,7 @@ function InfoGrupo() {
     error,
     addMemberByUsername,
     addMemberById,
+    removeMember,
     leaveGroup,
   } = useGroupInfo(idGrupo);
 
@@ -90,6 +91,19 @@ function InfoGrupo() {
     setMostrarModal(false);
   }
 
+  async function sacarMiembroSeleccionado() {
+    if (!miembroSeleccionado?.usuario?.id) {
+      return;
+    }
+
+    const res = await removeMember(miembroSeleccionado.usuario.id);
+
+    if (!res?.error) {
+      setMostrarPopupMiembro(false);
+      setMiembroSeleccionado(null);
+    }
+  }
+
   if (loading) {
     return (
       <SafeAreaView style={styles.loadingContainer}>
@@ -116,6 +130,8 @@ function InfoGrupo() {
           <Text style={styles.profileCount}>{memberCount} miembros</Text>
         </View>
 
+        {error ? <Text style={styles.error}>{error}</Text> : null}
+
         <View style={styles.sectionHeader}>
           <FontAwesome6 name="user-group" size={20} color="#FFFFFF" />
           <Text style={styles.sectionTitle}>Miembros</Text>
@@ -123,7 +139,8 @@ function InfoGrupo() {
 
         <FlatList
           data={members}
-          keyExtractor={(item) => item.id?.toString() || item.usuario?.id}
+          extraData={group?.id_creador}
+          keyExtractor={(item, index) => String(item.id ?? item.id_usuario ?? item.usuario?.id ?? index)}
           showsVerticalScrollIndicator={members.length > 4}
           scrollEnabled={members.length > 4}
           contentContainerStyle={styles.listaMiembros}
@@ -139,12 +156,18 @@ function InfoGrupo() {
               />
 
               <View style={styles.infoUsuario}>
-                <Text style={styles.nombreUsuario}>
-                  {item.usuario?.username}
-                </Text>
+                <View style={styles.filaNombre}>
+                  <Text style={styles.nombreUsuario}>
+                    {item.usuario?.username || 'Sin usuario'}
+                  </Text>
+                  {group?.id_creador &&
+                    (item.id_usuario ?? item.usuario?.id) === group.id_creador ? (
+                    <Text style={styles.etiquetaAdmin}>Admin</Text>
+                  ) : null}
+                </View>
 
                 <Text style={styles.username}>
-                  @{item.usuario?.username}
+                  {item.usuario?.username ? `@${item.usuario.username}` : 'Usuario no disponible'}
                 </Text>
               </View>
             </TouchableOpacity>
@@ -243,6 +266,7 @@ function InfoGrupo() {
         onRequestClose={() => setMostrarPopupMiembro(false)}
       >
         <View style={styles.popupMiembroOverlay}>
+          {/* Permite cerrar tocando fuera */}
           <TouchableOpacity
             style={styles.popupZonaCerrar}
             activeOpacity={1}
@@ -260,7 +284,7 @@ function InfoGrupo() {
                 />
 
                 <Text style={styles.popupNombre}>
-                  {miembroSeleccionado.usuario?.username}
+                  {miembroSeleccionado.usuario?.username || 'Sin usuario'}
                 </Text>
 
                 <Text style={styles.popupInfo}>
@@ -269,9 +293,7 @@ function InfoGrupo() {
 
                 <TouchableOpacity
                   style={styles.botonSalir}
-                  onPress={() => {
-                    setMostrarPopupMiembro(false);
-                  }}
+                  onPress={sacarMiembroSeleccionado}
                 >
                   <Text style={styles.textoBotonSalir}>Sacar del grupo</Text>
                 </TouchableOpacity>
@@ -349,9 +371,25 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   nombreUsuario: {
+    flexShrink: 1,
     color: "white",
     fontFamily: "CashMarket",
     fontSize: 16,
+  },
+  filaNombre: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+  },
+  etiquetaAdmin: {
+    color: "#15151C",
+    backgroundColor: "#57C7A3",
+    fontFamily: "Utendo",
+    fontSize: 12,
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 8,
+    overflow: "hidden",
   },
   username: {
     color: "#d5d5d5",
@@ -437,6 +475,7 @@ const styles = StyleSheet.create({
   modalTextoSalir: {
     color: "#B6B6B6",
     fontFamily: "Utendo",
+    marginBottom: 20,
   },
   cancelarBtn: {
     marginTop: 15,

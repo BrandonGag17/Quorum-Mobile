@@ -14,6 +14,7 @@ import Ionicons from '@expo/vector-icons/Ionicons'
 import Loading from '../../components/Loading'
 import ErrorMessage from '../../components/MensajeError'
 import { useJuntadaDetail } from '../../hooks/useJuntadaDetail'
+import GroupHeader from "../../components/GroupHeader";
 
 export default function Juntada({ route, navigation }) {
   const eventId = route?.params?.idEvento
@@ -69,11 +70,11 @@ export default function Juntada({ route, navigation }) {
 
   const mes = fecha
     ? fecha
-        .toLocaleDateString('es-AR', {
-          month: 'short'
-        })
-        .replace('.', '')
-        .toLowerCase()
+      .toLocaleDateString('es-AR', {
+        month: 'short'
+      })
+      .replace('.', '')
+      .toLowerCase()
     : 'abr'
 
   const anio = fecha
@@ -82,9 +83,9 @@ export default function Juntada({ route, navigation }) {
 
   const hora = fecha
     ? fecha.toLocaleTimeString('es-AR', {
-        hour: '2-digit',
-        minute: '2-digit'
-      })
+      hour: '2-digit',
+      minute: '2-digit'
+    })
     : '19:00'
 
   const nombreEvento =
@@ -237,12 +238,21 @@ export default function Juntada({ route, navigation }) {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.screen}>
-
         <ScrollView
           showsVerticalScrollIndicator={false}
           contentContainerStyle={styles.scrollContent}
         >
-
+          <View style={styles.headerContainer}>
+            <GroupHeader
+              group={event.grupo}
+              memberCount={memberCount}
+              onPress={() =>
+                navigation.navigate("InfoGrupo", {
+                  idGrupo: event.grupo?.id,
+                })
+              }
+            />
+          </View>
           <View style={styles.nextRow}>
 
             <Text style={styles.nextText}>
@@ -348,9 +358,9 @@ export default function Juntada({ route, navigation }) {
                   style={[
                     styles.goButton,
                     myAttendance === 'voy' &&
-                      styles.goButtonSelected,
+                    styles.goButtonSelected,
                     actionLoading &&
-                      styles.disabled
+                    styles.disabled
                   ]}
                 >
                   <Text style={styles.goText}>
@@ -365,9 +375,9 @@ export default function Juntada({ route, navigation }) {
                   style={[
                     styles.noGoButton,
                     myAttendance === 'no_voy' &&
-                      styles.noGoButtonSelected,
+                    styles.noGoButtonSelected,
                     actionLoading &&
-                      styles.disabled
+                    styles.disabled
                   ]}
                 >
                   <Text style={styles.noGoText}>
@@ -416,7 +426,7 @@ export default function Juntada({ route, navigation }) {
             icon="cash-outline"
             title="División de Gastos"
             subtitle="Divide los gastos del grupo"
-            onPress={() => {}}
+            onPress={() => { }}
           />
 
           <ActionCard
@@ -424,7 +434,7 @@ export default function Juntada({ route, navigation }) {
             icon="images-outline"
             title="Galería"
             subtitle="Ve las fotos super que sacaste"
-            onPress={() => {}}
+            onPress={() => { }}
           />
 
         </ScrollView>
@@ -450,53 +460,6 @@ const styles = StyleSheet.create({
   scrollContent: {
     paddingTop: 4,
     paddingBottom: 100
-  },
-
-  backButton: {
-    width: 32,
-    height: 45,
-    justifyContent: 'center',
-    alignItems: 'flex-start'
-  },
-
-  groupAvatar: {
-    width: 31,
-    height: 31,
-    borderRadius: 16,
-    backgroundColor: '#F28C18',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginLeft: 4,
-    marginRight: 8
-  },
-
-  groupLetter: {
-    color: '#FFFFFF',
-    fontSize: 14,
-    fontFamily: 'CashMarket'
-  },
-
-  groupTexts: {
-    justifyContent: 'center'
-  },
-
-  groupName: {
-    color: '#FFFFFF',
-    fontSize: 16,
-    fontFamily: 'CashMarket'
-  },
-
-  groupMembers: {
-    color: '#B4B4BE',
-    fontSize: 10,
-    fontFamily: 'Utendo',
-    marginTop: 1
-  },
-
-  separator: {
-    height: 1,
-    backgroundColor: '#696973',
-    marginHorizontal: 8
   },
 
   nextRow: {
@@ -633,7 +596,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center'
   },
-  
+
   buttonsRow: {
     flexDirection: 'row',
     marginTop: 7
