@@ -1,19 +1,15 @@
 import {
-  View,
-  Text,
-  StyleSheet,
-  TextInput,
-  TouchableOpacity,
-  Image,
+  View, Text, StyleSheet, TouchableOpacity, Image, KeyboardAvoidingView, ScrollView, Platform, Alert
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useSession } from "../../hooks/useSession";
-import React, { useState } from "react";
-
+import React, { useCallback } from "react";
+import { useFocusEffect } from "@react-navigation/native";
 import Button from "../../components/BotonesIntro";
 import Input from "../../components/Input";
 import ErrorMessage from "../../components/MensajeError";
 import { IconMailFilled, IconLockFilled } from "@tabler/icons-react-native";
+import { useForm, Controller } from "react-hook-form";
 
 function normalizeAuthError(message) {
   if (!message) return "";
@@ -29,96 +25,180 @@ function normalizeAuthError(message) {
 }
 
 export default function IniciarSesion({ navigation }) {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const { login, loading, error } = useSession();
+  const { login, loading, error, clearError } = useSession();
 
-  const handleLogin = async () => {
-    if (!email.trim() || !password.trim()) {
-      return;
-    }
+  const {
+    control,
+    handleSubmit,
+    reset,
+    formState: { errors, isSubmitting },
+  } = useForm({
+    defaultValues: {
+      email: "",
+      password: "",
+    },
+  });
 
-    const result = await login(email.trim(), password);
+  useFocusEffect(
+    useCallback(() => {
+      reset();
+      clearError();
+    }, [reset, clearError])
+  );
 
-    if (result.success) {
-      navigation.reset({
-        index: 0,
-        routes: [{ name: "Home" }],
-      });
-    }
+  const handleLogin = async ({ email, password }) => {
+    await login(email.trim(), password);
   };
 
   const displayError = error ? normalizeAuthError(error) : "";
 
-  const handleGoogle = async () => {
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider: "google",
-      options: { redirectTo: "http://localhost:5173/inicio" },
-    });
-    if (error) setMensaje("Error: " + error.message);
+  const handleGoogle = () => {
+    Alert.alert(
+      "Inicio con Google",
+      "Google todavía no está configurado en este flujo."
+    );
   };
 
   return (
     <SafeAreaView style={styles.fondo}>
-      <Text style={styles.titulo}>Iniciar sesión</Text>
+      <KeyboardAvoidingView
+        style={{ flex: 1 }}
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+      >
+        <ScrollView
+          contentContainerStyle={styles.contenido}
+          keyboardShouldPersistTaps="handled"
+        >
+          <Text style={styles.titulo}>Iniciar sesión</Text>
 
-      <Input
-        label="Email:"
-        placeholder="tu@gmail.com"
-        value={email}
-        onChangeText={setEmail}
-        keyboardType="email-address"
-        autoCapitalize="none"
-        autoComplete="email"
-        textContentType="emailAddress"
-        autoCorrect={false}
-        Icon={IconMailFilled}
-      />
+          <Controller
+            control={control}
+            name="email"
+            rules={{
+              required: "El email es obligatorio",
+              pattern: {
+                value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+                message: "Ingresá un email válido",
+              },
+            }}
+            render={({ field: { onChange, onBlur, value } }) => (
+              <Input
+                label="Email:"
+                placeholder="tu@gmail.com"
+                value={value}
+                onChangeText={(texto) => {
+                  onChange(texto);
+                  clearError();
+                }}
+                onBlur={onBlur}
+                keyboardType="email-address"
+                autoCapitalize="none"
+                autoComplete="email"
+                textContentType="emailAddress"
+                autoCorrect={false}
+                Icon={IconMailFilled}
+              />
+            )}
+          />
 
-      <Input
-        label="Contraseña:"
-        placeholder="********"
-        value={password}
-        onChangeText={setPassword}
-        secureTextEntry
-        autoComplete="password"
-        textContentType="password"
-        Icon={IconLockFilled}
-      />
-      <Text style={styles.olvido}>¿Olvidaste tu contraseña?</Text>
+          {errors.email && (
+            <ErrorMessage mensaje={errors.email.message} />
+          )}
 
-      {displayError ? (
-        <ErrorMessage mensaje={displayError} />
-      ) : null}
+          <Controller
+            control={control}
+            name="password"
+            rules={{
+              required: "La contraseña es obligatoria",
+            }}
+            render={({ field: { onChange, onBlur, value } }) => (
+              <Input
+                label="Contraseña:"
+                placeholder="********"
+                value={value}
+                onChangeText={(texto) => {
+                  onChange(texto);
+                  clearError();
+                }}
+                onBlur={onBlur}
+                secureTextEntry
+                autoCapitalize="none"
+                autoCorrect={false}
+                autoComplete="password"
+                textContentType="password"
+                Icon={IconLockFilled}
+              />
+            )}
+          />
 
-      <Button
-        nombre={loading ? "Cargando..." : "Iniciar sesión"}
-        onPress={handleLogin}
-        disabled={loading || !email || !password}
-      />
+          {errors.password && (
+            <ErrorMessage mensaje={errors.password.message} />
+          )}
+          <Text style={styles.olvido}>¿Olvidaste tu contraseña?</Text>
 
-      <View style={styles.separador}>
-        <View style={styles.linea} />
-        <Text style={styles.textoSeparador}>o</Text>
-        <View style={styles.linea} />
-      </View>
+          {displayError ? (
+            <ErrorMessage mensaje={displayError} />
+          ) : null}
 
-      <TouchableOpacity style={styles.botonGoogle} onPress={handleGoogle}>
-        <Image
-          source={require("../../../assets/img/Iconos/Google.png")}
-          style={styles.googleLogo}
-          resizeMode="contain"
-        />
-        <Text style={styles.textoGoogle}>Continuar con Google</Text>
-      </TouchableOpacity>
+          <Button
+            nombre={loading || isSubmitting ? "Cargando..." : "Iniciar sesión"}
+            onPress={handleSubmit(handleLogin)}
+            disabled={loading || isSubmitting}
+          />
+          <View style={styles.separador}>
+            <View style={styles.linea} />
+            <Text style={styles.textoSeparador}>o</Text>
+            <View style={styles.linea} />
+          </View>
+
+          <TouchableOpacity style={styles.botonGoogle} onPress={handleGoogle}>
+            <Image
+              source={require("../../../assets/img/Iconos/Google.png")}
+              style={styles.googleLogo}
+              resizeMode="contain"
+            />
+            <Text style={styles.textoGoogle}>Continuar con Google</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.botonCuenta}
+            onPress={() => navigation.replace("Registrarse1")}
+            disabled={loading || isSubmitting}
+            accessibilityRole="button"
+          >
+            <Text style={styles.textoCuenta}>
+              ¿Todavía no tienes una cuenta?{" "}
+              <Text style={styles.enlaceCuenta}>¡Regístrate!</Text>
+            </Text>
+          </TouchableOpacity>
+        </ScrollView>
+      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
+  botonCuenta: {
+    minHeight: 48,
+    marginTop: 16,
+    paddingVertical: 12,
+    justifyContent: "center",
+  },
+  textoCuenta: {
+    fontFamily: "Utendo",
+    fontSize: 16,
+    color: "#FFFFFF",
+    textAlign: "center",
+  },
+  enlaceCuenta: {
+    color: "#A846E9",
+    textDecorationLine: "underline",
+  },
   fondo: {
     flex: 1,
     backgroundColor: "#15151C",
+  },
+  contenido: {
+    flexGrow: 1,
     padding: 25,
     justifyContent: "center",
   },
