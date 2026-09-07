@@ -14,15 +14,22 @@ export default function AuthStack() {
   return (
     <Stack.Navigator
       initialRouteName="Introduccion"
-      screenOptions={{ headerShown: false }}
+      screenOptions={{
+        headerShown: true,
+        headerTitle: '',
+        headerTintColor: '#FFFFFF',
+        headerStyle: { backgroundColor: '#15151C' },
+        headerShadowVisible: false,
+        headerBackButtonDisplayMode: 'minimal',
+      }}
     >
-      <Stack.Screen name="Introduccion" component={Introduccion} />
+      <Stack.Screen name="Introduccion" component={Introduccion} options={{ headerShown: false }} />
       <Stack.Screen name="IniciarSesion" component={IniciarSesion} />
       <Stack.Screen name="Registrarse1" component={Registrarse1} />
       <Stack.Screen name="Registrarse2" component={Registrarse2} />
       <Stack.Screen name="Registrarse3" component={Registrarse3} />
       <Stack.Screen name="Registrarse4" component={Registrarse4} />
-      <Stack.Screen name="Exito" component={Exito} />
+      <Stack.Screen name="Exito" component={Exito} options={{ headerShown: false }} />
     </Stack.Navigator>
   )
 }
