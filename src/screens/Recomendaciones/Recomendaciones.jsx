@@ -16,10 +16,15 @@ import useRecommendations from '../../hooks/useRecommendations'
 import Loading from '../../components/Loading'
 import ErrorMessage from '../../components/MensajeError'
 import InfoRecomendaciones from './InfoRecomendaciones'
+import SeccionesRecomendaciones from '../../components/SeccionesRecomendaciones'
+import PresentacionQBot from './PresentacionQBot'
 
 export default function Recomendaciones() {
   const navigation = useNavigation()
   const [lugarSeleccionado, setLugarSeleccionado] = useState(null)
+  const [seccion, setSeccion] = useState('lugares')
+  // Vive en la pantalla para conservarlo cuando se desmonta la solapa Q-Bot.
+  const [mensajeQBot, setMensajeQBot] = useState('')
 
   const {
     lugaresFiltrados,
@@ -57,12 +62,26 @@ export default function Recomendaciones() {
     )
   }
 
-  if (loading) {
-    return <Loading />
-  }
-
   return (
     <SafeAreaView style={styles.fondo}>
+      <SeccionesRecomendaciones seleccionada={seccion} onChange={setSeccion} />
+
+      {seccion === 'qbot' ? (
+        <PresentacionQBot mensaje={mensajeQBot} onChangeMensaje={setMensajeQBot} />
+      ) : null}
+
+      {seccion === 'actividades' ? (
+        <View style={styles.emptyState}>
+          <Text style={styles.titulo}>Actividades</Text>
+          <Text style={styles.emptyText}>
+            Próximamente: juegos, preguntas para charlar y más ideas para compartir con amigos.
+          </Text>
+        </View>
+      ) : null}
+
+      {/* Conservamos montada la lista para mantener su posición al cambiar de solapa.
+          El hook también permanece en esta pantalla: cambiar de sección no vuelve a consultar. */}
+      <View style={[styles.lugares, seccion !== 'lugares' && styles.oculto]}>
       <Text style={styles.titulo}>Recomendación de lugares</Text>
 
       <View style={styles.buscador}>
@@ -94,16 +113,16 @@ export default function Recomendaciones() {
         </View>
       ) : null}
 
-      <FlatList
+      {loading ? <Loading /> : <FlatList
         data={lugaresFiltrados}
         numColumns={2}
         columnWrapperStyle={styles.fila}
         keyExtractor={(item) => String(item.id)}
         showsVerticalScrollIndicator={false}
         ListEmptyComponent={
-          <View style={styles.emptyState}>
+          !error ? <View style={styles.emptyState}>
             <Text style={styles.emptyText}>No encontramos lugares para mostrar.</Text>
-          </View>
+          </View> : null
         }
         renderItem={({ item }) => (
           <View style={styles.card}>
@@ -141,12 +160,15 @@ export default function Recomendaciones() {
             </TouchableOpacity>
           </View>
         )}
-      />
+      />}
+      </View>
     </SafeAreaView>
   )
 }
 
 const styles = StyleSheet.create({
+  lugares: { flex: 1 },
+  oculto: { display: 'none' },
   fondo: {
     flex: 1,
     backgroundColor: '#15151C',
