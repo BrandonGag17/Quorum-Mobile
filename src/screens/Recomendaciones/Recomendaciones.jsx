@@ -18,13 +18,14 @@ import ErrorMessage from '../../components/MensajeError'
 import InfoRecomendaciones from './InfoRecomendaciones'
 import SeccionesRecomendaciones from '../../components/SeccionesRecomendaciones'
 import PresentacionQBot from './PresentacionQBot'
+import useQBot from '../../hooks/useQBot'
 
 export default function Recomendaciones() {
   const navigation = useNavigation()
   const [lugarSeleccionado, setLugarSeleccionado] = useState(null)
   const [seccion, setSeccion] = useState('lugares')
   // Vive en la pantalla para conservarlo cuando se desmonta la solapa Q-Bot.
-  const [mensajeQBot, setMensajeQBot] = useState('')
+  const qbot = useQBot()
 
   const {
     lugaresFiltrados,
@@ -67,7 +68,15 @@ export default function Recomendaciones() {
       <SeccionesRecomendaciones seleccionada={seccion} onChange={setSeccion} />
 
       {seccion === 'qbot' ? (
-        <PresentacionQBot mensaje={mensajeQBot} onChangeMensaje={setMensajeQBot} />
+        <PresentacionQBot
+          mensaje={qbot.mensaje}
+          onChangeMensaje={qbot.setMensaje}
+          onEnviar={qbot.enviar}
+          loading={qbot.loading}
+          error={qbot.error}
+          resultado={qbot.resultado}
+          onAbrirDetalle={abrirDetalle}
+        />
       ) : null}
 
       {seccion === 'actividades' ? (
