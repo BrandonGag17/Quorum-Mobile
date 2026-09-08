@@ -13,7 +13,6 @@ import {
 import { useRoute, useNavigation } from "@react-navigation/native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
-import GroupHeader from "../../components/GroupHeader";
 import Button from "../../components/Botones";
 import { useGroupInfo } from "../../hooks/userGroupInfo";
 import UserSearch from "../../components/UserSearch";
@@ -119,7 +118,7 @@ function InfoGrupo() {
 
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
       <View style={styles.contenido}>
         <View style={styles.profileHeader}>
           <Image
@@ -266,7 +265,6 @@ function InfoGrupo() {
         onRequestClose={() => setMostrarPopupMiembro(false)}
       >
         <View style={styles.popupMiembroOverlay}>
-          {/* Permite cerrar tocando fuera */}
           <TouchableOpacity
             style={styles.popupZonaCerrar}
             activeOpacity={1}
@@ -302,7 +300,7 @@ function InfoGrupo() {
           </View>
         </View>
       </Modal>
-    </View>
+    </SafeAreaView>
   )
 }
 
@@ -349,6 +347,7 @@ const styles = StyleSheet.create({
     paddingTop: "5%",
   },
   contenido: {
+        padding: 24,
     flex: 1,
     paddingBottom: 50,
   },
