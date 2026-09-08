@@ -129,7 +129,6 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.35,
         shadowRadius: 6,
         elevation: 7,
-
         overflow: 'hidden',
     },
 

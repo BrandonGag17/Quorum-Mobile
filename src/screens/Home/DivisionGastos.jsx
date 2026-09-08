@@ -145,7 +145,7 @@ export default function DivisionGastos({ route, navigation }) {
                                         onPress={() => setModalVisible(true)}
                                         style={styles.addButton}
                                     >
-                                        <Ionicons name="add" size={16} color="#B514F6" />
+                                        <Ionicons name="add" size={15} color="#FFF" />
                                         <Text style={styles.addButtonText}>Agregar</Text>
                                     </Pressable>
                                 ) : null}
@@ -417,8 +417,8 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     tabButtonActive: {
-        backgroundColor: '#B514F6',
-        borderColor: '#B514F6',
+        backgroundColor: '#57C7A3',
+        borderColor: '#57C7A3',
     },
     tabText: {
         color: '#B8B8C5',
@@ -452,7 +452,7 @@ const styles = StyleSheet.create({
         overflow: 'hidden',
     },
     totalCard: {
-        backgroundColor: '#23232D',
+        backgroundColor: '#5C3E94',
         borderRadius: 22,
         padding: 18,
         borderWidth: 1,
@@ -460,7 +460,7 @@ const styles = StyleSheet.create({
         marginBottom: 24,
     },
     totalLabel: {
-        color: '#B8B8C5',
+        color: '#FFF',
         fontSize: 12,
         fontFamily: 'Utendo',
         marginBottom: 8,
@@ -471,10 +471,9 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
     },
     totalValue: {
-        color: '#57C7A6',
+        color: '#FFF',
         fontSize: 32,
         fontFamily: 'CashMarket',
-        fontWeight: '700',
     },
     personasSection: {
         marginBottom: 24,
@@ -497,16 +496,15 @@ const styles = StyleSheet.create({
         gap: 6,
         paddingHorizontal: 12,
         paddingVertical: 8,
-        borderRadius: 8,
-        backgroundColor: '#23232D',
+        borderRadius: 15,
+        backgroundColor:'#57C7A3',
         borderWidth: 1,
         borderColor: '#3D2E6B',
     },
     addButtonText: {
-        color: '#B514F6',
         fontSize: 12,
-        fontFamily: 'Utendo',
-        fontWeight: '600',
+        fontFamily: 'CashMarket',
+        color: '#FFF'
     },
     emptyState: {
         alignItems: 'center',
