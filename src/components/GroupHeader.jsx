@@ -6,28 +6,38 @@ export default function GroupHeader({
   group,
   memberCount,
   onPress,
+  compact = false,
+  avatarSize = 50,
+  containerStyle,
+  contentStyle,
+  groupNameStyle,
+  memberCountStyle,
 }) {
   return (
     <TouchableOpacity
-      style={styles.header}
+      style={[
+        styles.header,
+        compact && styles.headerCompact,
+        containerStyle,
+      ]}
       onPress={onPress}
       activeOpacity={onPress ? 0.75 : 1}
     >
-      <View style={styles.avatar}>
-        <Ionicons
-          name="people"
-          size={30}
-          color="#15151C"
-        />
-      </View>
+      <Image
+        source={{ uri: group?.foto_perfil }}
+        style={[
+          styles.avatar,
+          { width: avatarSize, height: avatarSize, borderRadius: avatarSize / 2 },
+        ]}
+      />
 
-      <View style={styles.headerInfo}>
-        <Text style={styles.groupName} numberOfLines={1}>
+      <View style={[styles.headerInfo, compact && styles.headerInfoCompact, contentStyle]}>
+        <Text style={[styles.groupName, compact && styles.groupNameCompact, groupNameStyle]} numberOfLines={1}>
           {group?.nombre || group?.nombre_grupo || "Grupo"}
         </Text>
 
         {memberCount !== undefined && (
-          <Text style={styles.memberCount}>
+          <Text style={[styles.memberCount, compact && styles.memberCountCompact, memberCountStyle]}>
             {memberCount} miembros
           </Text>
         )}
@@ -44,6 +54,12 @@ const styles = StyleSheet.create({
     marginBottom: 30,
     paddingHorizontal: 35,
   },
+  headerCompact: {
+    marginBottom: 0,
+    marginTop: 0,
+    padding: 0,
+    flex: 1,
+  },
 
   avatar: {
     width: 50,
@@ -57,11 +73,18 @@ const styles = StyleSheet.create({
   headerInfo: {
     marginLeft: 14,
   },
+  headerInfoCompact: {
+    marginLeft: 12,
+    flexShrink: 1,
+  },
 
   groupName: {
     color: "#FFFFFF",
     fontSize: 19,
     fontFamily: "CashMarket",
+  },
+  groupNameCompact: {
+    fontSize: 18,
   },
 
   memberCount: {
@@ -69,5 +92,8 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontFamily: "Utendo",
     marginTop: 3,
+  },
+  memberCountCompact: {
+    marginTop: 2,
   },
 });

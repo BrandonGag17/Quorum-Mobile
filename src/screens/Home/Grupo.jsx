@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useLayoutEffect, useRef, useState } from "react";
 import {
   SafeAreaView,
   View,
@@ -52,6 +52,33 @@ export default function Grupo({ navigation }) {
 
   const translateY = useRef(new Animated.Value(500)).current;
 
+  useLayoutEffect(() => {
+    navigation.setOptions({
+      headerTitle: loading || !group
+        ? () => null
+        : () => (
+            <GroupHeader
+              group={group}
+              memberCount={memberCount}
+              compact
+              avatarSize={40}
+              onPress={() =>
+                navigation.navigate("InfoGrupo", {
+                  idGrupo,
+                })
+              }
+              containerStyle={styles.headerGroupTitle}
+              contentStyle={styles.headerGroupContent}
+              groupNameStyle={styles.headerGroupName}
+              memberCountStyle={styles.headerGroupCount}
+            />
+          ),
+      headerTitleAlign: "left",
+      headerTitleContainerStyle: styles.headerTitleContainer,
+      headerStyle: styles.headerStyle,
+    });
+  }, [navigation, group, memberCount, idGrupo, loading]);
+
   useEffect(() => {
     Animated.timing(translateY, {
       toValue: mostrarCrear ? 0 : 500,
@@ -88,17 +115,6 @@ export default function Grupo({ navigation }) {
 
   return (
     <SafeAreaView style={styles.container}>
-
-      <GroupHeader
-        group={group}
-        memberCount={memberCount}
-        onPress={() =>
-          navigation.navigate("InfoGrupo", {
-            idGrupo: group?.id,
-          })
-        }
-      />
-
       <View style={styles.content}>
         {events.length > 0 ? (
           <FlatList
@@ -288,6 +304,31 @@ const styles = StyleSheet.create({
 
   content: {
     paddingHorizontal: 25,
+  },
+
+  headerStyle: {
+    backgroundColor: "#15151C",
+    shadowColor: "transparent",
+    elevation: 0,
+  },
+  headerTitleContainer: {
+    flexGrow: 1,
+    marginLeft: 0,
+  },
+  headerGroupTitle: {
+    marginTop: 0,
+    marginBottom: 0,
+    padding: 0,
+    flex: 1,
+  },
+  headerGroupContent: {
+    marginLeft: 10,
+  },
+  headerGroupName: {
+    fontSize: 17,
+  },
+  headerGroupCount: {
+    fontSize: 11,
   },
 
   sectionRow: {
