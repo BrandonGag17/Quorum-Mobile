@@ -1,5 +1,6 @@
 import React from "react";
-import { View, Text, Image, TouchableOpacity, StyleSheet } from "react-native";
+import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
+import Ionicons from "@expo/vector-icons/Ionicons";
 
 export default function GroupHeader({
   group,
@@ -49,9 +50,9 @@ const styles = StyleSheet.create({
   header: {
     flexDirection: "row",
     alignItems: "center",
+    marginTop: 30,
     marginBottom: 30,
-    padding: 10,
-    marginTop: 30
+    paddingHorizontal: 35,
   },
   headerCompact: {
     marginBottom: 0,
@@ -63,7 +64,10 @@ const styles = StyleSheet.create({
   avatar: {
     width: 50,
     height: 50,
-    borderRadius: 26,
+    borderRadius: 25,
+    backgroundColor: "#57C7A3",
+    justifyContent: "center",
+    alignItems: "center",
   },
 
   headerInfo: {
