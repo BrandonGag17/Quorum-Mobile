@@ -23,7 +23,7 @@ import Ionicons from "@expo/vector-icons/Ionicons";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 
 import { useGroupDetail } from "../../hooks/useGroupDetail";
-import GroupHeader from "../../components/GroupHeader";
+import GroupNavigationHeader from "../../components/GroupNavigationHeader";
 
 import ErrorMessage from "../../components/MensajeError";
 import Loading from "../../components/Loading";
@@ -52,32 +52,24 @@ export default function Grupo({ navigation }) {
 
   const translateY = useRef(new Animated.Value(500)).current;
 
-  useLayoutEffect(() => {
-    navigation.setOptions({
-      headerTitle: loading || !group
-        ? () => null
-        : () => (
-            <GroupHeader
-              group={group}
-              memberCount={memberCount}
-              compact
-              avatarSize={40}
-              onPress={() =>
-                navigation.navigate("InfoGrupo", {
-                  idGrupo,
-                })
-              }
-              containerStyle={styles.headerGroupTitle}
-              contentStyle={styles.headerGroupContent}
-              groupNameStyle={styles.headerGroupName}
-              memberCountStyle={styles.headerGroupCount}
-            />
-          ),
-      headerTitleAlign: "left",
-      headerTitleContainerStyle: styles.headerTitleContainer,
-      headerStyle: styles.headerStyle,
-    });
-  }, [navigation, group, memberCount, idGrupo, loading]);
+useLayoutEffect(() => {
+  if (!group) return;
+  navigation.setOptions({
+    headerTitle: () => (
+      <GroupNavigationHeader
+        navigation={navigation}
+        group={group}
+        memberCount={memberCount}
+        idGrupo={idGrupo}
+      />
+    ),
+    headerTitleAlign: "left",
+    headerStyle: {
+      backgroundColor: "#15151C",
+    },
+    headerShadowVisible: false,
+  });
+}, [navigation, group, memberCount, idGrupo]);
 
   useEffect(() => {
     Animated.timing(translateY, {
@@ -304,16 +296,6 @@ const styles = StyleSheet.create({
 
   content: {
     paddingHorizontal: 25,
-  },
-
-  headerStyle: {
-    backgroundColor: "#15151C",
-    shadowColor: "transparent",
-    elevation: 0,
-  },
-  headerTitleContainer: {
-    flexGrow: 1,
-    marginLeft: 0,
   },
   headerGroupTitle: {
     marginTop: 0,
