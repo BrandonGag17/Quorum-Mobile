@@ -66,7 +66,7 @@ export default function Juntada({ route, navigation }) {
 
   const dia = fecha
     ? fecha.getDate()
-    : 30
+    : '--'
 
   const mes = fecha
     ? fecha
@@ -75,35 +75,29 @@ export default function Juntada({ route, navigation }) {
       })
       .replace('.', '')
       .toLowerCase()
-    : 'abr'
+    : '---'
 
   const anio = fecha
     ? fecha.getFullYear()
-    : 2026
+    : '----'
 
   const hora = fecha
     ? fecha.toLocaleTimeString('es-AR', {
       hour: '2-digit',
       minute: '2-digit'
     })
-    : '19:00'
+    : '--:--'
 
-  const nombreEvento =
-    event.nombre || 'Feria del libro'
+  const nombreEvento = event.nombre || 'Sin nombre'
 
-  const lugar =
-    event.lugar || 'La Rural'
+  const lugar = event.lugar || 'Sin ubicación'
 
   const nombreGrupo =
     event.grupo?.nombre ||
     event.grupo?.nombre_grupo ||
     'Grupo'
-
-  const participantes =
-    memberCount || 6
-
-  const confirmados =
-    goingCount || 4
+  const participantes = memberCount
+  const confirmados = goingCount
 
   const inicial =
     nombreGrupo.charAt(0).toUpperCase()
@@ -114,35 +108,6 @@ export default function Juntada({ route, navigation }) {
       Array.isArray(goingUsers)
         ? goingUsers
         : []
-
-    if (usuarios.length === 0) {
-      return (
-        <View style={styles.fakeAvatars}>
-          <View
-            style={[
-              styles.miniAvatar,
-              { backgroundColor: '#00B9FF' }
-            ]}
-          />
-
-          <View
-            style={[
-              styles.miniAvatar,
-              styles.avatarOverlap,
-              { backgroundColor: '#F0D000' }
-            ]}
-          />
-
-          <View
-            style={[
-              styles.miniAvatar,
-              styles.avatarOverlap,
-              { backgroundColor: '#EF3340' }
-            ]}
-          />
-        </View>
-      )
-    }
 
     return (
       <View style={styles.fakeAvatars}>
@@ -425,7 +390,7 @@ export default function Juntada({ route, navigation }) {
           icon="cash-outline"
           title="División de Gastos"
           subtitle="Divide los gastos del grupo"
-          onPress={() => {navigation.navigate('DivisionGastos', { idEvento: event.id })}}
+          onPress={() => { navigation.navigate('DivisionGastos', { idEvento: event.id }) }}
         />
 
         <ActionCard

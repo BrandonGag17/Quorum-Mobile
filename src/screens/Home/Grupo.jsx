@@ -29,8 +29,6 @@ import ErrorMessage from "../../components/MensajeError";
 import Loading from "../../components/Loading";
 import CardJuntadas from "../../components/CardJuntadas";
 
-import { useHomeSummary } from "../../hooks/useHome";
-
 export default function Grupo({ navigation }) {
   const route = useRoute();
   const { idGrupo } = route.params;
@@ -46,8 +44,6 @@ export default function Grupo({ navigation }) {
   } = useGroupDetail(idGrupo);
 
   const [mostrarCrear, setMostrarCrear] = useState(false);
-  const { events } = useHomeSummary();
-
   const [mostrarJuntadasPasadas, setMostrarJuntadasPasadas] = useState(false);
 
   const translateY = useRef(new Animated.Value(500)).current;
@@ -116,10 +112,10 @@ export default function Grupo({ navigation }) {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.content}>
-        {events.length > 0 ? (
+        {upcomingEvents.length > 0 ? (
           <FlatList
             horizontal
-            data={events}
+            data={upcomingEvents}
             renderItem={({ item }) => (
               <CardJuntadas
                 evento={item}

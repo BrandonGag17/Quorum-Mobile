@@ -39,10 +39,8 @@ function CardJuntadas({ evento, navigation }) {
                 })
             }
         >
-            {/* ENCABEZADO */}
             <View style={styles.header}>
 
-                {/* FECHA + HORA */}
                 <View style={styles.fechaContainer}>
 
                     <View style={styles.fechaBox}>
@@ -62,7 +60,6 @@ function CardJuntadas({ evento, navigation }) {
 
                 </View>
 
-                {/* GRUPO + LUGAR */}
                 <View style={styles.infoContainer}>
 
                     <View style={styles.infoRow}>
@@ -99,10 +96,8 @@ function CardJuntadas({ evento, navigation }) {
 
             </View>
 
-            {/* SEPARADOR */}
             <View style={styles.separador} />
 
-            {/* NOMBRE */}
             <Text
                 style={styles.nombre}
                 numberOfLines={2}
@@ -146,9 +141,6 @@ const styles = StyleSheet.create({
         alignItems: 'flex-start',
     },
 
-    /*
-     * FECHA
-     */
     fechaContainer: {
         width: 48,
         alignItems: 'center',
@@ -182,9 +174,6 @@ const styles = StyleSheet.create({
         marginTop: 1,
     },
 
-    /*
-     * HORA
-     */
     horaRow: {
         flexDirection: 'row',
         alignItems: 'center',
@@ -197,15 +186,11 @@ const styles = StyleSheet.create({
         marginLeft: 4,
     },
 
-    /*
-     * GRUPO + LUGAR
-     */
     infoContainer: {
         flex: 1,
         marginLeft: 15,
         paddingTop: 2,
         alignSelf: 'center',
-        gap: 5
     },
 
     infoRow: {
