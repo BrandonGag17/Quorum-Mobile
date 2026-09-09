@@ -425,7 +425,7 @@ export default function Juntada({ route, navigation }) {
           icon="cash-outline"
           title="División de Gastos"
           subtitle="Divide los gastos del grupo"
-          onPress={() => { }}
+          onPress={() => {navigation.navigate('DivisionGastos', { idEvento: event.id })}}
         />
 
         <ActionCard
@@ -504,7 +504,7 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     justifyContent: 'center',
     alignItems: 'center',
-    marginRight: 12,
+    marginRight: 15,
     alignSelf: 'center'
   },
 
