@@ -38,6 +38,8 @@ export default function Grupo({ navigation }) {
     memberCount,
     upcomingEvents,
     pastEvents,
+    loadPastEvents,
+    loadingPastEvents,
     proposals,
     loading,
     error,
@@ -186,7 +188,11 @@ export default function Grupo({ navigation }) {
 
         <TouchableOpacity
           style={styles.pastToggle}
-          onPress={() => setMostrarJuntadasPasadas(!mostrarJuntadasPasadas)}
+          onPress={() => {
+            const mostrar = !mostrarJuntadasPasadas
+            setMostrarJuntadasPasadas(mostrar)
+            if (mostrar) loadPastEvents()
+          }}
         >
           <Text style={styles.pastToggleText}>
             {mostrarJuntadasPasadas
@@ -203,7 +209,9 @@ export default function Grupo({ navigation }) {
 
         {mostrarJuntadasPasadas && (
           <>
-            {pastEvents.length > 0 ? (
+            {loadingPastEvents ? (
+              <Loading />
+            ) : pastEvents.length > 0 ? (
               <FlatList
                 data={pastEvents}
                 keyExtractor={(item) => item.id.toString()}

@@ -9,7 +9,7 @@ import {
   ActivityIndicator,
   StyleSheet,
 } from "react-native";
-import supabase from "../services/supabaseClient";
+import { searchUsers } from "../services/userService";
 
 export default function UserSearch({
   value,
@@ -26,8 +26,6 @@ export default function UserSearch({
   const requestRef = useRef(0);
 
   const normalizeQuery = (text) => (text || "").replace(/^@/, "").trim();
-
-  const escapeLike = (text) => text.replace(/[\\%_]/g, "\\$&");
 
   useEffect(() => {
     if (timeoutRef.current) clearTimeout(timeoutRef.current);
@@ -54,44 +52,7 @@ export default function UserSearch({
   async function buscar(q, requestId) {
     setLoading(true);
     try {
-      const likeValue = `${escapeLike(q)}%`;
-
-      const [usernamesRes, nombresRes, apellidosRes] = await Promise.all([
-        supabase
-          .from("usuario")
-          .select("id,username,foto_perfil,nombre,apellido")
-          .ilike("username", likeValue)
-          .limit(limit),
-        supabase
-          .from("usuario")
-          .select("id,username,foto_perfil,nombre,apellido")
-          .ilike("nombre", likeValue)
-          .limit(limit),
-        supabase
-          .from("usuario")
-          .select("id,username,foto_perfil,nombre,apellido")
-          .ilike("apellido", likeValue)
-          .limit(limit),
-      ]);
-
-      const allResults = [
-        ...(usernamesRes.data || []),
-        ...(nombresRes.data || []),
-        ...(apellidosRes.data || []),
-      ];
-
-      const byId = new Map();
-      allResults.forEach((user) => {
-        if (user && !byId.has(user.id)) {
-          byId.set(user.id, user);
-        }
-      });
-
-      const filtered = [...byId.values()].filter(
-        (u) => !excludeIds.includes(u.id)
-      );
-
-      const error = usernamesRes.error || nombresRes.error || apellidosRes.error;
+      const { data: filtered, error } = await searchUsers(q, { excludeIds, limit });
       if (error) {
         throw error;
       }

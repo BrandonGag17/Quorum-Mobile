@@ -71,7 +71,7 @@ export async function createGroup({ nombre, fotoPerfil = null, creatorId, miembr
 export async function getGroupById(groupId) {
   const { data, error } = await supabase
     .from('grupo')
-    .select('*')
+    .select('id, nombre, descripcion, foto_perfil, id_creador')
     .eq('id', groupId)
     .single()
 

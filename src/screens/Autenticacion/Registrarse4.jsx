@@ -6,7 +6,7 @@ import { useNavigation, useRoute } from '@react-navigation/native'
 import Button from '../../components/BotonesIntro'
 import ErrorMessage from '../../components/MensajeError'
 import { useRegistration } from '../../hooks/useRegistration'
-import supabase from '../../services/supabaseClient'
+import { getGustos } from '../../services/userService'
 
 function Registrarse4() {
     const navigation = useNavigation()
@@ -35,10 +35,7 @@ function Registrarse4() {
 
     const cargarGustos = async () => {
         try {
-            const { data, error } = await supabase
-                .from('gusto')
-                .select('id_gusto, nombre')
-                .order('id_gusto')
+            const { data, error } = await getGustos()
 
             if (error) {
                 setMensaje('No se pudieron cargar los gustos')

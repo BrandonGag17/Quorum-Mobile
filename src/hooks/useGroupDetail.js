@@ -16,6 +16,8 @@ export function useGroupDetail(groupId) {
   const [memberCount, setMemberCount] = useState(0)
   const [upcomingEvents, setUpcomingEvents] = useState([])
   const [pastEvents, setPastEvents] = useState([])
+  const [pastEventsLoaded, setPastEventsLoaded] = useState(false)
+  const [loadingPastEvents, setLoadingPastEvents] = useState(false)
   const [proposals, setProposals] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
@@ -26,6 +28,7 @@ export function useGroupDetail(groupId) {
       setMemberCount(0)
       setUpcomingEvents([])
       setPastEvents([])
+      setPastEventsLoaded(false)
       setProposals([])
       setLoading(false)
       return
@@ -33,19 +36,19 @@ export function useGroupDetail(groupId) {
 
     setLoading(true)
     setError(null)
+    setPastEvents([])
+    setPastEventsLoaded(false)
 
     try {
       const [
         groupRes,
         countRes,
         upcomingRes,
-        pastRes,
         proposalsRes
       ] = await Promise.all([
         getGroupById(groupId),
         getGroupMemberCount(groupId),
         getConfirmedEventsByGroupId(groupId),
-        getPastEventsByGroupId(groupId),
         getProposalsByGroupId(groupId)
       ])
 
@@ -69,12 +72,6 @@ export function useGroupDetail(groupId) {
         setUpcomingEvents(upcomingRes.data ?? [])
       }
 
-      if (pastRes.error) {
-        errors.push(pastRes.error.message)
-      } else {
-        setPastEvents(pastRes.data ?? [])
-      }
-
       if (proposalsRes.error) {
         errors.push(proposalsRes.error.message)
       } else {
@@ -94,6 +91,24 @@ export function useGroupDetail(groupId) {
     }
   }, [groupId])
 
+  const loadPastEvents = useCallback(async () => {
+    if (!groupId || pastEventsLoaded || loadingPastEvents) return
+    setLoadingPastEvents(true)
+    try {
+      const pastRes = await getPastEventsByGroupId(groupId)
+      if (pastRes.error) {
+        setError(pastRes.error.message)
+      } else {
+        setPastEvents(pastRes.data ?? [])
+        setPastEventsLoaded(true)
+      }
+    } catch (err) {
+      setError(err?.message || 'No se pudieron cargar las juntadas pasadas')
+    } finally {
+      setLoadingPastEvents(false)
+    }
+  }, [groupId, pastEventsLoaded, loadingPastEvents])
+
   useEffect(() => {
     refresh()
   }, [refresh])
@@ -103,6 +118,8 @@ export function useGroupDetail(groupId) {
     memberCount,
     upcomingEvents,
     pastEvents,
+    loadPastEvents,
+    loadingPastEvents,
     proposals,
     loading,
     error,

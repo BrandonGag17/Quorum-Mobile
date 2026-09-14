@@ -130,7 +130,15 @@ export async function getPastEventsByGroupId(groupId) {
   const { data, error } = await supabase
     .from('evento')
     .select(`
-      *,
+      id,
+      nombre,
+      descripcion,
+      estado,
+      fecha_hora_inicio,
+      id_grupo,
+      id_creador,
+      id_lugar,
+      lugar,
       grupo ( id, nombre )
     `)
     .eq('id_grupo', groupId)

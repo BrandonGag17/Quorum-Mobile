@@ -7,6 +7,7 @@ import * as ImagePicker from 'expo-image-picker'
 import Button from '../../components/BotonesIntro'
 import Input from '../../components/Input'
 import ErrorMessage from '../../components/MensajeError'
+import { searchLocalidades } from '../../services/localidadService'
 
 function Registrarse3() {
     const navigation = useNavigation()
@@ -62,13 +63,16 @@ function Registrarse3() {
 
         try {
             setBuscando(true)
-            const response = await fetch(
-                `https://apis.datos.gob.ar/georef/api/localidades?nombre=${encodeURIComponent(texto)}&campos=nombre,provincia,centroide&max=8`
-            )
-            const data = await response.json()
-            setResultados(data.localidades || [])
+            const { data, error } = await searchLocalidades(texto)
+            if (error) {
+                setResultados([])
+                setMensaje('No se pudieron cargar las localidades')
+                return
+            }
+            setResultados(data)
         } catch {
             setResultados([])
+            setMensaje('No se pudieron cargar las localidades')
         } finally {
             setBuscando(false)
         }
@@ -181,8 +185,6 @@ function Registrarse3() {
             </TouchableOpacity>
 
             {mensaje ? <ErrorMessage mensaje={mensaje} /> : null}
-
-            {buscando ? <Text style={styles.ayuda}>Buscando localidades...</Text> : null}
 
             <Button
                 nombre={cargando ? 'Cargando...' : 'Continuar'}

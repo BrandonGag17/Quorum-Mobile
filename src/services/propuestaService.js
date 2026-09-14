@@ -4,7 +4,11 @@ export async function getProposalsByGroupId(groupId) {
   const { data, error } = await supabase
     .from('encuesta')
     .select(`
-            *,
+            id,
+            id_evento,
+            pregunta,
+            activa,
+            cierre_en,
             evento!inner (
                 id,
                 id_grupo,
@@ -13,7 +17,12 @@ export async function getProposalsByGroupId(groupId) {
                 id_creador,
                 estado
             ),
-            opcion_encuesta (*)
+            opcion_encuesta (
+                id,
+                id_encuesta,
+                descripcion,
+                tipo
+            )
         `)
     .eq('evento.id_grupo', groupId)
     .order('id', { ascending: true })

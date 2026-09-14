@@ -9,14 +9,10 @@ import {
   Image,
 } from "react-native";
 import * as ImagePicker from "expo-image-picker";
-import supabase from "../../services/supabaseClient";
 import ErrorMessage from "../../components/MensajeError";
 import useCreateGroup from "../../hooks/useCreateGroup";
 import UserSearch from "../../components/UserSearch";
-import Button from "../../components/Botones";
-
-const FOTO_DEFAULT =
-  "https://fusjhtyvjkshuzxofeqj.supabase.co/storage/v1/object/public/avatars/PlaceholderGrupo.png";
+import { useSession } from "../../hooks/useSession";
 
 function CrearGrupo({ onGrupoCreado }) {
   const [nombreGrupo, setNombreGrupo] = useState("");
@@ -26,6 +22,8 @@ function CrearGrupo({ onGrupoCreado }) {
   const [mensaje, setMensaje] = useState("");
 
   const { create, loading: creating, error: createError } = useCreateGroup();
+  const { session } = useSession();
+  const currentUserId = session?.user?.id;
 
   async function seleccionarFoto() {
     const resultado = await ImagePicker.launchImageLibraryAsync({
@@ -40,9 +38,7 @@ function CrearGrupo({ onGrupoCreado }) {
 
   async function handleSelectUser(user) {
     setMensaje("");
-    const { data: me } = await supabase.auth.getUser();
-    const myId = me?.user?.id;
-    if (user.id === myId) {
+    if (user.id === currentUserId) {
       setMensaje("No podés agregarte a vos mismo");
       return;
     }
@@ -77,11 +73,7 @@ function CrearGrupo({ onGrupoCreado }) {
       return;
     }
 
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-
-    if (!user) {
+    if (!currentUserId) {
       setMensaje("No se pudo obtener el usuario");
       return;
     }
@@ -91,7 +83,7 @@ function CrearGrupo({ onGrupoCreado }) {
     const { data: grupoCreado, error } = await create({
       nombre: nombreGrupo.trim(),
       fotoUri: foto?.uri || null,
-      creatorId: user.id,
+      creatorId: currentUserId,
       miembros: miembrosIds,
     });
 
@@ -137,7 +129,7 @@ function CrearGrupo({ onGrupoCreado }) {
         value={miembroUsername}
         onChangeText={setMiembroUsername}
         onSelect={handleSelectUser}
-        excludeIds={miembros.map((m) => m.id)}
+        excludeIds={[currentUserId, ...miembros.map((m) => m.id)].filter(Boolean)}
       />
 
       <FlatList
