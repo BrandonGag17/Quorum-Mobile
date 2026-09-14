@@ -6,7 +6,6 @@ export async function getUpcomingConfirmedEventsForUser(userId) {
     return { data: [], error: null }
   }
 
-  // First get the groups the user belongs to
   const { data: userGroups, error: ugError } = await supabase
     .from('usuario_grupo')
     .select('id_grupo')
@@ -47,9 +46,8 @@ export async function createEvent({
   fecha_hora_inicio,
   id_lugar = null,
   lugar_text = null,
-  invitados = [] // array of user ids
+  invitados = []
 }) {
-  // create lugar if id_lugar not provided and lugar_text provided
   let lugarId = id_lugar
 
   if (!lugarId && lugar_text) {
@@ -85,7 +83,6 @@ export async function createEvent({
     return { data: null, error: eventoError }
   }
 
-  // insert usuario_evento rows with text-based attendance states
   const attendees = [
     { id_usuario: id_creador, id_evento: evento.id, asistencia: 'voy' },
     ...((invitados || []).map(id => ({ id_usuario: id, id_evento: evento.id, asistencia: 'pendiente' })))
@@ -97,7 +94,6 @@ export async function createEvent({
       .insert(attendees)
 
     if (attendeesError) {
-      // Not ideal: event created but attendees insertion failed. Return error and created event.
       return { data: evento, error: attendeesError }
     }
   }

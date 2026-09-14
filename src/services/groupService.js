@@ -39,8 +39,6 @@ export async function createGroup({ nombre, fotoPerfil = null, creatorId, miembr
     miembrosError = error
   }
 
-  // Son dos solicitudes: intentamos retirar el grupo recién creado si falla
-  // la incorporación de integrantes, y avisamos si no se puede deshacer.
   try {
     const { data: eliminado, error: cleanupError } = await supabase
       .from('grupo')
@@ -57,7 +55,6 @@ export async function createGroup({ nombre, fotoPerfil = null, creatorId, miembr
       }
     }
   } catch {
-    // El resultado parcial se informa abajo también si falla la conexión.
   }
 
   return {

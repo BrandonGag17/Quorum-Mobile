@@ -17,7 +17,6 @@ export default function useCreateEvent() {
     setError(null)
     if (loading) return { data: null, error: { message: 'busy' } }
 
-    // basic validations
     if (!nombre || !nombre.trim()) {
       const err = { message: 'El nombre del evento es obligatorio' }
       setError(err.message)

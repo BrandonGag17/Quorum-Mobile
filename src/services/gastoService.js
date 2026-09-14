@@ -1,7 +1,5 @@
 import supabase from './supabaseClient'
 
-// Campos que necesita la pantalla. "pagador" es un alias para la relación
-// entre gasto.id_pagador y usuario.id.
 const GASTO_SELECT = `
   id,
   id_evento,
@@ -36,8 +34,6 @@ export async function getGastosByEventId(eventId) {
     return { data: [], error }
   }
 
-  // Supabase puede devolver columnas numeric como texto. Convertimos monto a
-  // Number una sola vez para que las sumas de la pantalla sean predecibles.
   const gastos = (data || []).map((gasto) => ({
     ...gasto,
     monto: Number(gasto.monto),
@@ -90,8 +86,6 @@ export async function getPersonasByEventId(eventId) {
 }
 
 export async function getHistorialGastosByEventId(eventId) {
-  // Sin un evento de referencia no podemos saber a qué grupo pertenece el
-  // historial que queremos consultar.
   if (!eventId) {
     return {
       data: [],
@@ -101,8 +95,6 @@ export async function getHistorialGastosByEventId(eventId) {
     }
   }
 
-  // Paso 1: buscamos solamente el id del grupo de la juntada actual. El
-  // historial estará formado por otras juntadas pertenecientes a ese grupo.
   const { data: eventoActual, error: errorEvento } = await supabase
     .from('evento')
     .select('id_grupo')
@@ -113,7 +105,6 @@ export async function getHistorialGastosByEventId(eventId) {
     return { data: [], error: errorEvento }
   }
 
-  // Es una protección para evitar una segunda consulta sin un grupo válido.
   if (!eventoActual?.id_grupo) {
     return {
       data: [],
@@ -123,9 +114,6 @@ export async function getHistorialGastosByEventId(eventId) {
     }
   }
 
-  // Paso 2: traemos las demás juntadas del grupo junto con sus gastos.
-  // `gasto!inner` excluye los eventos sin gastos, porque no aportan nada al
-  // historial. También obtenemos el pagador para poder mostrar sus avatares.
   const { data, error } = await supabase
     .from('evento')
     .select(`
@@ -153,23 +141,17 @@ export async function getHistorialGastosByEventId(eventId) {
     return { data: [], error }
   }
 
-  // Paso 3: adaptamos la respuesta de Supabase al formato que necesita la
-  // tarjeta del historial: gastos numéricos, total y personas sin repetir.
   const historial = (data || []).map((evento) => {
-    // Las columnas numeric pueden llegar como texto desde Supabase.
     const gastos = (evento.gasto || []).map((gasto) => ({
       ...gasto,
       monto: Number(gasto.monto),
     }))
 
-    // Sumamos todos los gastos para obtener el monto total de la juntada.
     const total = gastos.reduce(
       (suma, gasto) => suma + gasto.monto,
       0
     )
 
-    // Map usa el id como clave. Si una persona pagó varias veces, la clave se
-    // repite y queda una única persona para la lista de avatares.
     const personas = Array.from(
       new Map(
         gastos
@@ -204,8 +186,6 @@ export async function createGasto({
   const descripcionLimpia = String(descripcion || '').trim()
   const montoNumerico = Number(monto)
 
-  // Validamos antes de consultar Supabase para que el modal pueda mostrar un
-  // mensaje entendible y para no guardar filas incompletas.
   if (!eventId || !pagadorId || !descripcionLimpia) {
     return {
       data: null,

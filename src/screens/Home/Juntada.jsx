@@ -1,4 +1,4 @@
-import React from 'react'
+import React from "react";
 import {
   View,
   Text,
@@ -6,18 +6,18 @@ import {
   SafeAreaView,
   ScrollView,
   TouchableOpacity,
-  Image
-} from 'react-native'
+  Image,
+} from "react-native";
 
-import Ionicons from '@expo/vector-icons/Ionicons'
+import Ionicons from "@expo/vector-icons/Ionicons";
 
-import Loading from '../../components/Loading'
-import ErrorMessage from '../../components/MensajeError'
-import { useJuntadaDetail } from '../../hooks/useJuntadaDetail'
+import Loading from "../../components/Loading";
+import ErrorMessage from "../../components/MensajeError";
+import { useJuntadaDetail } from "../../hooks/useJuntadaDetail";
 import GroupHeader from "../../components/GroupHeader";
 
 export default function Juntada({ route, navigation }) {
-  const eventId = route?.params?.idEvento
+  const eventId = route?.params?.idEvento;
 
   const {
     event,
@@ -30,11 +30,11 @@ export default function Juntada({ route, navigation }) {
     actionLoading,
     error,
     timeRemaining,
-    changeAttendance
-  } = useJuntadaDetail(eventId)
+    changeAttendance,
+  } = useJuntadaDetail(eventId);
 
   if (loading) {
-    return <Loading />
+    return <Loading />;
   }
 
   if (error) {
@@ -44,88 +44,70 @@ export default function Juntada({ route, navigation }) {
           <ErrorMessage mensaje={error} />
         </View>
       </SafeAreaView>
-    )
+    );
   }
 
   if (!event) {
     return (
       <SafeAreaView style={styles.container}>
         <View style={styles.errorContainer}>
-          <Text style={styles.errorTitle}>
-            Juntada no disponible
-          </Text>
+          <Text style={styles.errorTitle}>Juntada no disponible</Text>
         </View>
       </SafeAreaView>
-    )
+    );
   }
-
 
   const fecha = event.fecha_hora_inicio
     ? new Date(event.fecha_hora_inicio)
-    : null
+    : null;
 
-  const dia = fecha
-    ? fecha.getDate()
-    : '--'
+  const dia = fecha ? fecha.getDate() : "--";
 
   const mes = fecha
     ? fecha
-      .toLocaleDateString('es-AR', {
-        month: 'short'
-      })
-      .replace('.', '')
-      .toLowerCase()
-    : '---'
+        .toLocaleDateString("es-AR", {
+          month: "short",
+        })
+        .replace(".", "")
+        .toLowerCase()
+    : "---";
 
-  const anio = fecha
-    ? fecha.getFullYear()
-    : '----'
+  const anio = fecha ? fecha.getFullYear() : "----";
 
   const hora = fecha
-    ? fecha.toLocaleTimeString('es-AR', {
-      hour: '2-digit',
-      minute: '2-digit'
-    })
-    : '--:--'
+    ? fecha.toLocaleTimeString("es-AR", {
+        hour: "2-digit",
+        minute: "2-digit",
+      })
+    : "--:--";
 
-  const nombreEvento = event.nombre || 'Sin nombre'
+  const nombreEvento = event.nombre || "Sin nombre";
 
-  const lugar = event.lugar || 'Sin ubicación'
+  const lugar = event.lugar || "Sin ubicación";
 
   const nombreGrupo =
-    event.grupo?.nombre ||
-    event.grupo?.nombre_grupo ||
-    'Grupo'
-  const participantes = memberCount
-  const confirmados = goingCount
+    event.grupo?.nombre || event.grupo?.nombre_grupo || "Grupo";
+  const participantes = memberCount;
+  const confirmados = goingCount;
 
-  const inicial =
-    nombreGrupo.charAt(0).toUpperCase()
-
+  const inicial = nombreGrupo.charAt(0).toUpperCase();
 
   const renderAvatars = () => {
-    const usuarios =
-      Array.isArray(goingUsers)
-        ? goingUsers
-        : []
+    const usuarios = Array.isArray(goingUsers) ? goingUsers : [];
 
     return (
       <View style={styles.fakeAvatars}>
         {usuarios.slice(0, 4).map((usuario, index) => {
-          const foto =
-            usuario?.usuario?.foto_perfil
+          const foto = usuario?.usuario?.foto_perfil;
 
           if (foto) {
             return (
               <Image
                 key={usuario.id_usuario || index}
                 source={{ uri: foto }}
-                style={[
-                  styles.miniAvatar,
-                  index > 0 && styles.avatarOverlap
-                ]}
+                style={[styles.miniAvatar, index > 0 && styles.avatarOverlap]}
               />
-            )
+            );
           }
 
           return (
@@ -134,40 +116,30 @@ export default function Juntada({ route, navigation }) {
               style={[
                 styles.miniAvatar,
                 styles.avatarFallback,
-                index > 0 && styles.avatarOverlap
+                index > 0 && styles.avatarOverlap,
               ]}
             >
-              <Ionicons
-                name="person"
-                size={10}
-                color="#111111"
-              />
+              <Ionicons name="person" size={10} color="#111111" />
             </View>
-          )
+          );
         })}
       </View>
-    )
-  }
+    );
+  };
 
   const handleVoy = () => {
     if (!actionLoading) {
-      changeAttendance('voy')
+      changeAttendance("voy");
     }
-  }
+  };
 
   const handleNoVoy = () => {
     if (!actionLoading) {
-      changeAttendance('no_voy')
+      changeAttendance("no_voy");
     }
-  }
+  };
 
-  const ActionCard = ({
-    backgroundColor,
-    icon,
-    title,
-    subtitle,
-    onPress
-  }) => {
+  const ActionCard = ({ backgroundColor, icon, title, subtitle, onPress }) => {
     return (
       <TouchableOpacity
         activeOpacity={0.85}
@@ -175,30 +147,22 @@ export default function Juntada({ route, navigation }) {
         style={[
           styles.actionCard,
           {
-            backgroundColor
-          }
+            backgroundColor,
+          },
         ]}
       >
         <View style={styles.actionIcon}>
-          <Ionicons
-            name={icon}
-            size={31}
-            color="#FFFFFF"
-          />
+          <Ionicons name={icon} size={31} color="#FFFFFF" />
         </View>
 
         <View style={styles.actionContent}>
-          <Text style={styles.actionTitle}>
-            {title}
-          </Text>
+          <Text style={styles.actionTitle}>{title}</Text>
 
-          <Text style={styles.actionSubtitle}>
-            {subtitle}
-          </Text>
+          <Text style={styles.actionSubtitle}>{subtitle}</Text>
         </View>
       </TouchableOpacity>
-    )
-  }
+    );
+  };
 
   return (
     <SafeAreaView style={styles.container}>
@@ -218,118 +182,67 @@ export default function Juntada({ route, navigation }) {
           />
         </View>
         <View style={styles.nextRow}>
+          <Text style={styles.nextText}>Próximo encuentro</Text>
 
-          <Text style={styles.nextText}>
-            Próximo encuentro
-          </Text>
-
-          <Text style={styles.daysText}>
-            {timeRemaining || 'En 12 Días'}
-          </Text>
-
+          <Text style={styles.daysText}>{timeRemaining || "En 12 Días"}</Text>
         </View>
 
         <View style={styles.eventCard}>
-
           <View style={styles.eventMain}>
-
             <View style={styles.dateBox}>
+              <Text style={styles.dateMonth}>{mes}</Text>
 
-              <Text style={styles.dateMonth}>
-                {mes}
-              </Text>
+              <Text style={styles.dateDay}>{dia}</Text>
 
-              <Text style={styles.dateDay}>
-                {dia}
-              </Text>
-
-              <Text style={styles.dateYear}>
-                {anio}
-              </Text>
-
+              <Text style={styles.dateYear}>{anio}</Text>
             </View>
 
             <View style={styles.eventInfo}>
-
-              <Text
-                style={styles.eventName}
-                numberOfLines={2}
-              >
+              <Text style={styles.eventName} numberOfLines={2}>
                 {nombreEvento}
               </Text>
 
               <View style={styles.detailRow}>
+                <Ionicons name="time-outline" size={15} color="#FFFFFF" />
 
-                <Ionicons
-                  name="time-outline"
-                  size={15}
-                  color="#FFFFFF"
-                />
-
-                <Text style={styles.detailText}>
-                  {hora}
-                </Text>
-
+                <Text style={styles.detailText}>{hora}</Text>
               </View>
 
               <View style={styles.detailRow}>
+                <Ionicons name="location-outline" size={16} color="#FFFFFF" />
 
-                <Ionicons
-                  name="location-outline"
-                  size={16}
-                  color="#FFFFFF"
-                />
-
-                <Text
-                  style={styles.detailText}
-                  numberOfLines={1}
-                >
+                <Text style={styles.detailText} numberOfLines={1}>
                   {lugar}
                 </Text>
-
               </View>
-
             </View>
-
           </View>
 
           <View style={styles.eventSeparator} />
 
           <View style={styles.confirmedContainer}>
-
             <View style={styles.confirmedTop}>
-
-              <Ionicons
-                name="people"
-                size={15}
-                color="#FFFFFF"
-              />
+              <Ionicons name="people" size={15} color="#FFFFFF" />
 
               <Text style={styles.confirmedText}>
                 {confirmados} de {participantes} confirmados
               </Text>
 
               {renderAvatars()}
-
             </View>
 
             <View style={styles.buttonsRow}>
-
               <TouchableOpacity
                 activeOpacity={0.8}
                 onPress={handleVoy}
                 disabled={actionLoading}
                 style={[
                   styles.goButton,
-                  myAttendance === 'voy' &&
-                  styles.goButtonSelected,
-                  actionLoading &&
-                  styles.disabled
+                  myAttendance === "voy" && styles.goButtonSelected,
+                  actionLoading && styles.disabled,
                 ]}
               >
-                <Text style={styles.goText}>
-                  Voy
-                </Text>
+                <Text style={styles.goText}>Voy</Text>
               </TouchableOpacity>
 
               <TouchableOpacity
@@ -338,35 +251,21 @@ export default function Juntada({ route, navigation }) {
                 disabled={actionLoading}
                 style={[
                   styles.noGoButton,
-                  myAttendance === 'no_voy' &&
-                  styles.noGoButtonSelected,
-                  actionLoading &&
-                  styles.disabled
+                  myAttendance === "no_voy" && styles.noGoButtonSelected,
+                  actionLoading && styles.disabled,
                 ]}
               >
-                <Text style={styles.noGoText}>
-                  No voy
-                </Text>
+                <Text style={styles.noGoText}>No voy</Text>
               </TouchableOpacity>
-
             </View>
-
           </View>
-
         </View>
 
         <View style={styles.organize}>
+          <Text style={styles.organizeSmall}>Organizá tu grupo</Text>
 
-          <Text style={styles.organizeSmall}>
-            Organizá tu grupo
-          </Text>
-
-          <Text style={styles.organizeTitle}>
-            Todo en un solo lugar
-          </Text>
-
+          <Text style={styles.organizeTitle}>Todo en un solo lugar</Text>
         </View>
-
 
         <ActionCard
           backgroundColor="#316D61"
@@ -375,12 +274,9 @@ export default function Juntada({ route, navigation }) {
           subtitle="Si te arrepentís de tu voto podes volver a votar"
           onPress={() => {
             if (survey?.activa) {
-              navigation.navigate(
-                'VotacionJuntada',
-                {
-                  idEvento: event.id
-                }
-              )
+              navigation.navigate("VotacionJuntada", {
+                idEvento: event.id,
+              });
             }
           }}
         />
@@ -390,7 +286,9 @@ export default function Juntada({ route, navigation }) {
           icon="cash-outline"
           title="División de Gastos"
           subtitle="Divide los gastos del grupo"
-          onPress={() => { navigation.navigate('DivisionGastos', { idEvento: event.id }) }}
+          onPress={() => {
+            navigation.navigate("DivisionGastos", { idEvento: event.id });
+          }}
         />
 
         <ActionCard
@@ -398,154 +296,150 @@ export default function Juntada({ route, navigation }) {
           icon="images-outline"
           title="Galería"
           subtitle="Ve las fotos super que sacaste"
-          onPress={() => { }}
+          onPress={() => {}}
         />
-
       </ScrollView>
-
-
-    </SafeAreaView >
-  )
+    </SafeAreaView>
+  );
 }
 
 const styles = StyleSheet.create({
-
   container: {
     flex: 1,
-    backgroundColor: '#15151C'
+    backgroundColor: "#15151C",
   },
 
   screen: {
     flex: 1,
-    backgroundColor: '#15151C'
+    backgroundColor: "#15151C",
   },
 
   scrollContent: {
     paddingTop: 4,
-    paddingBottom: 100
+    paddingBottom: 100,
   },
 
   nextRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
     paddingHorizontal: 35,
     paddingTop: 17,
-    paddingBottom: 8
+    paddingBottom: 8,
   },
 
   nextText: {
-    color: '#9999A5',
+    color: "#9999A5",
     fontSize: 13,
-    fontFamily: 'Utendo'
+    fontFamily: "Utendo",
   },
 
   daysText: {
-    color: '#57C7A3',
+    color: "#57C7A3",
     fontSize: 11,
-    fontFamily: 'CashMarket'
+    fontFamily: "CashMarket",
   },
 
   eventCard: {
-    backgroundColor: '#22222D',
+    backgroundColor: "#22222D",
     borderRadius: 17,
     marginHorizontal: 27,
-    overflow: 'hidden',
-    marginBottom: 31
+    overflow: "hidden",
+    marginBottom: 31,
   },
 
   eventMain: {
-    flexDirection: 'row',
+    flexDirection: "row",
     paddingTop: 9,
     paddingLeft: 10,
     paddingRight: 12,
-    paddingBottom: 7
+    paddingBottom: 7,
   },
 
   dateBox: {
     width: 64,
     height: 59,
-    backgroundColor: '#57C7A3',
+    backgroundColor: "#57C7A3",
     borderRadius: 16,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
     marginRight: 15,
-    alignSelf: 'center'
+    alignSelf: "center",
   },
 
   dateMonth: {
-    color: '#111111',
+    color: "#111111",
     fontSize: 11,
-    fontFamily: 'CashMarket'
+    fontFamily: "CashMarket",
   },
 
   dateDay: {
-    color: '#111111',
+    color: "#111111",
     fontSize: 28,
     lineHeight: 29,
-    fontFamily: 'CashMarket'
+    fontFamily: "CashMarket",
   },
 
   dateYear: {
-    color: '#111111',
+    color: "#111111",
     fontSize: 11,
-    fontFamily: 'CashMarket'
+    fontFamily: "CashMarket",
   },
 
   eventInfo: {
     flex: 1,
-    justifyContent: 'center'
+    justifyContent: "center",
   },
 
   eventName: {
-    color: '#FFFFFF',
+    color: "#FFFFFF",
     fontSize: 17,
     lineHeight: 19,
-    fontFamily: 'CashMarket',
-    marginBottom: 7
+    fontFamily: "CashMarket",
+    marginBottom: 7,
   },
 
   detailRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginTop: 5
+    flexDirection: "row",
+    alignItems: "center",
+    marginTop: 5,
   },
 
   detailText: {
-    color: '#FFFFFF',
+    color: "#FFFFFF",
     fontSize: 12,
-    fontFamily: 'Utendo',
-    marginLeft: 6
+    fontFamily: "Utendo",
+    marginLeft: 6,
   },
 
   eventSeparator: {
     height: 1,
-    backgroundColor: '#656570'
+    backgroundColor: "#656570",
   },
 
   confirmedContainer: {
     paddingHorizontal: 9,
     paddingTop: 9,
-    paddingBottom: 7
+    paddingBottom: 7,
   },
 
   confirmedTop: {
     height: 23,
-    flexDirection: 'row',
-    alignItems: 'center'
+    flexDirection: "row",
+    alignItems: "center",
   },
 
   confirmedText: {
-    color: '#FFFFFF',
+    color: "#FFFFFF",
     fontSize: 11,
-    fontFamily: 'CashMarket',
-    marginLeft: 4
+    fontFamily: "CashMarket",
+    marginLeft: 4,
   },
 
   fakeAvatars: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginLeft: 7
+    flexDirection: "row",
+    alignItems: "center",
+    marginLeft: 7,
   },
 
   miniAvatar: {
@@ -555,14 +449,14 @@ const styles = StyleSheet.create({
   },
 
   avatarFallback: {
-    backgroundColor: '#57C7A3',
-    justifyContent: 'center',
-    alignItems: 'center'
+    backgroundColor: "#57C7A3",
+    justifyContent: "center",
+    alignItems: "center",
   },
 
   buttonsRow: {
-    flexDirection: 'row',
-    marginTop: 7
+    flexDirection: "row",
+    marginTop: 7,
   },
 
   goButton: {
@@ -570,10 +464,10 @@ const styles = StyleSheet.create({
     height: 40,
     borderRadius: 8,
     borderWidth: 2,
-    borderColor: '#57C7A3',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginRight: 7
+    borderColor: "#57C7A3",
+    justifyContent: "center",
+    alignItems: "center",
+    marginRight: 7,
   },
 
   noGoButton: {
@@ -581,52 +475,52 @@ const styles = StyleSheet.create({
     height: 40,
     borderRadius: 8,
     borderWidth: 2,
-    borderColor: '#7225A4',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginLeft: 7
+    borderColor: "#7225A4",
+    justifyContent: "center",
+    alignItems: "center",
+    marginLeft: 7,
   },
 
   goButtonSelected: {
-    backgroundColor: '#57C7A3'
+    backgroundColor: "#57C7A3",
   },
 
   noGoButtonSelected: {
-    backgroundColor: '#7225A4'
+    backgroundColor: "#7225A4",
   },
 
   goText: {
-    color: '#FFFFFF',
+    color: "#FFFFFF",
     fontSize: 14,
-    fontFamily: 'CashMarket'
+    fontFamily: "CashMarket",
   },
 
   noGoText: {
-    color: '#FFFFFF',
+    color: "#FFFFFF",
     fontSize: 14,
-    fontFamily: 'CashMarket'
+    fontFamily: "CashMarket",
   },
 
   disabled: {
-    opacity: 0.5
+    opacity: 0.5,
   },
 
   organize: {
     marginHorizontal: 28,
-    marginBottom: 13
+    marginBottom: 13,
   },
 
   organizeSmall: {
-    color: '#9999A5',
+    color: "#9999A5",
     fontSize: 13,
-    fontFamily: 'Utendo',
-    marginBottom: 2
+    fontFamily: "Utendo",
+    marginBottom: 2,
   },
 
   organizeTitle: {
-    color: '#FFFFFF',
+    color: "#FFFFFF",
     fontSize: 19,
-    fontFamily: 'CashMarket'
+    fontFamily: "CashMarket",
   },
 
   actionCard: {
@@ -634,32 +528,32 @@ const styles = StyleSheet.create({
     borderRadius: 14,
     marginHorizontal: 23,
     marginBottom: 12,
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     paddingHorizontal: 12,
   },
 
   actionIcon: {
     width: 40,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginRight: 8
+    alignItems: "center",
+    justifyContent: "center",
+    marginRight: 8,
   },
 
   actionContent: {
-    flex: 1
+    flex: 1,
   },
 
   actionTitle: {
-    color: '#FFFFFF',
+    color: "#FFFFFF",
     fontSize: 17,
-    fontFamily: 'CashMarket',
-    marginBottom: 1
+    fontFamily: "CashMarket",
+    marginBottom: 1,
   },
 
   actionSubtitle: {
-    color: '#FFFFFF',
+    color: "#FFFFFF",
     fontSize: 10,
-    fontFamily: 'Utendo'
+    fontFamily: "Utendo",
   },
-})
+});

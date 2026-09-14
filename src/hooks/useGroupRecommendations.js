@@ -10,8 +10,6 @@ export default function useGroupRecommendations(groupId) {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
 
-  // Usamos una referencia porque el historial sirve para hacer consultas, pero
-  // no necesita provocar un nuevo renderizado cada vez que cambia.
   const idsMostradosRef = useRef(new Set())
 
   const cargarRecomendaciones = useCallback(async ({ reiniciar = false } = {}) => {
@@ -25,8 +23,6 @@ export default function useGroupRecommendations(groupId) {
     setLoading(true)
     setError('')
 
-    // Al cambiar de grupo empezamos un historial nuevo. Al presionar
-    // "volver a recomendar", en cambio, enviamos todos los IDs ya vistos.
     if (reiniciar) {
       idsMostradosRef.current = new Set()
     }
@@ -54,8 +50,6 @@ export default function useGroupRecommendations(groupId) {
     }
   }, [groupId])
 
-  // Si la pantalla recibe otro grupo, descartamos tanto los resultados como
-  // las selecciones anteriores para que nunca se mezclen propuestas.
   useEffect(() => {
     setLugaresSeleccionados([])
     cargarRecomendaciones({ reiniciar: true })
@@ -86,8 +80,6 @@ export default function useGroupRecommendations(groupId) {
     })
   }
 
-  // Centralizamos aquí la construcción de la URL para usar exactamente el
-  // mismo formato que las recomendaciones personales.
   const getGoogleMapsUrl = useCallback((lugar) => {
     return obtenerUrlGoogleMaps(lugar)
   }, [])

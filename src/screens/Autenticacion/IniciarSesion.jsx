@@ -1,5 +1,13 @@
 import {
-  View, Text, StyleSheet, TouchableOpacity, Image, KeyboardAvoidingView, ScrollView, Platform, Alert
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  Image,
+  KeyboardAvoidingView,
+  ScrollView,
+  Platform,
+  Alert,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useSession } from "../../hooks/useSession";
@@ -43,7 +51,7 @@ export default function IniciarSesion({ navigation }) {
     useCallback(() => {
       reset();
       clearError();
-    }, [reset, clearError])
+    }, [reset, clearError]),
   );
 
   const handleLogin = async ({ email, password }) => {
@@ -55,7 +63,7 @@ export default function IniciarSesion({ navigation }) {
   const handleGoogle = () => {
     Alert.alert(
       "Inicio con Google",
-      "Google todavía no está configurado en este flujo."
+      "Google todavía no está configurado en este flujo.",
     );
   };
 
@@ -101,9 +109,7 @@ export default function IniciarSesion({ navigation }) {
             )}
           />
 
-          {errors.email && (
-            <ErrorMessage mensaje={errors.email.message} />
-          )}
+          {errors.email && <ErrorMessage mensaje={errors.email.message} />}
 
           <Controller
             control={control}
@@ -136,9 +142,7 @@ export default function IniciarSesion({ navigation }) {
           )}
           <Text style={styles.olvido}>¿Olvidaste tu contraseña?</Text>
 
-          {displayError ? (
-            <ErrorMessage mensaje={displayError} />
-          ) : null}
+          {displayError ? <ErrorMessage mensaje={displayError} /> : null}
 
           <Button
             nombre={loading || isSubmitting ? "Cargando..." : "Iniciar sesión"}

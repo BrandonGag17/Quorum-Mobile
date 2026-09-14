@@ -112,7 +112,10 @@ function CrearGrupo({ onGrupoCreado }) {
 
       <Text style={styles.label}>Foto del grupo (opcional)</Text>
 
-      <TouchableOpacity style={styles.botonSecundario} onPress={seleccionarFoto}>
+      <TouchableOpacity
+        style={styles.botonSecundario}
+        onPress={seleccionarFoto}
+      >
         {foto ? (
           <View style={styles.previewContainer}>
             <Image source={{ uri: foto.uri }} style={styles.preview} />
@@ -129,7 +132,9 @@ function CrearGrupo({ onGrupoCreado }) {
         value={miembroUsername}
         onChangeText={setMiembroUsername}
         onSelect={handleSelectUser}
-        excludeIds={[currentUserId, ...miembros.map((m) => m.id)].filter(Boolean)}
+        excludeIds={[currentUserId, ...miembros.map((m) => m.id)].filter(
+          Boolean,
+        )}
       />
 
       <FlatList
@@ -165,7 +170,9 @@ function CrearGrupo({ onGrupoCreado }) {
         onPress={manejarSubmit}
         disabled={creating}
       >
-        <Text style={styles.botonCrearTexto}>{creating ? "Creando..." : "Crear grupo"}</Text>
+        <Text style={styles.botonCrearTexto}>
+          {creating ? "Creando..." : "Crear grupo"}
+        </Text>
       </TouchableOpacity>
     </View>
   );

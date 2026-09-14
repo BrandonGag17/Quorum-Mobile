@@ -52,25 +52,26 @@ export default function Grupo({ navigation }) {
 
   useLayoutEffect(() => {
     navigation.setOptions({
-      headerTitle: loading || !group
-        ? () => null
-        : () => (
-            <GroupHeader
-              group={group}
-              memberCount={memberCount}
-              compact
-              avatarSize={40}
-              onPress={() =>
-                navigation.navigate("InfoGrupo", {
-                  idGrupo,
-                })
-              }
-              containerStyle={styles.headerGroupTitle}
-              contentStyle={styles.headerGroupContent}
-              groupNameStyle={styles.headerGroupName}
-              memberCountStyle={styles.headerGroupCount}
-            />
-          ),
+      headerTitle:
+        loading || !group
+          ? () => null
+          : () => (
+              <GroupHeader
+                group={group}
+                memberCount={memberCount}
+                compact
+                avatarSize={40}
+                onPress={() =>
+                  navigation.navigate("InfoGrupo", {
+                    idGrupo,
+                  })
+                }
+                containerStyle={styles.headerGroupTitle}
+                contentStyle={styles.headerGroupContent}
+                groupNameStyle={styles.headerGroupName}
+                memberCountStyle={styles.headerGroupCount}
+              />
+            ),
       headerTitleAlign: "left",
       headerTitleContainerStyle: styles.headerTitleContainer,
       headerStyle: styles.headerStyle,
@@ -119,16 +120,12 @@ export default function Grupo({ navigation }) {
             horizontal
             data={upcomingEvents}
             renderItem={({ item }) => (
-              <CardJuntadas
-                evento={item}
-                navigation={navigation}
-              />
+              <CardJuntadas evento={item} navigation={navigation} />
             )}
             keyExtractor={(item) => item.id.toString()}
             showsHorizontalScrollIndicator={false}
             contentContainerStyle={styles.eventList}
           />
-
         ) : (
           <View style={styles.emptyState}>
             <Text style={styles.emptyText}>No tenés próximas juntadas</Text>
@@ -146,10 +143,7 @@ export default function Grupo({ navigation }) {
             <Text style={styles.sectionTitle}>Propuestas</Text>
           </View>
 
-          <TouchableOpacity
-            onPress={abrirCrear}
-            style={styles.createButton}
-          >
+          <TouchableOpacity onPress={abrirCrear} style={styles.createButton}>
             <Text style={styles.createButtonText}>+ Crear</Text>
           </TouchableOpacity>
         </View>
@@ -189,9 +183,9 @@ export default function Grupo({ navigation }) {
         <TouchableOpacity
           style={styles.pastToggle}
           onPress={() => {
-            const mostrar = !mostrarJuntadasPasadas
-            setMostrarJuntadasPasadas(mostrar)
-            if (mostrar) loadPastEvents()
+            const mostrar = !mostrarJuntadasPasadas;
+            setMostrarJuntadasPasadas(mostrar);
+            if (mostrar) loadPastEvents();
           }}
         >
           <Text style={styles.pastToggleText}>
@@ -216,15 +210,11 @@ export default function Grupo({ navigation }) {
                 data={pastEvents}
                 keyExtractor={(item) => item.id.toString()}
                 scrollEnabled={false}
-                renderItem={({ item }) => (
-                  <CardJuntadasPasadas evento={item} />
-                )}
+                renderItem={({ item }) => <CardJuntadasPasadas evento={item} />}
               />
             ) : (
               <View style={styles.emptyState}>
-                <Text style={styles.emptyText}>
-                  No hay juntadas pasadas.
-                </Text>
+                <Text style={styles.emptyText}>No hay juntadas pasadas.</Text>
               </View>
             )}
           </>
@@ -246,7 +236,7 @@ export default function Grupo({ navigation }) {
               },
             ]}
           >
-            <Pressable onPress={() => { }}>
+            <Pressable onPress={() => {}}>
               <View style={styles.sheetHandle} />
 
               <Text style={styles.sheetTitle}>Crear</Text>
@@ -285,7 +275,6 @@ export default function Grupo({ navigation }) {
                 </View>
               </TouchableOpacity>
 
-            
               <TouchableOpacity
                 onPress={cerrarCrear}
                 style={styles.cancelButton}

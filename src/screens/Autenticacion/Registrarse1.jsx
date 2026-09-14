@@ -1,12 +1,25 @@
-import { View, Text, StyleSheet, TouchableOpacity, Image, KeyboardAvoidingView, ScrollView, Platform, } from "react-native";
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  Image,
+  KeyboardAvoidingView,
+  ScrollView,
+  Platform,
+} from "react-native";
 import Checkbox from "expo-checkbox";
-import { IconMailFilled, IconLockFilled, IconUserFilled } from "@tabler/icons-react-native";
+import {
+  IconMailFilled,
+  IconLockFilled,
+  IconUserFilled,
+} from "@tabler/icons-react-native";
 import { useNavigation, useFocusEffect } from "@react-navigation/native";
 
 import Input from "../../components/Input";
 import ErrorMessage from "../../components/MensajeError";
 import { useRegistration } from "../../hooks/useRegistration";
-import Button from '../../components/BotonesIntro'
+import Button from "../../components/BotonesIntro";
 import { useCallback } from "react";
 
 import { useForm, Controller } from "react-hook-form";
@@ -16,7 +29,10 @@ function Registrarse1() {
   const { validateStepOne, error, setError } = useRegistration();
 
   const {
-    control, handleSubmit, formState: { errors, isSubmitting }, reset,
+    control,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+    reset,
   } = useForm({
     defaultValues: {
       email: "",
@@ -29,16 +45,10 @@ function Registrarse1() {
     useCallback(() => {
       reset(undefined, { keepValues: true });
       setError("");
-    }, [reset, setError])
+    }, [reset, setError]),
   );
 
-
-  const continuar = async ({
-    email,
-    username,
-    password,
-    termsAccepted,
-  }) => {
+  const continuar = async ({ email, username, password, termsAccepted }) => {
     setError("");
 
     const result = await validateStepOne({
@@ -59,7 +69,6 @@ function Registrarse1() {
       password,
     });
   };
-
 
   const handleGoogle = async () => {
     setError("");
@@ -106,9 +115,7 @@ function Registrarse1() {
           )}
         />
 
-        {errors.email && (
-          <ErrorMessage mensaje={errors.email.message} />
-        )}
+        {errors.email && <ErrorMessage mensaje={errors.email.message} />}
 
         <Controller
           control={control}
@@ -141,9 +148,7 @@ function Registrarse1() {
           )}
         />
 
-        {errors.username && (
-          <ErrorMessage mensaje={errors.username.message} />
-        )}
+        {errors.username && <ErrorMessage mensaje={errors.username.message} />}
 
         <Controller
           control={control}
@@ -174,9 +179,7 @@ function Registrarse1() {
           )}
         />
 
-        {errors.password && (
-          <ErrorMessage mensaje={errors.password.message} />
-        )}
+        {errors.password && <ErrorMessage mensaje={errors.password.message} />}
 
         <Controller
           control={control}
@@ -324,6 +327,5 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
 });
-
 
 export default Registrarse1;
