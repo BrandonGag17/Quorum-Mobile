@@ -71,7 +71,7 @@ function nombreLocalidad(localidad) {
 }
 
 const normalizarZona = (value) => String(value || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim()
-const esCaba = (value) => ['caba', 'capital federal', 'ciudad autonoma de buenos aires', 'autonomous city of buenos aires'].includes(normalizarZona(value).replace(/ argentina$/, ''))
+const esCaba = (value) => /\b(?:caba|capital federal|ciudad autonoma de buenos aires|autonomous city of buenos aires)\b/.test(normalizarZona(value))
 const requiereBusquedaWebPorPedido = (pedido) => typeof pedido === 'string' && /pintar(?:\s+(?:piezas?\s+)?de)?\s*cer[aá]mica|hacer\s+cer[aá]mica|taller(?:es)?\s+de\s+cer[aá]mica|clases?\s+de\s+cer[aá]mica|curso(?:s)?\s+de\s+cer[aá]mica|cer[aá]mica(?:\s+para)?\s+pintar|paint(?:ing)?\s+ceramic|workshop.*cer[aá]mica/i.test(pedido)
 
 function distancia(a, b) {
@@ -153,13 +153,15 @@ Si se puede buscar, pregunta es una cadena vacía. No rechaces buscar sólo porq
   const requiereWeb = Boolean(plan.requiereWeb) || requiereBusquedaWebPorPedido(perfil.pedido)
   if (!plan.categorias.length && !requiereWeb) return { mensaje: plan.pregunta || '¿Qué tipo de lugar buscás?', lugares: [] }
   const centroPerfil = coordenadasLocalidad(localidad)
-  const ciudadCompleta = esCaba(plan.zona) || (!plan.zona.trim() && esCaba(perfil.localidad))
+  // La ciudad explícita del pedido es suficiente, aunque la IA no la haya
+  // copiado en `zona`; no dependemos de que el usuario tenga localidad guardada.
+  const ciudadCompleta = esCaba(plan.zona) || esCaba(perfil.pedido) || (!plan.zona.trim() && esCaba(perfil.localidad))
   const alcanceZona = ciudadCompleta || plan.alcance === 'zona'
   const coincidePerfil = plan.zona.trim() && (
     normalizarZona(plan.zona) === normalizarZona(perfil.localidad) ||
     normalizarZona(plan.zona) === normalizarZona((perfil.localidad || '').split(',')[0]))
   let centro = !plan.zona.trim() || coincidePerfil ? centroPerfil : null
-  let zona = plan.zona.trim() || perfil.localidad
+  let zona = plan.zona.trim() || (ciudadCompleta ? 'Ciudad Autónoma de Buenos Aires, Argentina' : perfil.localidad)
   let limiteZona = null
   if ((!centro || alcanceZona) && zona) {
     const consultaZona = ciudadCompleta ? 'Ciudad Autónoma de Buenos Aires, Argentina' : plan.zona.trim() ? (plan.zonaBusqueda?.trim() || zona) : zona
@@ -176,22 +178,32 @@ Si se puede buscar, pregunta es una cadena vacía. No rechaces buscar sólo porq
   }
   if (!centro) return { mensaje: zona ? `No pude ubicar con certeza "${zona}". ¿De qué ciudad o provincia es? Agregala al pedido para distinguir la zona.` : 'No tenés una localidad disponible en tu perfil. ¿En qué barrio o localidad querés buscar? Agregá la ciudad o provincia.', lugares: [] }
   if (alcanceZona && !limiteZona) throw new QBotError('No pudimos obtener los límites de la zona para buscar en toda su extensión. Intentá nuevamente.')
-  const cobertura = limiteZona ? `dentro de ${zona}` : 'a 3 km del centro aproximado de la zona'
+  let cobertura = limiteZona ? `dentro de ${zona}` : 'a 3 km del centro aproximado de la zona'
   const params = new URLSearchParams({
     categories: [...new Set(plan.categorias)].join(','),
     filter: limiteZona ? `place:${limiteZona}` : `circle:${centro.lon},${centro.lat},3000`,
     limit: '60', apiKey: geoapifyKey,
   })
   if (!limiteZona) params.set('bias', `proximity:${centro.lon},${centro.lat}`)
-  const respuestas = await Promise.all([...new Set(plan.categorias)].map(async (categoria) => {
-    const consulta = new URLSearchParams(params)
+  const buscarCategorias = async (baseParams) => Promise.all([...new Set(plan.categorias)].map(async (categoria) => {
+    const consulta = new URLSearchParams(baseParams)
     consulta.set('categories', categoria)
     consulta.set('limit', plan.categorias.length === 1 ? '60' : '20')
     const data = await jsonRemoto(fetcher, `https://api.geoapify.com/v2/places?${consulta}`, {}, 'Geoapify')
     if (!Array.isArray(data.features)) throw new QBotError('La búsqueda de lugares devolvió una respuesta inválida.')
     return data.features
   }))
-  const features = respuestas.flat()
+  let features = (await buscarCategorias(params)).flat()
+  // Algunos límites de barrios de Geoapify no indexan POIs aunque el mismo barrio
+  // sí tenga resultados por coordenadas. Antes de decir que no existe nada,
+  // repetimos la consulta en un radio acotado alrededor de su centro.
+  if (!features.length && limiteZona) {
+    const respaldo = new URLSearchParams(params)
+    respaldo.set('filter', `circle:${centro.lon},${centro.lat},3000`)
+    respaldo.set('bias', `proximity:${centro.lon},${centro.lat}`)
+    features = (await buscarCategorias(respaldo)).flat()
+    if (features.length) cobertura = `en ${zona} y hasta 3 km de su centro aproximado`
+  }
   const excluidos = new Set(excluirIds)
   const lugares = [...new Map(features.map((f) => {
     const p = f.properties || {}

@@ -193,6 +193,35 @@ test('CABA usa el límite de la ciudad y no un círculo o el centro del perfil',
   assert.equal(contexto.perfil.localidad, 'Ciudad Autónoma de Buenos Aires, Argentina')
 })
 
+test('CABA escrita en el pedido se busca aunque la IA omita la zona y el perfil no tenga localidad', async () => {
+  const env = entorno([
+    groq(plan),
+    { results: [{ city: 'Autonomous City of Buenos Aires', result_type: 'city', place_id: 'limite-caba', lat: -34.61, lon: -58.39, rank: { confidence: 1 } }] },
+    { features: [lugar] },
+    groq(recomendacion),
+  ])
+  const result = await buscarQBot({ pedido: 'un café en CABA' }, env)
+  assert.equal(new URL(env.llamadas[1].url).searchParams.get('text'), 'Ciudad Autónoma de Buenos Aires, Argentina')
+  assert.equal(new URL(env.llamadas[2].url).searchParams.get('filter'), 'place:limite-caba')
+  assert.equal(result.lugares.length, 1)
+})
+
+test('si el límite de un barrio no devuelve POIs, reintenta por radio antes de informar que no hay lugares', async () => {
+  const env = entorno([
+    groq({ ...plan, zona: 'Almagro', zonaBusqueda: 'Almagro, Ciudad Autónoma de Buenos Aires, Argentina', alcance: 'zona' }),
+    { results: [{ suburb: 'Almagro', result_type: 'suburb', place_id: 'limite-almagro', formatted: 'Almagro, Buenos Aires, Argentina', lat: -34.61, lon: -58.42, rank: { confidence: 1 } }] },
+    { features: [] },
+    { features: [lugar] },
+    groq(recomendacion),
+  ])
+  const result = await buscarQBot({ pedido: 'un café por Almagro' }, env)
+  const respaldo = new URL(env.llamadas[3].url)
+  assert.equal(new URL(env.llamadas[2].url).searchParams.get('filter'), 'place:limite-almagro')
+  assert.equal(respaldo.searchParams.get('filter'), 'circle:-58.42,-34.61,3000')
+  assert.equal(respaldo.searchParams.get('bias'), 'proximity:-58.42,-34.61')
+  assert.equal(result.lugares.length, 1)
+})
+
 test('no ofrece de nuevo lugares ya mostrados ni los manda a la IA', async () => {
   const nuevo = { properties: { ...lugar.properties, place_id: 'otro-cafe', name: 'Otro café' } }
   const env = entorno([groq(plan), { features: [lugar, nuevo] }, groq({ mensaje: 'Otra opción.', recomendaciones: [{ id: 'otro-cafe', motivo: 'Cafetería.' }] })])
