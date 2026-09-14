@@ -29,11 +29,11 @@ export default function AppTabs() {
 
           height: 70,
 
-          backgroundColor: '#1e1e25',
+          backgroundColor: "#202027",
 
           borderRadius: 22,
           borderWidth: 1,
-          borderColor: '#292933',
+          borderColor: "#30303A",
 
           paddingTop: 8,
           paddingBottom: 8,
@@ -48,7 +48,7 @@ export default function AppTabs() {
           shadowOpacity: 0.3,
           shadowRadius: 8,
         },
-        
+
         tabBarActiveTintColor: '#FFFFFF',
         tabBarInactiveTintColor: '#6F7078',
 

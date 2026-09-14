@@ -1,4 +1,4 @@
-import React from 'react'
+import React from "react";
 import {
   StyleSheet,
   Text,
@@ -7,44 +7,38 @@ import {
   ScrollView,
   TouchableOpacity,
   Linking,
-} from 'react-native'
-import { SafeAreaView } from 'react-native-safe-area-context'
-import { useNavigation, useRoute } from '@react-navigation/native'
-import Ionicons from '@expo/vector-icons/Ionicons'
-import Entypo from '@expo/vector-icons/Entypo'
-import Iconos from '../../components/Iconos'
-import Loading from '../../components/Loading'
-import ErrorMessage from '../../components/MensajeError'
-import useRecommendationDetail from '../../hooks/useRecommendationDetail'
+} from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { useNavigation, useRoute } from "@react-navigation/native";
+import Ionicons from "@expo/vector-icons/Ionicons";
+import Entypo from "@expo/vector-icons/Entypo";
+import Iconos from "../../components/Iconos";
+import Loading from "../../components/Loading";
+import ErrorMessage from "../../components/MensajeError";
+import useRecommendationDetail from "../../hooks/useRecommendationDetail";
 
 export default function InfoRecomendaciones({ lugarOverride, onBack }) {
-  const navigation = useNavigation()
-  const route = useRoute()
+  const navigation = useNavigation();
+  const route = useRoute();
 
-  const lugarInicial = lugarOverride || route.params?.lugar || null
+  const lugarInicial = lugarOverride || route.params?.lugar || null;
 
-  const {
-    lugar,
-    categoria,
-    googleMapsUrl,
-    loading,
-    error,
-    refresh,
-  } = useRecommendationDetail(lugarInicial)
+  const { lugar, categoria, googleMapsUrl, loading, error, refresh } =
+    useRecommendationDetail(lugarInicial);
 
   function volver() {
     if (onBack) {
-      onBack()
-      return
+      onBack();
+      return;
     }
 
     if (navigation.canGoBack()) {
-      navigation.goBack()
+      navigation.goBack();
     }
   }
 
   if (loading) {
-    return <Loading />
+    return <Loading />;
   }
 
   return (
@@ -56,11 +50,11 @@ export default function InfoRecomendaciones({ lugarOverride, onBack }) {
         </TouchableOpacity>
 
         <Image
-          source={require('../../../assets/img/Placeholders/PlaceholderPerfil.png')}
+          source={require("../../../assets/img/Placeholders/laHormiga.png")}
           style={styles.imagen}
         />
 
-        <Text style={styles.titulo}>{lugar?.nombre || 'Lugar'}</Text>
+        <Text style={styles.titulo}>{lugar?.nombre || "Lugar"}</Text>
 
         <View style={styles.ratingContainer}>
           <View style={styles.rating}>
@@ -77,17 +71,16 @@ export default function InfoRecomendaciones({ lugarOverride, onBack }) {
           onPress={() => Linking.openURL(googleMapsUrl)}
         >
           <Ionicons name="images-outline" size={22} color="#000" />
-          <Text style={styles.textoBoton}>Ver fotos y ficha en Google Maps</Text>
+          <Text style={styles.textoBoton}>
+            Ver fotos y ficha en Google Maps
+          </Text>
         </TouchableOpacity>
 
         {error ? (
           <View style={styles.errorContainer}>
             <ErrorMessage mensaje={error} />
 
-            <TouchableOpacity
-              style={styles.reintentar}
-              onPress={refresh}
-            >
+            <TouchableOpacity style={styles.reintentar} onPress={refresh}>
               <Text style={styles.reintentarTexto}>Reintentar</Text>
             </TouchableOpacity>
           </View>
@@ -98,7 +91,9 @@ export default function InfoRecomendaciones({ lugarOverride, onBack }) {
             <Iconos
               titulo="Descripción"
               size={36}
-              icono={<Ionicons name="information-circle" size={24} color="#000" />}
+              icono={
+                <Ionicons name="information-circle" size={24} color="#000" />
+              }
             />
 
             <View style={styles.card}>
@@ -115,8 +110,7 @@ export default function InfoRecomendaciones({ lugarOverride, onBack }) {
 
         <View style={styles.card}>
           <View style={styles.filaInfo}>
-            <Entypo name="location-pin" size={20} color="#57C7A3" />
-            <Text style={styles.infoTexto}>{lugar?.direccion || '-'}</Text>
+            <Text style={styles.infoTexto}>{lugar?.direccion || "-"}</Text>
           </View>
         </View>
 
@@ -129,28 +123,28 @@ export default function InfoRecomendaciones({ lugarOverride, onBack }) {
         <View style={styles.card}>
           <View style={styles.infoRow}>
             <Text style={styles.label}>Ciudad</Text>
-            <Text style={styles.valor}>{lugar?.ciudad || '-'}</Text>
+            <Text style={styles.valor}>{lugar?.ciudad || "-"}</Text>
           </View>
 
           <View style={styles.separador} />
 
           <View style={styles.infoRow}>
             <Text style={styles.label}>Provincia</Text>
-            <Text style={styles.valor}>{lugar?.provincia || '-'}</Text>
+            <Text style={styles.valor}>{lugar?.provincia || "-"}</Text>
           </View>
 
           <View style={styles.separador} />
 
           <View style={styles.infoRow}>
             <Text style={styles.label}>Código Postal</Text>
-            <Text style={styles.valor}>{lugar?.codigoPostal || '-'}</Text>
+            <Text style={styles.valor}>{lugar?.codigoPostal || "-"}</Text>
           </View>
 
           <View style={styles.separador} />
 
           <View style={styles.infoRow}>
             <Text style={styles.label}>País</Text>
-            <Text style={styles.valor}>{lugar?.pais || '-'}</Text>
+            <Text style={styles.valor}>{lugar?.pais || "-"}</Text>
           </View>
         </View>
 
@@ -194,128 +188,128 @@ export default function InfoRecomendaciones({ lugarOverride, onBack }) {
         ) : null}
       </ScrollView>
     </SafeAreaView>
-  )
+  );
 }
 
 const styles = StyleSheet.create({
   fondo: {
     flex: 1,
-    backgroundColor: '#15151C',
+    backgroundColor: "#15151C",
     padding: 25,
     paddingBottom: 90,
   },
   botonVolver: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    alignSelf: 'flex-start',
+    flexDirection: "row",
+    alignItems: "center",
+    alignSelf: "flex-start",
   },
   textoVolver: {
-    color: 'white',
-    fontFamily: 'Utendo',
+    color: "white",
+    fontFamily: "Utendo",
     marginLeft: 4,
     fontSize: 15,
   },
   imagen: {
-    width: '100%',
+    width: "100%",
     height: 220,
-    borderRadius: 18,
+    borderRadius: 10,
     marginTop: 15,
   },
   titulo: {
-    color: 'white',
-    fontFamily: 'CashMarket',
+    color: "white",
+    fontFamily: "CashMarket",
     fontSize: 28,
-    marginTop: 18,
+    marginTop: 12,
   },
   ratingContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     marginTop: 14,
     marginBottom: 28,
   },
   rating: {
-    backgroundColor: '#FFE28A',
+    backgroundColor: "#54267e",
     borderRadius: 25,
     paddingHorizontal: 14,
     paddingVertical: 8,
     marginRight: 10,
   },
   ratingTexto: {
-    color: '#000',
-    fontFamily: 'CashMarket',
+    color: "#FFF",
+    fontFamily: "CashMarket",
     fontSize: 13,
   },
   categoria: {
-    backgroundColor: '#57C7A3',
+    backgroundColor: "#57C7A3",
     borderRadius: 25,
     paddingHorizontal: 14,
     paddingVertical: 8,
   },
   categoriaTexto: {
-    color: '#000',
-    fontFamily: 'CashMarket',
+    color: "#000",
+    fontFamily: "CashMarket",
     fontSize: 13,
   },
   card: {
-    backgroundColor: '#23232D',
+    backgroundColor: "#23232D",
     borderRadius: 18,
     padding: 18,
     marginTop: 12,
     marginBottom: 26,
   },
   filaInfo: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
   },
   infoTexto: {
-    color: 'white',
-    fontFamily: 'Utendo',
+    color: "white",
+    fontFamily: "Utendo",
     fontSize: 15,
     marginLeft: 10,
     flex: 1,
     lineHeight: 22,
   },
   descripcion: {
-    color: 'white',
-    fontFamily: 'Utendo',
+    color: "white",
+    fontFamily: "Utendo",
     fontSize: 15,
     lineHeight: 23,
   },
   infoRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
     paddingVertical: 12,
   },
   label: {
-    color: '#BDBDC7',
-    fontFamily: 'CashMarket',
+    color: "#BDBDC7",
+    fontFamily: "CashMarket",
     fontSize: 14,
   },
   valor: {
-    color: 'white',
-    fontFamily: 'Utendo',
+    color: "white",
+    fontFamily: "Utendo",
     fontSize: 14,
     flex: 1,
-    textAlign: 'right',
+    textAlign: "right",
     marginLeft: 20,
   },
   separador: {
     height: 1,
-    backgroundColor: '#39394A',
+    backgroundColor: "#39394A",
   },
   botonMaps: {
-    backgroundColor: '#57C7A3',
+    backgroundColor: "#57C7A3",
     borderRadius: 16,
     height: 58,
-    justifyContent: 'center',
-    alignItems: 'center',
-    flexDirection: 'row',
-    marginBottom: 30,
+    justifyContent: "center",
+    alignItems: "center",
+    flexDirection: "row",
+    marginBottom: 20,
   },
   textoBoton: {
-    color: '#000',
-    fontFamily: 'CashMarket',
+    color: "#000",
+    fontFamily: "CashMarket",
     fontSize: 16,
     marginLeft: 10,
   },
@@ -323,15 +317,15 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   reintentar: {
-    alignSelf: 'center',
-    backgroundColor: '#4A216F',
+    alignSelf: "center",
+    backgroundColor: "#4A216F",
     borderRadius: 10,
     paddingHorizontal: 16,
     paddingVertical: 10,
     marginTop: 6,
   },
   reintentarTexto: {
-    color: 'white',
-    fontFamily: 'Utendo',
+    color: "white",
+    fontFamily: "Utendo",
   },
-})
+});

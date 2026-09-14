@@ -64,8 +64,6 @@ export default function Home() {
           {item.integrantes || "Grupo"}
         </Text>
       </View>
-
-      <Text style={styles.grupoFlecha}>›</Text>
     </TouchableOpacity>
   );
 
@@ -108,16 +106,12 @@ export default function Home() {
             horizontal
             data={events}
             renderItem={({ item }) => (
-              <CardJuntadas
-                evento={item}
-                navigation={navigation}
-              />
+              <CardJuntadas evento={item} navigation={navigation} />
             )}
             keyExtractor={(item) => item.id.toString()}
             showsHorizontalScrollIndicator={false}
             contentContainerStyle={styles.eventList}
           />
-
         ) : (
           <View style={styles.emptyState}>
             <Text style={styles.emptyText}>No tenés próximas juntadas</Text>
@@ -205,14 +199,14 @@ const styles = StyleSheet.create({
   searchBox: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#2B2B32",
-    borderRadius: 16,
-    paddingHorizontal: 12,
+    backgroundColor: "#202027",
+    borderRadius: 15,
+    paddingHorizontal: 15,
     height: 52,
-    marginBottom: 40,
+    marginBottom: 34,
     borderWidth: 1,
-    borderColor: "#4D4D57",
-        shadowColor: "#000",
+    borderColor: "#353540",
+    shadowColor: "#000",
     shadowOffset: {
       width: 0,
       height: 5,
@@ -224,29 +218,29 @@ const styles = StyleSheet.create({
   searchInput: {
     flex: 1,
     color: "#FFFFFF",
-    marginLeft: 10,
+    marginLeft: 11,
     fontSize: 16,
-    
   },
   sectionHeader: {
-    marginBottom: 12,
+    marginBottom: 16,
   },
   sectionHeaderRow: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    marginBottom: 12,
-    marginTop: 25,
+    marginBottom: 14,
+    marginTop: 30,
   },
   sectionTitleWrap: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 8,
+    gap: 10,
   },
   sectionTitle: {
     color: "#FFFFFF",
     fontSize: 23,
     fontWeight: "700",
+    letterSpacing: -0.4,
   },
   eventList: {
     paddingRight: 14,
@@ -272,12 +266,12 @@ const styles = StyleSheet.create({
   grupoCard: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#4A216F",
+    backgroundColor: "#5C3E94",
     borderRadius: 18,
-    padding: 10,
-    marginBottom: 12.5,
-    borderWidth: 1.5,
-    borderColor: "#512377",
+    paddingVertical: 10,
+    paddingHorizontal: 12,
+    marginBottom: 12,
+    minHeight: 74,
     shadowColor: "#000",
     shadowOffset: {
       width: 0,
@@ -288,9 +282,9 @@ const styles = StyleSheet.create({
     elevation: 6,
   },
   grupoImagen: {
-    width: 50,
-    height: 50,
-    borderRadius: 12.5,
+    width: 54,
+    height: 54,
+    borderRadius: 14,
   },
   grupoInfo: {
     marginLeft: 12,
@@ -299,18 +293,12 @@ const styles = StyleSheet.create({
   grupoNombre: {
     color: "#FFFFFF",
     fontSize: 17,
-    fontWeight: "600",
+    fontWeight: "700",
   },
   grupoIntegrantes: {
     color: "#B9B9C7",
     fontSize: 13,
-    marginTop: 3,
-  },
-  grupoFlecha: {
-    color: "#ffffff",
-    fontSize: 27,
-
-    marginLeft: 8,
+    marginTop: 4,
   },
   emptyState: {
     backgroundColor: "#4A216F",
@@ -344,11 +332,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "space-between",
     marginBottom: 20,
-  },
-  modalTitle: {
-    color: "#FFFFFF",
-    fontSize: 24,
-    fontWeight: "700",
   },
   modalTitulo: {
     color: "#FFFFFF",

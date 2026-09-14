@@ -1,241 +1,198 @@
-import React from 'react'
-import { View, Text, Pressable, StyleSheet } from 'react-native'
-import FontAwesome6 from '@expo/vector-icons/FontAwesome6'
-import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons'
+import React from "react";
+import { View, Text, Pressable, StyleSheet } from "react-native";
+import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
+import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 
 function CardJuntadas({ evento, navigation }) {
-    const fecha = evento.fecha_hora_inicio
-        ? new Date(evento.fecha_hora_inicio)
-        : null
+  const fecha = evento.fecha_hora_inicio
+    ? new Date(evento.fecha_hora_inicio)
+    : null;
 
-    const dia = fecha
-        ? fecha.toLocaleDateString('es-AR', {
-            day: '2-digit',
+  const dia = fecha
+    ? fecha.toLocaleDateString("es-AR", {
+        day: "2-digit",
+      })
+    : "--";
+
+  const mes = fecha
+    ? fecha
+        .toLocaleDateString("es-AR", {
+          month: "short",
         })
-        : '--'
+        .replace(".", "")
+        .toUpperCase()
+    : "---";
 
-    const mes = fecha
-        ? fecha.toLocaleDateString('es-AR', {
-            month: 'short',
-        }).replace('.', '').toUpperCase()
-        : '---'
+  const horaTexto = fecha
+    ? fecha.toLocaleTimeString("es-AR", {
+        hour: "2-digit",
+        minute: "2-digit",
+      })
+    : "--:--";
 
-    const horaTexto = fecha
-        ? fecha.toLocaleTimeString('es-AR', {
-            hour: '2-digit',
-            minute: '2-digit',
+  return (
+    <Pressable
+      style={({ pressed }) => [styles.card, pressed && styles.cardPressed]}
+      onPress={() =>
+        navigation.navigate("Juntada", {
+          idEvento: evento.id,
         })
-        : '--:--'
+      }
+    >
+      <View style={styles.header}>
+        <View style={styles.fechaContainer}>
+          <View style={styles.fechaBox}>
+            <Text style={styles.dia}>{dia}</Text>
 
-    return (
-        <Pressable
-            style={({ pressed }) => [
-                styles.card,
-                pressed && styles.cardPressed,
-            ]}
-            onPress={() =>
-                navigation.navigate('Juntada', {
-                    idEvento: evento.id,
-                })
-            }
-        >
-            <View style={styles.header}>
+            <Text style={styles.mes}>{mes}</Text>
+          </View>
 
-                <View style={styles.fechaContainer}>
+          <Text style={styles.hora}>{horaTexto}</Text>
+        </View>
 
-                    <View style={styles.fechaBox}>
-                        <Text style={styles.dia}>
-                            {dia}
-                        </Text>
+        <View style={styles.infoContainer}>
+          <View style={styles.infoRow}>
+            <FontAwesome6 name="users" size={12} color="#fff" />
 
-                        <Text style={styles.mes}>
-                            {mes}
-                        </Text>
-                    </View>
-
-
-                        <Text style={styles.hora}>
-                            {horaTexto}
-                        </Text>
-
-                </View>
-
-                <View style={styles.infoContainer}>
-
-                    <View style={styles.infoRow}>
-                        <FontAwesome6
-                            name="users"
-                            size={12}
-                            color="#BDBDC7"
-                        />
-
-                        <Text
-                            style={styles.infoTexto}
-                            numberOfLines={1}
-                        >
-                            {evento.grupo?.nombre || 'Sin grupo'}
-                        </Text>
-                    </View>
-
-                    <View style={styles.infoRow}>
-                        <FontAwesome6
-                            name="location-dot"
-                            size={12}
-                            color="#BDBDC7"
-                        />
-
-                        <Text
-                            style={styles.infoTexto}
-                            numberOfLines={1}
-                        >
-                            {evento.lugar || 'Sin ubicación'}
-                        </Text>
-                    </View>
-
-                </View>
-
-            </View>
-
-            <View style={styles.separador} />
-
-            <Text
-                style={styles.nombre}
-                numberOfLines={2}
-            >
-                {evento.nombre}
+            <Text style={styles.infoTexto} numberOfLines={1}>
+              {evento.grupo?.nombre || "Sin grupo"}
             </Text>
+          </View>
 
-        </Pressable>
-    )
+          <View style={styles.infoRow}>
+            <FontAwesome6 name="location-dot" size={12} color="#fff" />
+
+            <Text style={styles.infoTexto} numberOfLines={1}>
+              {evento.lugar || "Sin ubicación"}
+            </Text>
+          </View>
+        </View>
+      </View>
+
+      <View style={styles.separador} />
+
+      <Text style={styles.nombre} numberOfLines={2}>
+        {evento.nombre}
+      </Text>
+    </Pressable>
+  );
 }
 
 const styles = StyleSheet.create({
-    card: {
-        width: 245,
-        height: 150,
-        backgroundColor: '#4A216F',
-        borderRadius: 18,
-        borderWidth: 1,
-        borderColor: '#5A2A80',
-        padding: 14,
-        marginTop: 10,
-        marginBottom: 15,
-        marginRight: 12,
-        shadowOpacity: 0.35,
-        shadowRadius: 6,
-        elevation: 7,
-        overflow: 'hidden',
-    },
+  card: {
+    width: 245,
+    height: 145,
+    backgroundColor: "#5C3E94",
+    borderRadius: 18,
+    padding: 14,
+    marginTop: 10,
+    marginBottom: 15,
+    marginRight: 12,
+    shadowOpacity: 0.35,
+    shadowRadius: 6,
+    elevation: 7,
+    overflow: "hidden",
+  },
 
-    cardPressed: {
-        opacity: 0.88,
-        transform: [
-            {
-                scale: 0.98,
-            },
-        ],
-    },
+  cardPressed: {
+    opacity: 0.88,
+    transform: [
+      {
+        scale: 0.98,
+      },
+    ],
+  },
 
-    header: {
-        flexDirection: 'row',
-        alignItems: 'flex-start',
-    },
+  header: {
+    flexDirection: "row",
+    alignItems: "flex-start",
+  },
 
-    fechaContainer: {
-        width: 48,
-        alignItems: 'center',
-    },
+  fechaContainer: {
+    width: 48,
+    alignItems: "center",
+  },
 
-    fechaBox: {
-        width: 48,
-        height: 48,
-        backgroundColor: '#32184B',
-        borderRadius: 12,
-        alignItems: 'center',
-        justifyContent: 'center',
-        borderWidth: 1,
-        borderColor: '#5E3280',
-        marginBottom: 7
-    },
+  fechaBox: {
+    width: 48,
+    height: 48,
+    backgroundColor: "#3f2b63",
+    borderRadius: 12,
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: 7,
+  },
 
-    dia: {
-        color: '#FFFFFF',
-        fontSize: 20,
-        fontFamily: 'CashMarket',
+  dia: {
+    color: "#FFFFFF",
+    fontSize: 20,
+    fontFamily: "CashMarket",
 
-        lineHeight: 21,
-    },
+    lineHeight: 21,
+  },
 
-    mes: {
-        color: '#57C7A3',
-        fontSize: 9,
-        fontFamily: 'Utendo',
+  mes: {
+    color: "#57C7A3",
+    fontSize: 9,
+    fontFamily: "Utendo",
 
-        marginTop: 1,
-    },
+    marginTop: 1,
+  },
 
-    horaRow: {
-        flexDirection: 'row',
-        alignItems: 'center',
-    },
+  horaRow: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
 
-    hora: {
-        color: '#57C7A3',
-        fontSize: 9,
-        fontFamily: 'Utendo',
-        marginLeft: 4,
-    },
+  hora: {
+    color: "#57C7A3",
+    fontSize: 9,
+    fontFamily: "Utendo",
+    marginLeft: 4,
+  },
 
-    infoContainer: {
-        flex: 1,
-        marginLeft: 15,
-        paddingTop: 2,
-        alignSelf: 'center',
-    },
+  infoContainer: {
+    flex: 1,
+    marginLeft: 15,
+    paddingTop: 2,
+    alignSelf: "center",
+  },
 
-    infoRow: {
-        flexDirection: 'row',
-        alignItems: 'center',
+  infoRow: {
+    flexDirection: "row",
+    alignItems: "center",
 
-        marginBottom: 8,
+    marginBottom: 8,
 
-        paddingRight: 5,
-    },
+    paddingRight: 5,
+  },
 
-    infoTexto: {
-        color: '#C4C2CA',
+  infoTexto: {
+    color: "#ffffff",
 
-        fontSize: 11,
-        fontFamily: 'Utendo',
+    fontSize: 11,
+    fontFamily: "Utendo",
 
-        marginLeft: 7,
+    marginLeft: 7,
 
-        flexShrink: 1,
-    },
+    flexShrink: 1,
+  },
 
-    /*
-     * SEPARADOR
-     */
-    separador: {
-        height: 1,
+  separador: {
+    height: 1,
+    backgroundColor: "rgba(255, 255, 255, 0.18)",
+    marginTop: 10,
+    marginBottom: 10,
+  },
 
-        backgroundColor: '#623487',
+  nombre: {
+    color: "#FFFFFF",
+    fontSize: 20,
+    lineHeight: 23,
+    fontFamily: "CashMarket",
+    paddingRight: 5,
+    marginBottom: 10,
+  },
+});
 
-        marginTop: 13,
-        marginBottom: 12,
-    },
-
-    /*
-     * NOMBRE
-     */
-    nombre: {
-        color: '#FFFFFF',
-        fontSize: 20,
-        lineHeight: 23,
-        fontFamily: 'CashMarket',
-        paddingRight: 5,
-        marginBottom: 10,
-    },
-})
-
-export default CardJuntadas
+export default CardJuntadas;
