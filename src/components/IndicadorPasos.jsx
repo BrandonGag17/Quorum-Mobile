@@ -46,7 +46,6 @@ function IndicadorPasos({
 
 const styles = StyleSheet.create({
     todo: {
-        marginTop: '7.5%',
         paddingBottom: 10,
     },
     container: {

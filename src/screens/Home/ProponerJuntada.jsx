@@ -316,6 +316,7 @@ export default function ProponerJuntada() {
             nombre="+ Agregar fecha"
             onPress={añadirFecha}
             disabled={cargando}
+            backgroundColor="#57C7A3"
           />
 
           {opcionesFechas.length > 0 && (
@@ -347,7 +348,27 @@ export default function ProponerJuntada() {
             </View>
           )}
 
-          <Text style={styles.seccion}>Lugares</Text>
+          <View style={styles.tituloLugares}>
+            <Text style={styles.seccion}>Lugares</Text>
+
+            <Pressable
+              style={styles.botonRecomendar}
+              onPress={() =>
+                navigation.navigate("RecomendacionesGrupo", { idGrupo })
+              }
+              disabled={cargando || !idGrupo}
+            >
+              <MaterialCommunityIcons
+                name="lightbulb-on"
+                size={18}
+                color="#FFFFFF"
+              />
+
+              <Text style={styles.textoRecomendar}>
+                Recomendar
+              </Text>
+            </Pressable>
+          </View>
 
           <InputApp
             value={lugarTemporal}
@@ -359,14 +380,7 @@ export default function ProponerJuntada() {
             nombre="+ Agregar lugar"
             onPress={añadirLugar}
             disabled={cargando}
-          />
-
-          <ButtonApp
-            nombre="Recomendar lugares para el grupo"
-            onPress={() =>
-              navigation.navigate("RecomendacionesGrupo", { idGrupo })
-            }
-            disabled={cargando || !idGrupo}
+            backgroundColor="#57C7A3"
           />
 
           {opcionesLugares.length > 0 && (
@@ -490,7 +504,8 @@ const styles = StyleSheet.create({
   fondo: {
     flex: 1,
     backgroundColor: "#15151C",
-    padding: 25,
+    paddingLeft: 25,
+    paddingRight: 25,
   },
 
   contenedorIndicador: {
@@ -509,6 +524,7 @@ const styles = StyleSheet.create({
     fontFamily: "CashMarket",
     fontSize: 26,
     marginBottom: 10,
+    marginTop: 10
   },
 
   descripcionPaso: {
@@ -516,7 +532,7 @@ const styles = StyleSheet.create({
     fontFamily: "Utendo",
     fontSize: 15,
     lineHeight: 22,
-    marginBottom: 25,
+    marginBottom: 20,
   },
 
   label: {
@@ -535,8 +551,7 @@ const styles = StyleSheet.create({
     color: "#FFFFFF",
     fontFamily: "CashMarket",
     fontSize: 19,
-    marginTop: 25,
-    marginBottom: 12,
+    marginBottom: 3,
   },
 
   scroll: {
@@ -611,7 +626,33 @@ const styles = StyleSheet.create({
   },
 
   botonContainer: {
-    marginTop: "auto",
-    marginBottom: 20,
+    position: "absolute",
+    left: 25,
+    right: 25,
+    bottom: 80,
+  },
+
+  tituloLugares: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    marginTop: 25,
+    marginBottom: 5,
+  },
+
+  botonRecomendar: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+    backgroundColor: "#5E2D82",
+    paddingHorizontal: 12,
+    paddingVertical: 7,
+    borderRadius: 10,
+  },
+
+  textoRecomendar: {
+    color: "#FFFFFF",
+    fontFamily: "Utendo",
+    fontSize: 12,
   },
 });
