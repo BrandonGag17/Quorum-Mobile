@@ -18,9 +18,6 @@ const DEFAULT_CATEGORIES = [
   'leisure.park',
 ]
 
-// En la base los nombres pueden venir decorados (por ejemplo "🎮 Juegos"),
-// mientras que tiposPorGusto usa nombres limpios ("Juegos"). Primero probamos
-// coincidencia exacta y después comprobamos si termina con una clave conocida.
 function obtenerTiposParaGusto(nombreGusto) {
   if (!nombreGusto) {
     return []
@@ -114,11 +111,6 @@ async function obtenerCoordenadasDesdeTexto(localidad) {
   }
 }
 
-// Resuelve los dos formatos que hoy pueden existir en la base:
-// 1. JSON con centroide, usado por los registros nuevos.
-// 2. Texto ("localidad, provincia"), usado por cuentas anteriores.
-// A diferencia de obtenerCoordenadasUsuario, esta función no aplica un punto
-// predeterminado. Así, un miembro sin ubicación no altera el centro del grupo.
 async function resolverCoordenadasLocalidad(localidad) {
   return (
     extractCoordinates(localidad) ||
@@ -174,9 +166,6 @@ export async function obtenerCoordenadasUsuario(userId) {
   return coordenadasResueltas || DEFAULT_COORDS
 }
 
-// Calculamos el promedio de latitudes y longitudes conocidas. Para grupos que
-// se mueven dentro de una misma ciudad es una aproximación clara al punto medio
-// y evita favorecer la casa de un integrante particular.
 function calcularCentroGrupo(coordenadas) {
   if (!coordenadas.length) {
     return DEFAULT_COORDS
@@ -196,8 +185,6 @@ function calcularCentroGrupo(coordenadas) {
   }
 }
 
-// Geoapify puede devolver una categoría más específica que la solicitada.
-// Por ejemplo, "entertainment.cinema" también coincide con "entertainment".
 function categoriasCoinciden(categoriaLugar, categoriaPreferida) {
   return (
     categoriaLugar === categoriaPreferida ||
@@ -211,8 +198,6 @@ async function obtenerPerfilRecomendacionGrupo(groupId) {
     throw new Error('No se recibió el grupo para generar recomendaciones')
   }
 
-  // Primero necesitamos solamente los IDs. Luego hacemos dos consultas
-  // agrupadas, en vez de consultar gustos y localidad miembro por miembro.
   const { data: membresias, error: errorMembresias } = await supabase
     .from('usuario_grupo')
     .select('id_usuario')
@@ -260,8 +245,6 @@ async function obtenerPerfilRecomendacionGrupo(groupId) {
     throw respuestaUsuarios.error
   }
 
-  // Cada categoría suma como máximo un voto por integrante. Esto evita que un
-  // gusto que se traduce a muchas categorías valga artificialmente más.
   const categoriasPorUsuario = new Map()
   const gustosPorUsuario = new Map()
 
@@ -331,23 +314,17 @@ export async function obtenerRecomendacionesGrupo({
   const { gustosConPeso, categoriasConPeso, centro } =
     await obtenerPerfilRecomendacionGrupo(groupId)
 
-  // Este log es intencional para poder auditar durante el desarrollo qué
-  // preferencias del grupo están participando en cada recomendación.
   console.log(
     '[RecomendacionesGrupo] Gustos considerados:',
     gustosConPeso
   )
 
-  // Si hay gustos pero ninguno se pudo traducir a categorías, no mostramos
-  // resultados generales que podrían no tener relación con el grupo.
   if (gustosConPeso.length && !categoriasConPeso.length) {
     throw new Error(
       'Los gustos del grupo no tienen categorías de lugares configuradas'
     )
   }
 
-  // Limitamos la cantidad de categorías enviadas para que la búsqueda siga
-  // siendo específica. Si nadie cargó gustos usamos las categorías generales.
   const categoriasBusqueda = (
     categoriasConPeso.length
       ? categoriasConPeso.map((item) => item.categoria)
@@ -368,8 +345,6 @@ export async function obtenerRecomendacionesGrupo({
 
   const idsExcluidos = new Set(excluirIds.map(String))
 
-  // Conservamos el orden de Geoapify para desempatar: normalmente ya prioriza
-  // resultados cercanos. El puntaje principal representa gustos compartidos.
   return (lugares || [])
     .filter((lugar) => !idsExcluidos.has(String(lugar.id)))
     .map((lugar, indice) => {

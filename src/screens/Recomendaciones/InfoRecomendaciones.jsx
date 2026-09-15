@@ -1,4 +1,4 @@
-import React from 'react'
+import React from "react";
 import {
   StyleSheet,
   Text,
@@ -7,77 +7,117 @@ import {
   ScrollView,
   TouchableOpacity,
   Linking,
-} from 'react-native'
-import { SafeAreaView } from 'react-native-safe-area-context'
-import { useNavigation, useRoute } from '@react-navigation/native'
-import Ionicons from '@expo/vector-icons/Ionicons'
-import Entypo from '@expo/vector-icons/Entypo'
-import Iconos from '../../components/Iconos'
-import Loading from '../../components/Loading'
-import ErrorMessage from '../../components/MensajeError'
-import useRecommendationDetail from '../../hooks/useRecommendationDetail'
+} from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { useNavigation, useRoute } from "@react-navigation/native";
+import Ionicons from "@expo/vector-icons/Ionicons";
+import Entypo from "@expo/vector-icons/Entypo";
+
+import Loading from "../../components/Loading";
+import ErrorMessage from "../../components/MensajeError";
+import useRecommendationDetail from "../../hooks/useRecommendationDetail";
 
 export default function InfoRecomendaciones({ lugarOverride, onBack }) {
-  const navigation = useNavigation()
-  const route = useRoute()
+  const navigation = useNavigation();
+  const route = useRoute();
 
-  const lugarInicial = lugarOverride || route.params?.lugar || null
+  const lugarInicial = lugarOverride || route.params?.lugar || null;
 
-  const {
-    lugar,
-    categoria,
-    googleMapsUrl,
-    loading,
-    error,
-    refresh,
-  } = useRecommendationDetail(lugarInicial)
+  const { lugar, categoria, googleMapsUrl, loading, error, refresh } =
+    useRecommendationDetail(lugarInicial);
 
   function volver() {
     if (onBack) {
-      onBack()
-      return
+      onBack();
+      return;
     }
 
     if (navigation.canGoBack()) {
-      navigation.goBack()
+      navigation.goBack();
     }
   }
 
   if (loading) {
-    return <Loading />
+    return <Loading />;
   }
 
   return (
     <SafeAreaView style={styles.fondo}>
-      <ScrollView showsVerticalScrollIndicator={false}>
-        <TouchableOpacity style={styles.botonVolver} onPress={volver}>
-          <Ionicons name="chevron-back" size={22} color="#FFFFFF" />
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={styles.contenido}
+      >
+        <TouchableOpacity
+          style={styles.botonVolver}
+          onPress={volver}
+          activeOpacity={0.7}
+        >
+          <Ionicons name="chevron-back" size={21} color="#B9B9C7" />
+
           <Text style={styles.textoVolver}>Volver</Text>
         </TouchableOpacity>
 
-        <Image
-          source={require('../../../assets/img/Placeholders/PlaceholderPerfil.png')}
-          style={styles.imagen}
-        />
+        <View style={styles.imagenContainer}>
+          <Image
+            source={require("../../../assets/img/Placeholders/laHormiga.png")}
+            style={styles.imagen}
+          />
 
-        <Text style={styles.titulo}>{lugar?.nombre || 'Lugar'}</Text>
+          <TouchableOpacity
+            style={styles.mapsFlotante}
+            onPress={() => Linking.openURL(googleMapsUrl)}
+            activeOpacity={0.8}
+          >
+            <Ionicons name="map-outline" size={20} color="#FFFFFF" />
+          </TouchableOpacity>
+        </View>
 
-        <View style={styles.ratingContainer}>
+        <Text style={styles.titulo}>{lugar?.nombre || "Lugar"}</Text>
+
+        <View style={styles.metaContainer}>
+          {categoria ? (
+            <View style={styles.categoria}>
+              <Text style={styles.categoriaTexto}>{categoria}</Text>
+            </View>
+          ) : null}
+
           <View style={styles.rating}>
-            <Text style={styles.ratingTexto}>⭐ Sin valoraciones</Text>
+            <Ionicons name="star-outline" size={14} color="#000" />
+
+            <Text style={styles.ratingTexto}>Sin valoraciones</Text>
+          </View>
+        </View>
+
+        <View style={styles.locationCard}>
+          <View style={styles.locationIcon}>
+            <Entypo name="location-pin" size={23} color="#5CC2A7" />
           </View>
 
-          <View style={styles.categoria}>
-            <Text style={styles.categoriaTexto}>{categoria}</Text>
+          <View style={styles.locationInfo}>
+            <Text style={styles.locationLabel}>Ubicación</Text>
+
+            <Text style={styles.locationAddress}>
+              {lugar?.direccion || "-"}
+            </Text>
+
+            {lugar?.ciudad || lugar?.provincia ? (
+              <Text style={styles.locationCity}>
+                {[lugar?.ciudad, lugar?.provincia].filter(Boolean).join(", ")}
+              </Text>
+            ) : null}
           </View>
         </View>
 
         <TouchableOpacity
           style={styles.botonMaps}
           onPress={() => Linking.openURL(googleMapsUrl)}
+          activeOpacity={0.8}
         >
-          <Ionicons name="images-outline" size={22} color="#000" />
-          <Text style={styles.textoBoton}>Ver fotos y ficha en Google Maps</Text>
+          <Ionicons name="map-outline" size={21} color="#15151C" />
+
+          <Text style={styles.textoBoton}>Abrir en Google Maps</Text>
+
+          <Ionicons name="arrow-forward" size={18} color="#15151C" />
         </TouchableOpacity>
 
         {error ? (
@@ -87,6 +127,7 @@ export default function InfoRecomendaciones({ lugarOverride, onBack }) {
             <TouchableOpacity
               style={styles.reintentar}
               onPress={refresh}
+              activeOpacity={0.8}
             >
               <Text style={styles.reintentarTexto}>Reintentar</Text>
             </TouchableOpacity>
@@ -94,82 +135,67 @@ export default function InfoRecomendaciones({ lugarOverride, onBack }) {
         ) : null}
 
         {lugar?.descripcion ? (
-          <>
-            <Iconos
-              titulo="Descripción"
-              size={36}
-              icono={<Ionicons name="information-circle" size={24} color="#000" />}
-            />
+          <View style={styles.seccion}>
+            <Text style={styles.seccionTitulo}>Descripción</Text>
 
-            <View style={styles.card}>
-              <Text style={styles.descripcion}>{lugar.descripcion}</Text>
-            </View>
-          </>
+            <Text style={styles.descripcion}>{lugar.descripcion}</Text>
+          </View>
         ) : null}
 
-        <Iconos
-          titulo="Ubicación"
-          size={36}
-          icono={<Entypo name="location-pin" size={24} color="#000" />}
-        />
+        <View style={styles.seccion}>
+          <Text style={styles.seccionTitulo}>Información</Text>
 
-        <View style={styles.card}>
-          <View style={styles.filaInfo}>
-            <Entypo name="location-pin" size={20} color="#57C7A3" />
-            <Text style={styles.infoTexto}>{lugar?.direccion || '-'}</Text>
-          </View>
-        </View>
+          <View style={styles.infoCard}>
+            <View style={styles.infoRow}>
+              <Text style={styles.label}>Ciudad</Text>
 
-        <Iconos
-          titulo="Información"
-          size={36}
-          icono={<Ionicons name="information-circle" size={24} color="#000" />}
-        />
+              <Text style={styles.valor}>{lugar?.ciudad || "-"}</Text>
+            </View>
 
-        <View style={styles.card}>
-          <View style={styles.infoRow}>
-            <Text style={styles.label}>Ciudad</Text>
-            <Text style={styles.valor}>{lugar?.ciudad || '-'}</Text>
-          </View>
+            <View style={styles.separador} />
 
-          <View style={styles.separador} />
+            <View style={styles.infoRow}>
+              <Text style={styles.label}>Provincia</Text>
 
-          <View style={styles.infoRow}>
-            <Text style={styles.label}>Provincia</Text>
-            <Text style={styles.valor}>{lugar?.provincia || '-'}</Text>
-          </View>
+              <Text style={styles.valor}>{lugar?.provincia || "-"}</Text>
+            </View>
 
-          <View style={styles.separador} />
+            <View style={styles.separador} />
 
-          <View style={styles.infoRow}>
-            <Text style={styles.label}>Código Postal</Text>
-            <Text style={styles.valor}>{lugar?.codigoPostal || '-'}</Text>
-          </View>
+            <View style={styles.infoRow}>
+              <Text style={styles.label}>Código Postal</Text>
 
-          <View style={styles.separador} />
+              <Text style={styles.valor}>{lugar?.codigoPostal || "-"}</Text>
+            </View>
 
-          <View style={styles.infoRow}>
-            <Text style={styles.label}>País</Text>
-            <Text style={styles.valor}>{lugar?.pais || '-'}</Text>
+            <View style={styles.separador} />
+
+            <View style={styles.infoRow}>
+              <Text style={styles.label}>País</Text>
+
+              <Text style={styles.valor}>{lugar?.pais || "-"}</Text>
+            </View>
           </View>
         </View>
 
         {lugar?.telefono || lugar?.sitioWeb || lugar?.email ? (
-          <>
-            <Iconos
-              titulo="Contacto"
-              size={36}
-              icono={<Ionicons name="call" size={24} color="#000" />}
-            />
+          <View style={styles.seccion}>
+            <Text style={styles.seccionTitulo}>Contacto</Text>
 
-            <View style={styles.card}>
+            <View style={styles.infoCard}>
               {lugar?.telefono ? (
                 <>
                   <View style={styles.infoRow}>
                     <Text style={styles.label}>Teléfono</Text>
-                    <Text style={styles.valor}>{lugar.telefono}</Text>
+
+                    <Text style={styles.valor} numberOfLines={2}>
+                      {lugar.telefono}
+                    </Text>
                   </View>
-                  <View style={styles.separador} />
+
+                  {lugar?.sitioWeb || lugar?.email ? (
+                    <View style={styles.separador} />
+                  ) : null}
                 </>
               ) : null}
 
@@ -177,8 +203,12 @@ export default function InfoRecomendaciones({ lugarOverride, onBack }) {
                 <>
                   <View style={styles.infoRow}>
                     <Text style={styles.label}>Sitio web</Text>
-                    <Text style={styles.valor}>{lugar.sitioWeb}</Text>
+
+                    <Text style={styles.valor} numberOfLines={2}>
+                      {lugar.sitioWeb}
+                    </Text>
                   </View>
+
                   {lugar?.email ? <View style={styles.separador} /> : null}
                 </>
               ) : null}
@@ -186,152 +216,262 @@ export default function InfoRecomendaciones({ lugarOverride, onBack }) {
               {lugar?.email ? (
                 <View style={styles.infoRow}>
                   <Text style={styles.label}>Email</Text>
-                  <Text style={styles.valor}>{lugar.email}</Text>
+
+                  <Text style={styles.valor} numberOfLines={2}>
+                    {lugar.email}
+                  </Text>
                 </View>
               ) : null}
             </View>
-          </>
+          </View>
         ) : null}
       </ScrollView>
     </SafeAreaView>
-  )
+  );
 }
 
 const styles = StyleSheet.create({
   fondo: {
     flex: 1,
-    backgroundColor: '#15151C',
-    padding: 25,
-    paddingBottom: 90,
+    backgroundColor: "#15151C",
+    paddingHorizontal: 25,
+    paddingTop: 18,
   },
+
+  contenido: {
+    paddingBottom: 35,
+  },
+
   botonVolver: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    alignSelf: 'flex-start',
+    flexDirection: "row",
+    alignItems: "center",
+    alignSelf: "flex-start",
+    height: 40,
+    marginBottom: 8,
   },
+
   textoVolver: {
-    color: 'white',
-    fontFamily: 'Utendo',
-    marginLeft: 4,
-    fontSize: 15,
+    color: "#B9B9C7",
+    fontFamily: "Utendo",
+    fontSize: 14,
+    marginLeft: 2,
   },
-  imagen: {
-    width: '100%',
+
+  imagenContainer: {
+    width: "100%",
     height: 220,
-    borderRadius: 18,
-    marginTop: 15,
+    borderRadius: 20,
+    overflow: "hidden",
+    backgroundColor: "#493477",
+    marginTop: 4,
+    position: "relative",
   },
+
+  imagen: {
+    width: "100%",
+    height: "100%",
+  },
+
+  mapsFlotante: {
+    position: "absolute",
+    top: 12,
+    right: 12,
+    width: 42,
+    height: 42,
+    borderRadius: 13,
+    backgroundColor: "rgba(21, 21, 28, 0.78)",
+    alignItems: "center",
+    justifyContent: "center",
+    borderWidth: 1,
+    borderColor: "rgba(255, 255, 255, 0.12)",
+  },
+
   titulo: {
-    color: 'white',
-    fontFamily: 'CashMarket',
-    fontSize: 28,
-    marginTop: 18,
+    color: "#FFFFFF",
+    fontFamily: "CashMarket",
+    fontSize: 30,
+    lineHeight: 35,
+    marginTop: 16,
+    letterSpacing: -0.5,
   },
-  ratingContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginTop: 14,
-    marginBottom: 28,
-  },
-  rating: {
-    backgroundColor: '#FFE28A',
-    borderRadius: 25,
-    paddingHorizontal: 14,
-    paddingVertical: 8,
-    marginRight: 10,
-  },
-  ratingTexto: {
-    color: '#000',
-    fontFamily: 'CashMarket',
-    fontSize: 13,
-  },
-  categoria: {
-    backgroundColor: '#57C7A3',
-    borderRadius: 25,
-    paddingHorizontal: 14,
-    paddingVertical: 8,
-  },
-  categoriaTexto: {
-    color: '#000',
-    fontFamily: 'CashMarket',
-    fontSize: 13,
-  },
-  card: {
-    backgroundColor: '#23232D',
-    borderRadius: 18,
-    padding: 18,
-    marginTop: 12,
-    marginBottom: 26,
-  },
-  filaInfo: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  infoTexto: {
-    color: 'white',
-    fontFamily: 'Utendo',
-    fontSize: 15,
-    marginLeft: 10,
-    flex: 1,
-    lineHeight: 22,
-  },
-  descripcion: {
-    color: 'white',
-    fontFamily: 'Utendo',
-    fontSize: 15,
-    lineHeight: 23,
-  },
-  infoRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingVertical: 12,
-  },
-  label: {
-    color: '#BDBDC7',
-    fontFamily: 'CashMarket',
-    fontSize: 14,
-  },
-  valor: {
-    color: 'white',
-    fontFamily: 'Utendo',
-    fontSize: 14,
-    flex: 1,
-    textAlign: 'right',
-    marginLeft: 20,
-  },
-  separador: {
-    height: 1,
-    backgroundColor: '#39394A',
-  },
-  botonMaps: {
-    backgroundColor: '#57C7A3',
-    borderRadius: 16,
-    height: 58,
-    justifyContent: 'center',
-    alignItems: 'center',
-    flexDirection: 'row',
-    marginBottom: 30,
-  },
-  textoBoton: {
-    color: '#000',
-    fontFamily: 'CashMarket',
-    fontSize: 16,
-    marginLeft: 10,
-  },
-  errorContainer: {
+
+  metaContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginTop: 10,
     marginBottom: 20,
   },
-  reintentar: {
-    alignSelf: 'center',
-    backgroundColor: '#4A216F',
+
+  categoria: {
+    backgroundColor: "#5C3E94",
     borderRadius: 10,
+    paddingHorizontal: 11,
+    paddingVertical: 7,
+    marginRight: 8,
+    borderWidth: 1,
+    borderColor: "#6846A5",
+  },
+
+  categoriaTexto: {
+    color: "#FFFFFF",
+    fontFamily: "Utendo",
+    fontSize: 12,
+    fontWeight: "600",
+  },
+
+  rating: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#57C7A3",
+    borderRadius: 10,
+    paddingHorizontal: 11,
+    paddingVertical: 7,
+  },
+
+  ratingTexto: {
+    color: "#000",
+    fontFamily: "Utendo",
+    fontSize: 12,
+    fontWeight: "600",
+    marginLeft: 5,
+  },
+
+  locationCard: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#202027",
+    borderRadius: 16,
+    padding: 15,
+    marginBottom: 12,
+    borderWidth: 1,
+    borderColor: "#353540",
+  },
+
+  locationIcon: {
+    width: 44,
+    height: 44,
+    borderRadius: 13,
+    backgroundColor: "rgba(92, 194, 167, 0.12)",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+
+  locationInfo: {
+    flex: 1,
+    marginLeft: 12,
+  },
+
+  locationLabel: {
+    color: "#FFFFFF",
+    fontFamily: "CashMarket",
+    fontSize: 14,
+  },
+
+  locationAddress: {
+    color: "#D0D0D8",
+    fontFamily: "Utendo",
+    fontSize: 13,
+    lineHeight: 18,
+    marginTop: 3,
+  },
+
+  locationCity: {
+    color: "#898995",
+    fontFamily: "Utendo",
+    fontSize: 12,
+    marginTop: 2,
+  },
+
+  botonMaps: {
+    height: 54,
+    backgroundColor: "#5CC2A7",
+    borderRadius: 15,
+    justifyContent: "center",
+    alignItems: "center",
+    flexDirection: "row",
+    paddingHorizontal: 18,
+    marginBottom: 30,
+  },
+
+  textoBoton: {
+    color: "#15151C",
+    fontFamily: "CashMarket",
+    fontSize: 15,
+    marginLeft: 9,
+    flex: 1,
+  },
+  seccion: {
+    marginBottom: 28,
+  },
+
+  seccionTitulo: {
+    color: "#FFFFFF",
+    fontFamily: "CashMarket",
+    fontSize: 19,
+    marginBottom: 10,
+    letterSpacing: -0.2,
+  },
+  descripcion: {
+    color: "#B9B9C7",
+    fontFamily: "Utendo",
+    fontSize: 14,
+    lineHeight: 21,
+  },
+
+  infoCard: {
+    backgroundColor: "#202027",
+    borderRadius: 16,
     paddingHorizontal: 16,
-    paddingVertical: 10,
-    marginTop: 6,
+    borderWidth: 1,
+    borderColor: "#353540",
   },
+
+  infoRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    minHeight: 50,
+  },
+
+  label: {
+    color: "#898995",
+    fontFamily: "Utendo",
+    fontSize: 13,
+  },
+
+  valor: {
+    color: "#FFFFFF",
+    fontFamily: "Utendo",
+    fontSize: 13,
+    lineHeight: 18,
+    flex: 1,
+    textAlign: "right",
+    marginLeft: 20,
+  },
+
+  separador: {
+    height: 1,
+    backgroundColor: "#353540",
+  },
+
+  errorContainer: {
+    marginBottom: 24,
+  },
+
+  reintentar: {
+    alignSelf: "center",
+    backgroundColor: "#5CC2A7",
+    borderRadius: 11,
+    paddingHorizontal: 18,
+    height: 40,
+    justifyContent: "center",
+    marginTop: 8,
+  },
+
   reintentarTexto: {
-    color: 'white',
-    fontFamily: 'Utendo',
+    color: "#15151C",
+    fontFamily: "Utendo",
+    fontWeight: "700",
+    fontSize: 14,
   },
-})
+});

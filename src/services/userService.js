@@ -10,6 +10,14 @@ export function normalizeDateToISO(value) {
   const match = raw.match(/^\d{2}\/\d{2}\/\d{4}$/)
   if (match) {
     const [dia, mes, anio] = raw.split('/')
+    const date = new Date(Number(anio), Number(mes) - 1, Number(dia))
+    if (
+      date.getFullYear() !== Number(anio) ||
+      date.getMonth() !== Number(mes) - 1 ||
+      date.getDate() !== Number(dia)
+    ) {
+      return null
+    }
     return `${anio}-${mes}-${dia}`
   }
 
@@ -162,4 +170,48 @@ export async function getUserById(userId) {
     .single()
 
   return { data, error }
+}
+
+export async function searchUsers(query, { excludeIds = [], limit = 6 } = {}) {
+  const normalizedQuery = String(query || '').replace(/^@/, '').trim()
+  if (!normalizedQuery) {
+    return { data: [], error: null }
+  }
+
+  const escapedQuery = normalizedQuery.replace(/[\\%_]/g, '\\$&')
+  const likeValue = `${escapedQuery}%`
+  const fields = 'id,username,foto_perfil,nombre,apellido'
+  const [usernamesRes, nombresRes, apellidosRes] = await Promise.all([
+    supabase.from('usuario').select(fields).ilike('username', likeValue).limit(limit),
+    supabase.from('usuario').select(fields).ilike('nombre', likeValue).limit(limit),
+    supabase.from('usuario').select(fields).ilike('apellido', likeValue).limit(limit),
+  ])
+
+  const error = usernamesRes.error || nombresRes.error || apellidosRes.error
+  if (error) {
+    return { data: [], error }
+  }
+
+  const excluded = new Set(excludeIds)
+  const usersById = new Map()
+  for (const user of [
+    ...(usernamesRes.data || []),
+    ...(nombresRes.data || []),
+    ...(apellidosRes.data || []),
+  ]) {
+    if (user && !excluded.has(user.id) && !usersById.has(user.id)) {
+      usersById.set(user.id, user)
+    }
+  }
+
+  return { data: [...usersById.values()], error: null }
+}
+
+export async function getGustos() {
+  const { data, error } = await supabase
+    .from('gusto')
+    .select('id_gusto, nombre')
+    .order('id_gusto')
+
+  return { data: data || [], error }
 }

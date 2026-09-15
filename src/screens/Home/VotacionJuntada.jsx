@@ -1,20 +1,20 @@
-import React, { useMemo } from 'react'
+import React, { useMemo } from "react";
 import {
   View,
   Text,
   StyleSheet,
   SafeAreaView,
   ScrollView,
-  TouchableOpacity
-} from 'react-native'
-import Ionicons from '@expo/vector-icons/Ionicons'
-import Octicons from '@expo/vector-icons/Octicons'
-import FontAwesome6 from '@expo/vector-icons/FontAwesome6'
+  TouchableOpacity,
+} from "react-native";
+import Ionicons from "@expo/vector-icons/Ionicons";
+import Octicons from "@expo/vector-icons/Octicons";
+import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
 
-import GroupHeader from '../../components/GroupHeader'
-import Loading from '../../components/Loading'
-import ErrorMessage from '../../components/MensajeError'
-import { useVotacionDetail } from '../../hooks/useVotacionDetail'
+import GroupHeader from "../../components/GroupHeader";
+import Loading from "../../components/Loading";
+import ErrorMessage from "../../components/MensajeError";
+import { useVotacionDetail } from "../../hooks/useVotacionDetail";
 
 function OptionCard({ option, votes, selected, onPress, disabled }) {
   return (
@@ -24,12 +24,12 @@ function OptionCard({ option, votes, selected, onPress, disabled }) {
       style={[
         styles.option,
         selected && styles.optionSelected,
-        disabled && styles.optionDisabled
+        disabled && styles.optionDisabled,
       ]}
     >
       <View style={styles.optionLeft}>
         <View style={styles.radio}>
-          <Text style={styles.radioText}>{selected ? '◉' : '◯'}</Text>
+          <Text style={styles.radioText}>{selected ? "◉" : "◯"}</Text>
         </View>
 
         <Text style={styles.optionText}>{option.descripcion}</Text>
@@ -37,11 +37,11 @@ function OptionCard({ option, votes, selected, onPress, disabled }) {
 
       <Text style={styles.votesText}>{votes ?? 0}</Text>
     </TouchableOpacity>
-  )
+  );
 }
 
 export default function VotacionJuntada({ route, navigation }) {
-  const eventId = route?.params?.idEvento
+  const eventId = route?.params?.idEvento;
 
   const {
     survey,
@@ -54,15 +54,18 @@ export default function VotacionJuntada({ route, navigation }) {
     error,
     categories,
     voteOption,
-    isCreator
-  } = useVotacionDetail(eventId)
+    isCreator,
+  } = useVotacionDetail(eventId);
 
   const totalVotes = useMemo(() => {
-    return Object.values(voteCounts ?? {}).reduce((acc, value) => acc + value, 0)
-  }, [voteCounts])
+    return Object.values(voteCounts ?? {}).reduce(
+      (acc, value) => acc + value,
+      0,
+    );
+  }, [voteCounts]);
 
   if (loading) {
-    return <Loading />
+    return <Loading />;
   }
 
   if (error) {
@@ -72,26 +75,33 @@ export default function VotacionJuntada({ route, navigation }) {
           <ErrorMessage mensaje={error} />
         </View>
       </SafeAreaView>
-    )
+    );
   }
 
   if (!survey || !event) {
     return (
       <SafeAreaView style={styles.container}>
         <View style={styles.pageContent}>
-          <Text style={styles.emptyText}>No hay votación disponible para este evento.</Text>
+          <Text style={styles.emptyText}>
+            No hay votación disponible para este evento.
+          </Text>
         </View>
       </SafeAreaView>
-    )
+    );
   }
 
   return (
     <SafeAreaView style={styles.container}>
-      <ScrollView contentContainerStyle={styles.pageContent} showsVerticalScrollIndicator={false}>
+      <ScrollView
+        contentContainerStyle={styles.pageContent}
+        showsVerticalScrollIndicator={false}
+      >
         <GroupHeader
           group={event.grupo}
           memberCount={groupMemberCount}
-          onPress={() => navigation.navigate('InfoGrupo', { idGrupo: event.id_grupo })}
+          onPress={() =>
+            navigation.navigate("InfoGrupo", { idGrupo: event.id_grupo })
+          }
           avatarSize={52}
           compact
         />
@@ -103,7 +113,8 @@ export default function VotacionJuntada({ route, navigation }) {
           </View>
 
           <Text style={styles.heroText}>
-            Seleccioná las opciones que te convengan. Podés votar varias opciones por categoría.
+            Seleccioná las opciones que te convengan. Podés votar varias
+            opciones por categoría.
           </Text>
 
           <View style={styles.metaRow}>
@@ -132,7 +143,7 @@ export default function VotacionJuntada({ route, navigation }) {
           </View>
 
           {categories.fechas.length > 0 ? (
-            categories.fechas.map(option => (
+            categories.fechas.map((option) => (
               <OptionCard
                 key={option.id}
                 option={option}
@@ -143,7 +154,9 @@ export default function VotacionJuntada({ route, navigation }) {
               />
             ))
           ) : (
-            <Text style={styles.emptySectionText}>No hay opciones de fecha.</Text>
+            <Text style={styles.emptySectionText}>
+              No hay opciones de fecha.
+            </Text>
           )}
         </View>
 
@@ -154,7 +167,7 @@ export default function VotacionJuntada({ route, navigation }) {
           </View>
 
           {categories.lugares.length > 0 ? (
-            categories.lugares.map(option => (
+            categories.lugares.map((option) => (
               <OptionCard
                 key={option.id}
                 option={option}
@@ -165,160 +178,162 @@ export default function VotacionJuntada({ route, navigation }) {
               />
             ))
           ) : (
-            <Text style={styles.emptySectionText}>No hay opciones de lugar.</Text>
+            <Text style={styles.emptySectionText}>
+              No hay opciones de lugar.
+            </Text>
           )}
         </View>
       </ScrollView>
     </SafeAreaView>
-  )
+  );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#15151C'
+    backgroundColor: "#15151C",
   },
   pageContent: {
     padding: 20,
     paddingBottom: 110,
   },
   emptyText: {
-    color: '#FFFFFF',
+    color: "#FFFFFF",
     fontSize: 16,
-    fontFamily: 'Utendo',
-    textAlign: 'center',
-    marginTop: 20
+    fontFamily: "Utendo",
+    textAlign: "center",
+    marginTop: 20,
   },
   emptySectionText: {
-    color: '#B8B8C5',
-    fontFamily: 'Utendo',
+    color: "#B8B8C5",
+    fontFamily: "Utendo",
     fontSize: 13,
-    paddingVertical: 8
+    paddingVertical: 8,
   },
   heroCard: {
-    backgroundColor: '#4A216F',
+    backgroundColor: "#4A216F",
     borderRadius: 20,
     padding: 18,
     marginBottom: 14,
     borderWidth: 1,
-    borderColor: '#5E2D82'
+    borderColor: "#5E2D82",
   },
   heroTopRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     gap: 8,
-    marginBottom: 8
+    marginBottom: 8,
   },
   heroTitle: {
-    color: '#FFFFFF',
-    fontFamily: 'CashMarket',
-    fontSize: 18
+    color: "#FFFFFF",
+    fontFamily: "CashMarket",
+    fontSize: 18,
   },
   heroText: {
-    color: '#E6DFF2',
-    fontFamily: 'Utendo',
+    color: "#E6DFF2",
+    fontFamily: "Utendo",
     fontSize: 13,
-    lineHeight: 19
+    lineHeight: 19,
   },
   metaRow: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
+    flexDirection: "row",
+    flexWrap: "wrap",
     gap: 8,
-    marginTop: 14
+    marginTop: 14,
   },
   metaPill: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     gap: 6,
-    backgroundColor: '#2A2038',
+    backgroundColor: "#2A2038",
     borderRadius: 999,
     paddingHorizontal: 10,
-    paddingVertical: 7
+    paddingVertical: 7,
   },
   metaPillAccent: {
-    backgroundColor: '#57C7A3',
+    backgroundColor: "#57C7A3",
     borderRadius: 999,
     paddingHorizontal: 10,
-    paddingVertical: 7
+    paddingVertical: 7,
   },
   metaText: {
-    color: '#FFFFFF',
-    fontFamily: 'Utendo',
-    fontSize: 12
+    color: "#FFFFFF",
+    fontFamily: "Utendo",
+    fontSize: 12,
   },
   metaTextAccent: {
-    color: '#111111',
-    fontFamily: 'Utendo',
+    color: "#111111",
+    fontFamily: "Utendo",
     fontSize: 12,
-    fontWeight: '700'
+    fontWeight: "700",
   },
   card: {
     borderWidth: 1,
-    borderColor: '#3D2E6B',
+    borderColor: "#3D2E6B",
     borderRadius: 18,
     padding: 14,
     marginBottom: 16,
-    backgroundColor: '#11111A'
+    backgroundColor: "#11111A",
   },
   sectionHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     gap: 10,
-    marginBottom: 12
+    marginBottom: 12,
   },
   sectionTitle: {
-    color: '#FFFFFF',
+    color: "#FFFFFF",
     fontSize: 18,
-    fontFamily: 'CashMarket'
+    fontFamily: "CashMarket",
   },
   option: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    backgroundColor: '#151520',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    backgroundColor: "#151520",
     borderWidth: 1,
-    borderColor: '#2F1B3D',
+    borderColor: "#2F1B3D",
     borderRadius: 14,
     paddingVertical: 14,
     paddingHorizontal: 14,
-    marginBottom: 10
+    marginBottom: 10,
   },
   optionSelected: {
-    backgroundColor: 'rgba(87, 199, 163, 0.14)',
-    borderColor: '#57C7A3'
+    backgroundColor: "rgba(87, 199, 163, 0.14)",
+    borderColor: "#57C7A3",
   },
   optionDisabled: {
-    opacity: 0.75
+    opacity: 0.75,
   },
   optionLeft: {
     flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     gap: 10,
-    paddingRight: 10
+    paddingRight: 10,
   },
   radio: {
     width: 22,
-    alignItems: 'center'
+    alignItems: "center",
   },
   radioText: {
-    color: '#FFFFFF',
-    fontSize: 16
+    color: "#FFFFFF",
+    fontSize: 16,
   },
   optionText: {
-    color: '#FFFFFF',
+    color: "#FFFFFF",
     fontSize: 15,
-    fontFamily: 'Utendo',
-    flex: 1
+    fontFamily: "Utendo",
+    flex: 1,
   },
   votesText: {
-    color: '#FFFFFF',
+    color: "#FFFFFF",
     fontSize: 13,
-    fontFamily: 'Utendo',
-    backgroundColor: '#58386f',
+    fontFamily: "Utendo",
+    backgroundColor: "#58386f",
     paddingHorizontal: 10,
     paddingVertical: 4,
     borderRadius: 12,
-    overflow: 'hidden'
-  }
-})
+    overflow: "hidden",
+  },
+});

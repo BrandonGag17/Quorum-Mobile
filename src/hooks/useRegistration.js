@@ -68,6 +68,9 @@ export function useRegistration() {
         foto_perfil: registrationData.fotoUri || null,
         gustos: Array.isArray(registrationData.gustos) ? registrationData.gustos : [],
       }
+      if (registrationData.fecha_nacimiento && !preparedData.fecha_nacimiento) {
+        throw new Error('La fecha de nacimiento no es válida.')
+      }
 
       const { data: authData, error: signUpError } = await signUp(preparedData)
       if (signUpError) {

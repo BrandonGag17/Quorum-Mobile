@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState } from "react";
 import {
   StyleSheet,
   Text,
@@ -35,23 +35,23 @@ export default function Recomendaciones() {
     error,
     refresh,
     getGoogleMapsUrl,
-  } = useRecommendations()
+  } = useRecommendations();
 
   function abrirEnGoogleMaps(lugar) {
-    const url = getGoogleMapsUrl(lugar)
-    Linking.openURL(url)
+    const url = getGoogleMapsUrl(lugar);
+    Linking.openURL(url);
   }
 
   function abrirDetalle(lugar) {
-    const state = navigation.getState?.()
-    const routeNames = state?.routeNames || []
+    const state = navigation.getState?.();
+    const routeNames = state?.routeNames || [];
 
-    if (routeNames.includes('InfoRecomendaciones')) {
-      navigation.navigate('InfoRecomendaciones', { lugar })
-      return
+    if (routeNames.includes("InfoRecomendaciones")) {
+      navigation.navigate("InfoRecomendaciones", { lugar });
+      return;
     }
 
-    setLugarSeleccionado(lugar)
+    setLugarSeleccionado(lugar);
   }
 
   if (lugarSeleccionado) {
@@ -60,7 +60,7 @@ export default function Recomendaciones() {
         lugarOverride={lugarSeleccionado}
         onBack={() => setLugarSeleccionado(null)}
       />
-    )
+    );
   }
 
   return (
@@ -94,11 +94,7 @@ export default function Recomendaciones() {
       <Text style={styles.titulo}>Recomendación de lugares</Text>
 
       <View style={styles.buscador}>
-        <Feather
-          name="search"
-          size={22}
-          color="#808080"
-        />
+        <Feather name="search" size={22} color="#808080" />
 
         <TextInput
           style={styles.inputBuscador}
@@ -113,10 +109,7 @@ export default function Recomendaciones() {
         <View style={styles.errorWrapper}>
           <ErrorMessage mensaje={error} />
 
-          <TouchableOpacity
-            style={styles.botonReintentar}
-            onPress={refresh}
-          >
+          <TouchableOpacity style={styles.botonReintentar} onPress={refresh}>
             <Text style={styles.textoReintentar}>Reintentar</Text>
           </TouchableOpacity>
         </View>
@@ -134,45 +127,54 @@ export default function Recomendaciones() {
           </View> : null
         }
         renderItem={({ item }) => (
-          <View style={styles.card}>
-            <TouchableOpacity
-              style={styles.botonGoogleMaps}
-              onPress={() => abrirEnGoogleMaps(item)}
-              accessibilityRole="button"
-              accessibilityLabel={`Abrir ${item.nombre} en Google Maps`}
-            >
-              <FontAwesome6
-                name="map-location-dot"
-                size={30}
-                color="#BDBDC7"
-              />
+          <TouchableOpacity
+            style={styles.card}
+            onPress={() => abrirDetalle(item)}
+            activeOpacity={0.85}
+          >
+            <View style={styles.cardVisual}>
+              <View style={styles.locationIcon}>
+                <FontAwesome6 name="location-dot" size={22} color="#5CC2A7" />
+              </View>
 
-              <Text style={styles.textoSinImagen}>Abrir en Google Maps</Text>
-            </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.mapsButton}
+                onPress={() => abrirEnGoogleMaps(item)}
+                accessibilityRole="button"
+                accessibilityLabel={`Abrir ${item.nombre} en Google Maps`}
+              >
+                <FontAwesome6
+                  name="map-location-dot"
+                  size={15}
+                  color="#FFFFFF"
+                />
+              </TouchableOpacity>
+            </View>
 
-            <TouchableOpacity
-              style={styles.info}
-              onPress={() => abrirDetalle(item)}
-            >
-              <Text numberOfLines={1} style={styles.nombre}>{item.nombre}</Text>
+            <View style={styles.info}>
+              <Text numberOfLines={2} style={styles.nombre}>
+                {item.nombre}
+              </Text>
 
               <View style={styles.direccionContainer}>
                 <FontAwesome6
                   name="location-dot"
-                  size={11}
-                  color="#B6B6B6"
+                  size={10}
+                  color="#A9A9B5"
                   style={styles.iconoDireccion}
                 />
 
-                <Text numberOfLines={2} style={styles.direccion}>{item.direccion}</Text>
+                <Text numberOfLines={2} style={styles.direccion}>
+                  {item.direccion}
+                </Text>
               </View>
-            </TouchableOpacity>
-          </View>
+            </View>
+          </TouchableOpacity>
         )}
       />}
       </View>
     </SafeAreaView>
-  )
+  );
 }
 
 const styles = StyleSheet.create({
@@ -180,51 +182,65 @@ const styles = StyleSheet.create({
   oculto: { display: 'none' },
   fondo: {
     flex: 1,
-    backgroundColor: '#15151C',
+    backgroundColor: "#15151C",
     padding: 25,
     paddingBottom: 90,
   },
-  titulo: {
-    color: 'white',
-    fontFamily: 'CashMarket',
-    fontSize: 24,
-    marginBottom: 10,
+  header: {
     marginTop: 7,
+    marginBottom: 4,
+  },
+  titulo: {
+    color: "#FFFFFF",
+    fontFamily: "CashMarket",
+    fontSize: 27,
+    letterSpacing: -0.5,
+  },
+  subtitulo: {
+    color: "#A9A9B5",
+    fontFamily: "Utendo",
+    fontSize: 14,
+    marginTop: 4,
   },
   fila: {
-    justifyContent: 'space-between',
+    justifyContent: "space-between",
   },
   card: {
-    width: '48%',
-    backgroundColor: '#66278F',
-    borderRadius: 12,
-    overflow: 'hidden',
-    marginBottom: 16,
+    width: "48%",
+    backgroundColor: "#5C3E94",
+    borderRadius: 15,
+    overflow: "hidden",
+    marginBottom: 14,
+    borderWidth: 1,
+    borderColor: "#6846A5",
   },
   botonGoogleMaps: {
-    width: '100%',
+    width: "100%",
     height: 120,
-    backgroundColor: '#4D216B',
-    justifyContent: 'center',
-    alignItems: 'center',
+    backgroundColor: "#5C3E94",
+    justifyContent: "center",
+    alignItems: "center",
   },
   textoSinImagen: {
-    color: '#BDBDC7',
-    fontFamily: 'Utendo',
+    color: "#BDBDC7",
+    fontFamily: "Utendo",
     fontSize: 12,
     marginTop: 8,
   },
   info: {
-    padding: 10,
+    padding: 12,
+    minHeight: 82,
   },
   nombre: {
-    color: 'white',
+    color: "#FFFFFF",
+    fontFamily: "CashMarket",
     fontSize: 16,
-    fontWeight: 'bold',
+    lineHeight: 19,
+    fontWeight: "700",
   },
   direccionContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     marginTop: 4,
   },
   iconoDireccion: {
@@ -232,26 +248,35 @@ const styles = StyleSheet.create({
   },
   direccion: {
     flex: 1,
-    color: '#E7D8FF',
-    fontSize: 12,
-    fontFamily: 'Utendo',
+    color: "#B9B9C7",
+    fontSize: 11,
+    lineHeight: 16,
+    fontFamily: "Utendo",
   },
   buscador: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#373749',
-    borderRadius: 16,
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#25252a",
+    borderRadius: 15,
     paddingHorizontal: 15,
     height: 52,
-    marginBottom: 20,
-    marginTop: 20,
+    marginBottom: 30,
+    marginTop: 10,
     borderWidth: 1,
-    borderColor: '#726c79',
+    borderColor: "#353540",
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 5,
+    },
+    shadowOpacity: 0.35,
+    shadowRadius: 5,
+    elevation: 6,
   },
   inputBuscador: {
     flex: 1,
-    color: 'white',
-    fontFamily: 'Utendo',
+    color: "white",
+    fontFamily: "Utendo",
     marginLeft: 10,
     fontSize: 16,
   },
@@ -259,26 +284,59 @@ const styles = StyleSheet.create({
     marginBottom: 14,
   },
   botonReintentar: {
-    alignSelf: 'center',
-    backgroundColor: '#4A216F',
+    alignSelf: "center",
+    backgroundColor: "#4A216F",
     borderRadius: 10,
     paddingHorizontal: 16,
     paddingVertical: 10,
     marginTop: 6,
   },
   textoReintentar: {
-    color: 'white',
-    fontFamily: 'Utendo',
+    color: "white",
+    fontFamily: "Utendo",
   },
   emptyState: {
     marginTop: 40,
-    backgroundColor: '#2B2B32',
-    borderRadius: 12,
-    padding: 16,
+    backgroundColor: "#202027",
+    borderRadius: 16,
+    paddingVertical: 26,
+    paddingHorizontal: 20,
+    borderWidth: 1,
+    borderColor: "#353540",
   },
   emptyText: {
-    color: '#BDBDC7',
-    textAlign: 'center',
-    fontFamily: 'Utendo',
+    color: "#A9A9B5",
+    textAlign: "center",
+    fontFamily: "Utendo",
+    fontSize: 14,
+    lineHeight: 20,
   },
-})
+  cardVisual: {
+    height: 110,
+    backgroundColor: "#493477",
+    alignItems: "center",
+    justifyContent: "center",
+    position: "relative",
+  },
+
+  locationIcon: {
+    width: 52,
+    height: 52,
+    borderRadius: 26,
+    backgroundColor: "rgba(92, 194, 167, 0.12)",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+
+  mapsButton: {
+    position: "absolute",
+    top: 10,
+    right: 10,
+    width: 34,
+    height: 34,
+    borderRadius: 10,
+    backgroundColor: "rgba(21, 21, 28, 0.55)",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+});

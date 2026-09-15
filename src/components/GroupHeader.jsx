@@ -1,71 +1,99 @@
-import React from 'react'
-import { TouchableOpacity, View, Text, Image, StyleSheet } from 'react-native'
-import Ionicons from '@expo/vector-icons/Ionicons'
+import React from "react";
+import { View, Text, TouchableOpacity, StyleSheet, Image } from "react-native";
+import Ionicons from "@expo/vector-icons/Ionicons";
 
-export default function GroupHeader({ group, memberCount, onPress, avatarSize = 110, compact = false }) {
-  const avatarStyle = { width: avatarSize, height: avatarSize, borderRadius: avatarSize / 2 }
+export default function GroupHeader({
+  group,
+  memberCount,
+  onPress,
+  compact = false,
+  avatarSize = 50,
+  containerStyle,
+  contentStyle,
+  groupNameStyle,
+  memberCountStyle,
+}) {
   return (
     <TouchableOpacity
-      style={[styles.container, compact && styles.compact]}
+      style={[
+        styles.header,
+        compact && styles.headerCompact,
+        containerStyle,
+      ]}
       onPress={onPress}
       activeOpacity={onPress ? 0.75 : 1}
     >
-      <Image source={{ uri: group?.foto_perfil }} style={[styles.avatar, avatarStyle]} />
+      <Image
+        source={{ uri: group?.foto_perfil }}
+        style={[
+          styles.avatar,
+          { width: avatarSize, height: avatarSize, borderRadius: avatarSize / 2 },
+        ]}
+      />
 
-      <View style={styles.info}>
-        <Text style={[styles.name, compact && styles.nameCompact]} numberOfLines={1}>
-          {group?.nombre || ''}
+      <View style={[styles.headerInfo, compact && styles.headerInfoCompact, contentStyle]}>
+        <Text style={[styles.groupName, compact && styles.groupNameCompact, groupNameStyle]} numberOfLines={1}>
+          {group?.nombre || group?.nombre_grupo || "Grupo"}
         </Text>
 
         {memberCount !== undefined && (
-          <Text style={[styles.count, compact && styles.countCompact]}>
+          <Text style={[styles.memberCount, compact && styles.memberCountCompact, memberCountStyle]}>
             {memberCount} miembros
           </Text>
         )}
       </View>
-
-      {onPress ? <Ionicons name="chevron-forward" size={22} color="#FFFFFF" style={styles.chevron} /> : null}
     </TouchableOpacity>
-  )
+  );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-    paddingVertical: 8,
-    marginBottom: 30
+  header: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginTop: 30,
+    marginBottom: 30,
+    paddingHorizontal: 35,
   },
-  compact: {
-    paddingVertical: 4,
-  },
-  avatar: {
-    backgroundColor: '#3a3a3a',
-  },
-  info: {
+  headerCompact: {
+    marginBottom: 0,
+    marginTop: 0,
+    padding: 0,
     flex: 1,
-    justifyContent: 'center',
   },
-  name: {
-    color: 'white',
-    fontSize: 25,
-    fontFamily: 'CashMarket',
+
+  avatar: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    backgroundColor: "#57C7A3",
+    justifyContent: "center",
+    alignItems: "center",
   },
-  nameCompact: {
+
+  headerInfo: {
+    marginLeft: 14,
+  },
+  headerInfoCompact: {
+    marginLeft: 12,
+    flexShrink: 1,
+  },
+
+  groupName: {
+    color: "#FFFFFF",
+    fontSize: 19,
+    fontFamily: "CashMarket",
+  },
+  groupNameCompact: {
     fontSize: 18,
-    marginBottom: 1
   },
-  count: {
-    color: '#B8B8B8',
-    fontSize: 14,
-    fontFamily: 'Utendo',
+
+  memberCount: {
+    color: "#9E9E9E",
+    fontSize: 12,
+    fontFamily: "Utendo",
+    marginTop: 3,
+  },
+  memberCountCompact: {
     marginTop: 2,
   },
-  countCompact: {
-    fontSize: 14,
-  },
-  chevron: {
-    marginLeft: 8,
-  },
-})
+});

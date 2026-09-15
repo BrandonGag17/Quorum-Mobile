@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useLayoutEffect, useRef, useState } from "react";
 import {
   SafeAreaView,
   View,
@@ -27,6 +27,7 @@ import GroupHeader from "../../components/GroupHeader";
 
 import ErrorMessage from "../../components/MensajeError";
 import Loading from "../../components/Loading";
+import CardJuntadas from "../../components/CardJuntadas";
 
 export default function Grupo({ navigation }) {
   const route = useRoute();
@@ -37,6 +38,8 @@ export default function Grupo({ navigation }) {
     memberCount,
     upcomingEvents,
     pastEvents,
+    loadPastEvents,
+    loadingPastEvents,
     proposals,
     loading,
     error,
@@ -46,6 +49,34 @@ export default function Grupo({ navigation }) {
   const [mostrarJuntadasPasadas, setMostrarJuntadasPasadas] = useState(false);
 
   const translateY = useRef(new Animated.Value(500)).current;
+
+  useLayoutEffect(() => {
+    navigation.setOptions({
+      headerTitle:
+        loading || !group
+          ? () => null
+          : () => (
+              <GroupHeader
+                group={group}
+                memberCount={memberCount}
+                compact
+                avatarSize={40}
+                onPress={() =>
+                  navigation.navigate("InfoGrupo", {
+                    idGrupo,
+                  })
+                }
+                containerStyle={styles.headerGroupTitle}
+                contentStyle={styles.headerGroupContent}
+                groupNameStyle={styles.headerGroupName}
+                memberCountStyle={styles.headerGroupCount}
+              />
+            ),
+      headerTitleAlign: "left",
+      headerTitleContainerStyle: styles.headerTitleContainer,
+      headerStyle: styles.headerStyle,
+    });
+  }, [navigation, group, memberCount, idGrupo, loading]);
 
   useEffect(() => {
     Animated.timing(translateY, {
@@ -83,155 +114,112 @@ export default function Grupo({ navigation }) {
 
   return (
     <SafeAreaView style={styles.container}>
-      <FlatList
-        data={[]}
-        ListHeaderComponent={
-          <>
-            <GroupHeader
-              group={group}
-              memberCount={memberCount}
-              onPress={() =>
-                navigation.navigate("InfoGrupo", { idGrupo: group?.id })
-              }
-              avatarSize={50}
-              compact={true}
+      <View style={styles.content}>
+        {upcomingEvents.length > 0 ? (
+          <FlatList
+            horizontal
+            data={upcomingEvents}
+            renderItem={({ item }) => (
+              <CardJuntadas evento={item} navigation={navigation} />
+            )}
+            keyExtractor={(item) => item.id.toString()}
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={styles.eventList}
+          />
+        ) : (
+          <View style={styles.emptyState}>
+            <Text style={styles.emptyText}>No tenés próximas juntadas</Text>
+          </View>
+        )}
+
+        <View style={styles.sectionRow}>
+          <View style={styles.sectionTitleContainer}>
+            <MaterialCommunityIcons
+              name="lightbulb-variant"
+              size={25}
+              color="#FFFFFF"
             />
 
-            <View style={styles.sectionHeader}>
-              <View style={styles.sectionTitleContainer}>
-                <Ionicons name="calendar" size={25} color="#FFFFFF" />
+            <Text style={styles.sectionTitle}>Propuestas</Text>
+          </View>
 
-                <Text style={styles.sectionTitle}>Próximas juntadas</Text>
-              </View>
-            </View>
+          <TouchableOpacity onPress={abrirCrear} style={styles.createButton}>
+            <Text style={styles.createButtonText}>+ Crear</Text>
+          </TouchableOpacity>
+        </View>
 
-            {upcomingEvents.length > 0 ? (
-              <FlatList
-                horizontal
-                data={upcomingEvents}
-                keyExtractor={(item) => item.id.toString()}
-                showsHorizontalScrollIndicator={false}
-                contentContainerStyle={styles.horizontalList}
-                renderItem={({ item }) => (
-                  <TouchableOpacity
-                    style={styles.eventCard}
-                    onPress={() =>
-                      navigation.navigate("Juntada", {
-                        idEvento: item.id,
-                      })
-                    }
-                  >
-                    <Text style={styles.eventTitle}>{item.nombre}</Text>
-
-                    <Text style={styles.eventDate}>
-                      {item.fecha_hora_inicio
-                        ? new Date(item.fecha_hora_inicio).toLocaleString()
-                        : "Fecha no definida"}
-                    </Text>
-                  </TouchableOpacity>
-                )}
-              />
-            ) : (
-              <View style={styles.emptyState}>
-                <Text style={styles.emptyText}>No hay próximas juntadas</Text>
-              </View>
-            )}
-
-            <View style={styles.sectionRow}>
-              <View style={styles.sectionTitleContainer}>
-                <MaterialCommunityIcons
-                  name="lightbulb-variant"
-                  size={25}
-                  color="#FFFFFF"
-                />
-
-                <Text style={styles.sectionTitle}>Propuestas</Text>
-              </View>
-
+        {proposals.length > 0 ? (
+          <FlatList
+            horizontal
+            data={proposals}
+            keyExtractor={(item) => item.id.toString()}
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={styles.horizontalList}
+            renderItem={({ item }) => (
               <TouchableOpacity
-                onPress={abrirCrear}
-                style={styles.createButton}
+                style={styles.proposalCard}
+                onPress={() =>
+                  navigation.navigate("VotacionJuntada", {
+                    idEvento: item.evento?.id,
+                  })
+                }
               >
-                <Text style={styles.createButtonText}>+ Crear</Text>
+                <Text style={styles.proposalTitle}>
+                  {item.pregunta || item.evento?.nombre || "Propuesta"}
+                </Text>
+
+                <Text style={styles.proposalMeta}>Abierta para votar</Text>
               </TouchableOpacity>
-            </View>
+            )}
+          />
+        ) : (
+          <View style={styles.emptyState}>
+            <Text style={styles.emptyText}>
+              Aquí aparecerán las propuestas de juntada.
+            </Text>
+          </View>
+        )}
 
-            {proposals.length > 0 ? (
+        <TouchableOpacity
+          style={styles.pastToggle}
+          onPress={() => {
+            const mostrar = !mostrarJuntadasPasadas;
+            setMostrarJuntadasPasadas(mostrar);
+            if (mostrar) loadPastEvents();
+          }}
+        >
+          <Text style={styles.pastToggleText}>
+            {mostrarJuntadasPasadas
+              ? "Ocultar juntadas pasadas"
+              : "Ver juntadas pasadas"}
+          </Text>
+
+          <Ionicons
+            name={mostrarJuntadasPasadas ? "chevron-up" : "chevron-down"}
+            size={20}
+            color="#57C7A3"
+          />
+        </TouchableOpacity>
+
+        {mostrarJuntadasPasadas && (
+          <>
+            {loadingPastEvents ? (
+              <Loading />
+            ) : pastEvents.length > 0 ? (
               <FlatList
-                horizontal
-                data={proposals}
+                data={pastEvents}
                 keyExtractor={(item) => item.id.toString()}
-                showsHorizontalScrollIndicator={false}
-                contentContainerStyle={styles.horizontalList}
-                renderItem={({ item }) => (
-                  <TouchableOpacity
-                    style={styles.proposalCard}
-                    onPress={() =>
-                      navigation.navigate("Juntada", {
-                        idEvento: item.evento?.id,
-                      })
-                    }
-                  >
-                    <Text style={styles.proposalTitle}>
-                      {item.pregunta || item.evento?.nombre || "Propuesta"}
-                    </Text>
-
-                    <Text style={styles.proposalMeta}>Abierta para votar</Text>
-                  </TouchableOpacity>
-                )}
+                scrollEnabled={false}
+                renderItem={({ item }) => <CardJuntadasPasadas evento={item} />}
               />
             ) : (
               <View style={styles.emptyState}>
-                <Text style={styles.emptyText}>
-                  Aquí aparecerán las propuestas de juntada.
-                </Text>
+                <Text style={styles.emptyText}>No hay juntadas pasadas.</Text>
               </View>
             )}
-
-            <TouchableOpacity
-              style={styles.pastToggle}
-              onPress={() => setMostrarJuntadasPasadas(!mostrarJuntadasPasadas)}
-            >
-              <Text style={styles.pastToggleText}>
-                {mostrarJuntadasPasadas
-                  ? "Ocultar juntadas pasadas"
-                  : "Ver juntadas pasadas"}
-              </Text>
-
-              <Ionicons
-                name={mostrarJuntadasPasadas ? "chevron-up" : "chevron-down"}
-                size={20}
-                color="#57C7A3"
-              />
-            </TouchableOpacity>
-
-            {mostrarJuntadasPasadas && (
-              <>
-                {pastEvents.length > 0 ? (
-                  <FlatList
-                    data={pastEvents}
-                    keyExtractor={(item) => item.id.toString()}
-                    scrollEnabled={false}
-                    renderItem={({ item }) => (
-                      <CardJuntadasPasadas evento={item} />
-                    )}
-                  />
-                ) : (
-                  <View style={styles.emptyState}>
-                    <Text style={styles.emptyText}>
-                      No hay juntadas pasadas.
-                    </Text>
-                  </View>
-                )}
-              </>
-            )}
-
           </>
-        }
-        renderItem={null}
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={styles.content}
-      />
+        )}
+      </View>
 
       <Modal
         visible={mostrarCrear}
@@ -248,7 +236,7 @@ export default function Grupo({ navigation }) {
               },
             ]}
           >
-            <Pressable onPress={() => { }}>
+            <Pressable onPress={() => {}}>
               <View style={styles.sheetHandle} />
 
               <Text style={styles.sheetTitle}>Crear</Text>
@@ -287,7 +275,6 @@ export default function Grupo({ navigation }) {
                 </View>
               </TouchableOpacity>
 
-            
               <TouchableOpacity
                 onPress={cerrarCrear}
                 style={styles.cancelButton}
@@ -310,44 +297,31 @@ const styles = StyleSheet.create({
 
   content: {
     paddingHorizontal: 25,
-    paddingTop: 25,
-    paddingBottom: 110,
   },
 
-  header: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginBottom: 30,
-    backgroundColor: "#4A216F",
-    borderRadius: 10,
-    padding: 10,
+  headerStyle: {
+    backgroundColor: "#15151C",
+    shadowColor: "transparent",
+    elevation: 0,
   },
-
-  avatar: {
-    width: 52,
-    height: 52,
-    borderRadius: 26,
+  headerTitleContainer: {
+    flexGrow: 1,
+    marginLeft: 0,
   },
-
-  headerInfo: {
-    marginLeft: 14,
+  headerGroupTitle: {
+    marginTop: 0,
+    marginBottom: 0,
+    padding: 0,
+    flex: 1,
   },
-
-  groupName: {
-    color: "#FFFFFF",
-    fontSize: 21,
-    fontFamily: "CashMarket",
+  headerGroupContent: {
+    marginLeft: 10,
   },
-
-  memberCount: {
-    color: "#9E9E9E",
-    fontSize: 14,
-    fontFamily: "Utendo",
-    marginTop: 3,
+  headerGroupName: {
+    fontSize: 17,
   },
-
-  sectionHeader: {
-    marginBottom: 12,
+  headerGroupCount: {
+    fontSize: 11,
   },
 
   sectionRow: {
