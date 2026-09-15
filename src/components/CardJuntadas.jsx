@@ -1,10 +1,9 @@
 import React from "react";
 import { View, Text, Pressable, StyleSheet } from "react-native";
 import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
-import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 
 function CardJuntadas({ evento, navigation }) {
-  const fecha = evento.fecha_hora_inicio
+  const fecha = evento?.fecha_hora_inicio
     ? new Date(evento.fecha_hora_inicio)
     : null;
 
@@ -32,7 +31,10 @@ function CardJuntadas({ evento, navigation }) {
 
   return (
     <Pressable
-      style={({ pressed }) => [styles.card, pressed && styles.cardPressed]}
+      style={({ pressed }) => [
+        styles.card,
+        pressed && styles.cardPressed,
+      ]}
       onPress={() =>
         navigation.navigate("Juntada", {
           idEvento: evento.id,
@@ -43,7 +45,6 @@ function CardJuntadas({ evento, navigation }) {
         <View style={styles.fechaContainer}>
           <View style={styles.fechaBox}>
             <Text style={styles.dia}>{dia}</Text>
-
             <Text style={styles.mes}>{mes}</Text>
           </View>
 
@@ -52,18 +53,32 @@ function CardJuntadas({ evento, navigation }) {
 
         <View style={styles.infoContainer}>
           <View style={styles.infoRow}>
-            <FontAwesome6 name="users" size={12} color="#fff" />
+            <FontAwesome6
+              name="users"
+              size={12}
+              color="#FFFFFF"
+            />
 
-            <Text style={styles.infoTexto} numberOfLines={1}>
-              {evento.grupo?.nombre || "Sin grupo"}
+            <Text
+              style={styles.infoTexto}
+              numberOfLines={1}
+            >
+              {evento?.grupo?.nombre || "Sin grupo"}
             </Text>
           </View>
 
           <View style={styles.infoRow}>
-            <FontAwesome6 name="location-dot" size={12} color="#fff" />
+            <FontAwesome6
+              name="location-dot"
+              size={12}
+              color="#FFFFFF"
+            />
 
-            <Text style={styles.infoTexto} numberOfLines={1}>
-              {evento.lugar || "Sin ubicación"}
+            <Text
+              style={styles.infoTexto}
+              numberOfLines={1}
+            >
+              {evento?.lugar || "Sin ubicación"}
             </Text>
           </View>
         </View>
@@ -71,8 +86,11 @@ function CardJuntadas({ evento, navigation }) {
 
       <View style={styles.separador} />
 
-      <Text style={styles.nombre} numberOfLines={2}>
-        {evento.nombre}
+      <Text
+        style={styles.nombre}
+        numberOfLines={2}
+      >
+        {evento?.nombre || "Juntada"}
       </Text>
     </Pressable>
   );
@@ -88,9 +106,16 @@ const styles = StyleSheet.create({
     marginTop: 10,
     marginBottom: 15,
     marginRight: 12,
-    shadowOpacity: 0.35,
+
+    shadowColor: "#000000",
+    shadowOffset: {
+      width: 0,
+      height: 5,
+    },
+    shadowOpacity: 0.28,
     shadowRadius: 6,
     elevation: 7,
+
     overflow: "hidden",
   },
 
@@ -116,10 +141,12 @@ const styles = StyleSheet.create({
   fechaBox: {
     width: 48,
     height: 48,
-    backgroundColor: "#3f2b63",
+    backgroundColor: "#3F2B63",
     borderRadius: 12,
+
     alignItems: "center",
     justifyContent: "center",
+
     marginBottom: 7,
   },
 
@@ -127,28 +154,20 @@ const styles = StyleSheet.create({
     color: "#FFFFFF",
     fontSize: 20,
     fontFamily: "CashMarket",
-
     lineHeight: 21,
   },
 
   mes: {
-    color: "#57C7A3",
+    color: "#5CC2A7",
     fontSize: 9,
     fontFamily: "Utendo",
-
     marginTop: 1,
   },
 
-  horaRow: {
-    flexDirection: "row",
-    alignItems: "center",
-  },
-
   hora: {
-    color: "#57C7A3",
+    color: "#5CC2A7",
     fontSize: 9,
     fontFamily: "Utendo",
-    marginLeft: 4,
   },
 
   infoContainer: {
@@ -161,21 +180,16 @@ const styles = StyleSheet.create({
   infoRow: {
     flexDirection: "row",
     alignItems: "center",
-
     marginBottom: 8,
-
     paddingRight: 5,
   },
 
   infoTexto: {
-    color: "#ffffff",
-
+    flex: 1,
+    color: "#FFFFFF",
     fontSize: 11,
     fontFamily: "Utendo",
-
     marginLeft: 7,
-
-    flexShrink: 1,
   },
 
   separador: {
@@ -191,7 +205,6 @@ const styles = StyleSheet.create({
     lineHeight: 23,
     fontFamily: "CashMarket",
     paddingRight: 5,
-    marginBottom: 10,
   },
 });
 

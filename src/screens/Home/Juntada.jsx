@@ -262,9 +262,9 @@ export default function Juntada({ route, navigation }) {
         </View>
 
         <View style={styles.organize}>
-          <Text style={styles.organizeSmall}>Organizá tu grupo</Text>
+          <Text style={styles.organizeTitle}>Organizá tu grupo</Text>
 
-          <Text style={styles.organizeTitle}>Todo en un solo lugar</Text>
+          <Text style={styles.organizeSmall}>Todo en un solo lugar</Text>
         </View>
 
         <ActionCard
@@ -273,11 +273,9 @@ export default function Juntada({ route, navigation }) {
           title="Fecha y hora"
           subtitle="Si te arrepentís de tu voto podes volver a votar"
           onPress={() => {
-            if (survey?.activa) {
-              navigation.navigate("VotacionJuntada", {
-                idEvento: event.id,
-              });
-            }
+            navigation.push("VotacionJuntada", {
+              idEvento: event.id,
+            });
           }}
         />
 
