@@ -7,19 +7,25 @@ import {
   TouchableOpacity,
   TextInput,
   Linking,
-} from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
-import { useNavigation } from "@react-navigation/native";
-import Feather from "@expo/vector-icons/Feather";
-import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
-import useRecommendations from "../../hooks/useRecommendations";
-import Loading from "../../components/Loading";
-import ErrorMessage from "../../components/MensajeError";
-import InfoRecomendaciones from "./InfoRecomendaciones";
+} from 'react-native'
+import { SafeAreaView } from 'react-native-safe-area-context'
+import { useNavigation } from '@react-navigation/native'
+import Feather from '@expo/vector-icons/Feather'
+import FontAwesome6 from '@expo/vector-icons/FontAwesome6'
+import useRecommendations from '../../hooks/useRecommendations'
+import Loading from '../../components/Loading'
+import ErrorMessage from '../../components/MensajeError'
+import InfoRecomendaciones from './InfoRecomendaciones'
+import SeccionesRecomendaciones from '../../components/SeccionesRecomendaciones'
+import PresentacionQBot from './PresentacionQBot'
+import useQBot from '../../hooks/useQBot'
 
 export default function Recomendaciones() {
-  const navigation = useNavigation();
-  const [lugarSeleccionado, setLugarSeleccionado] = useState(null);
+  const navigation = useNavigation()
+  const [lugarSeleccionado, setLugarSeleccionado] = useState(null)
+  const [seccion, setSeccion] = useState('lugares')
+  // Vive en la pantalla para conservarlo cuando se desmonta la solapa Q-Bot.
+  const qbot = useQBot()
 
   const {
     lugaresFiltrados,
@@ -57,18 +63,35 @@ export default function Recomendaciones() {
     );
   }
 
-  if (loading) {
-    return <Loading />;
-  }
-
   return (
     <SafeAreaView style={styles.fondo}>
-      <View style={styles.header}>
-        <Text style={styles.titulo}>Lugares para juntarse</Text>
-        <Text style={styles.subtitulo}>
-          Encontrá un lugar para tu próxima juntada
-        </Text>
-      </View>
+      <SeccionesRecomendaciones seleccionada={seccion} onChange={setSeccion} />
+
+      {seccion === 'qbot' ? (
+        <PresentacionQBot
+          mensaje={qbot.mensaje}
+          onChangeMensaje={qbot.setMensaje}
+          onEnviar={qbot.enviar}
+          loading={qbot.loading}
+          error={qbot.error}
+          resultado={qbot.resultado}
+          onAbrirDetalle={abrirDetalle}
+        />
+      ) : null}
+
+      {seccion === 'actividades' ? (
+        <View style={styles.emptyState}>
+          <Text style={styles.titulo}>Actividades</Text>
+          <Text style={styles.emptyText}>
+            Próximamente: juegos, preguntas para charlar y más ideas para compartir con amigos.
+          </Text>
+        </View>
+      ) : null}
+
+      {/* Conservamos montada la lista para mantener su posición al cambiar de solapa.
+          El hook también permanece en esta pantalla: cambiar de sección no vuelve a consultar. */}
+      <View style={[styles.lugares, seccion !== 'lugares' && styles.oculto]}>
+      <Text style={styles.titulo}>Recomendación de lugares</Text>
 
       <View style={styles.buscador}>
         <Feather name="search" size={22} color="#808080" />
@@ -92,18 +115,16 @@ export default function Recomendaciones() {
         </View>
       ) : null}
 
-      <FlatList
+      {loading ? <Loading /> : <FlatList
         data={lugaresFiltrados}
         numColumns={2}
         columnWrapperStyle={styles.fila}
         keyExtractor={(item) => String(item.id)}
         showsVerticalScrollIndicator={false}
         ListEmptyComponent={
-          <View style={styles.emptyState}>
-            <Text style={styles.emptyText}>
-              No encontramos lugares para mostrar.
-            </Text>
-          </View>
+          !error ? <View style={styles.emptyState}>
+            <Text style={styles.emptyText}>No encontramos lugares para mostrar.</Text>
+          </View> : null
         }
         renderItem={({ item }) => (
           <TouchableOpacity
@@ -150,12 +171,15 @@ export default function Recomendaciones() {
             </View>
           </TouchableOpacity>
         )}
-      />
+      />}
+      </View>
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
+  lugares: { flex: 1 },
+  oculto: { display: 'none' },
   fondo: {
     flex: 1,
     backgroundColor: "#15151C",
