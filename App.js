@@ -6,6 +6,7 @@ import { useEffect, useState } from 'react'
 import { getSession, onAuthStateChange } from './src/services/authService'
 import AuthStack from './src/navigation/AuthStack'
 import AppTabs from './src/navigation/AppTabs'
+import { ThemeProvider } from './src/context/ThemeContext'
 
 SplashScreen.preventAutoHideAsync()
 
@@ -52,8 +53,11 @@ export default function App() {
   }
 
   return (
-    <NavigationContainer>
-      {isLoggedIn ? <AppTabs /> : <AuthStack />}
-    </NavigationContainer>
+    // El proveedor permite que las pantallas dentro de la navegacion lean el tema.
+    <ThemeProvider>
+      <NavigationContainer>
+        {isLoggedIn ? <AppTabs /> : <AuthStack />}
+      </NavigationContainer>
+    </ThemeProvider>
   )
 }
