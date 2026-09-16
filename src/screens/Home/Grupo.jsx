@@ -345,7 +345,6 @@ export default function Grupo({ navigation }) {
 
               <Text style={styles.sheetTitle}>Crear</Text>
 
-              {/* PROPONER */}
               <TouchableOpacity
                 style={styles.sheetButton}
                 onPress={irAProponer}
@@ -366,7 +365,6 @@ export default function Grupo({ navigation }) {
                 <Ionicons name="chevron-forward" size={20} color="#777782" />
               </TouchableOpacity>
 
-              {/* CREAR EVENTO */}
               <TouchableOpacity
                 style={styles.sheetButton}
                 onPress={irACrearEvento}
@@ -387,7 +385,6 @@ export default function Grupo({ navigation }) {
                 <Ionicons name="chevron-forward" size={20} color="#777782" />
               </TouchableOpacity>
 
-              {/* CANCELAR */}
               <TouchableOpacity
                 onPress={cerrarCrear}
                 style={styles.cancelButton}
@@ -465,10 +462,6 @@ const styles = StyleSheet.create({
     letterSpacing: -0.3,
   },
 
-  /* =====================================================
-     CREAR
-  ===================================================== */
-
   createButton: {
     height: 40,
     paddingHorizontal: 13,
@@ -486,18 +479,10 @@ const styles = StyleSheet.create({
     marginLeft: 3,
   },
 
-  /* =====================================================
-     JUNTADAS
-  ===================================================== */
-
   eventList: {
     paddingRight: 10,
     paddingBottom: 2,
   },
-
-  /* =====================================================
-     PROPUESTAS
-  ===================================================== */
 
   horizontalList: {
     paddingRight: 10,
@@ -631,10 +616,6 @@ const styles = StyleSheet.create({
     marginRight: 5,
   },
 
-  /* =====================================================
-     EMPTY STATES
-  ===================================================== */
-
   emptyState: {
     flexDirection: "row",
     alignItems: "center",
@@ -674,10 +655,6 @@ const styles = StyleSheet.create({
     marginTop: 3,
   },
 
-  /* =====================================================
-     JUNTADAS PASADAS
-  ===================================================== */
-
   pastToggle: {
     flexDirection: "row",
     alignItems: "center",
@@ -702,10 +679,6 @@ const styles = StyleSheet.create({
     fontSize: 13,
     marginLeft: 8,
   },
-
-  /* =====================================================
-     MODAL
-  ===================================================== */
 
   modalOverlay: {
     flex: 1,

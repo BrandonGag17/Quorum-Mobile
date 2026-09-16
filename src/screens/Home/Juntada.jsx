@@ -307,11 +307,6 @@ const styles = StyleSheet.create({
     backgroundColor: "#15151C",
   },
 
-  screen: {
-    flex: 1,
-    backgroundColor: "#15151C",
-  },
-
   scrollContent: {
     paddingTop: 4,
     paddingBottom: 100,

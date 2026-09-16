@@ -215,11 +215,6 @@ const styles = StyleSheet.create({
     height: 30,
     borderRadius: 10,
   },
-  fila: {
-    flexDirection: "row",
-    gap: 10,
-    alignItems: "center",
-  },
   miembroContainer: {
     flexDirection: "row",
     alignItems: "center",
@@ -247,29 +242,6 @@ const styles = StyleSheet.create({
   botonEliminarTexto: {
     color: "white",
     fontSize: 20,
-    fontFamily: "Utendo",
-  },
-  suggestionsContainer: {
-    backgroundColor: "#2B2B32",
-    borderRadius: 10,
-    marginTop: 8,
-    maxHeight: 200,
-  },
-  suggestionItem: {
-    flexDirection: "row",
-    alignItems: "center",
-    padding: 10,
-    borderBottomColor: "#3a3a3a",
-    borderBottomWidth: 1,
-  },
-  suggestionAvatar: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    marginRight: 10,
-  },
-  suggestionText: {
-    color: "white",
     fontFamily: "Utendo",
   },
   botonCrear: {

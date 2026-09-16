@@ -339,19 +339,4 @@ const styles = StyleSheet.create({
     fontWeight: "700",
     textAlign: "center",
   },
-  closeText: {
-    color: "#B0B0B0",
-    fontSize: 24,
-  },
-  modalButton: {
-    color: "#57C7A3",
-    textAlign: "center",
-    fontWeight: "700",
-    marginTop: 10,
-  },
-  errorText: {
-    color: "#FF7A7A",
-    textAlign: "center",
-    marginTop: 24,
-  },
 });

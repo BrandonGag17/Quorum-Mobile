@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { getSession } from '../services/authService'
 import { getGroupMemberCount } from '../services/groupService'
 import {
@@ -31,6 +31,7 @@ export function useVotacionDetail(eventId) {
   const [loading, setLoading] = useState(true)
   const [actionLoading, setActionLoading] = useState(false)
   const [error, setError] = useState(null)
+  const requestRef = useRef(0)
 
   const refreshVotes = useCallback(async (nextSurvey, userId = currentUserId) => {
     if (!nextSurvey?.id) {
@@ -40,7 +41,8 @@ export function useVotacionDetail(eventId) {
     }
 
     const options = nextSurvey.opcion_encuesta ?? []
-    const { data: votes, error: votesError } = await getVotosForSurvey(nextSurvey.id)
+    const optionIds = options.map(option => option.id).filter(Boolean)
+    const { data: votes, error: votesError } = await getVotosForSurvey(nextSurvey.id, optionIds)
 
     if (votesError) {
       throw votesError
@@ -60,6 +62,7 @@ export function useVotacionDetail(eventId) {
   }, [currentUserId])
 
   const refresh = useCallback(async () => {
+    const requestId = ++requestRef.current
     if (!eventId) {
       setSurvey(null)
       setEvent(null)
@@ -84,6 +87,7 @@ export function useVotacionDetail(eventId) {
       setCurrentUserId(userId)
 
       const { data, error: surveyError } = await getVotacionByEventId(eventId)
+      if (requestId !== requestRef.current) return
 
       if (surveyError) {
         throw surveyError
@@ -115,10 +119,15 @@ export function useVotacionDetail(eventId) {
       }
 
       await refreshVotes(data, userId)
+      if (requestId !== requestRef.current) return
     } catch (err) {
-      setError(err?.message || 'Ocurrió un error al cargar la votación')
+      if (requestId === requestRef.current) {
+        setError(err?.message || 'Ocurrió un error al cargar la votación')
+      }
     } finally {
-      setLoading(false)
+      if (requestId === requestRef.current) {
+        setLoading(false)
+      }
     }
   }, [eventId, refreshVotes])
 
@@ -167,7 +176,8 @@ export function useVotacionDetail(eventId) {
       }
 
       const options = survey?.opcion_encuesta ?? []
-      const { data: votes, error: votesError } = await getVotosForSurvey(survey.id)
+      const optionIds = options.map(option => option.id).filter(Boolean)
+      const { data: votes, error: votesError } = await getVotosForSurvey(survey.id, optionIds)
 
       if (votesError) {
         throw votesError

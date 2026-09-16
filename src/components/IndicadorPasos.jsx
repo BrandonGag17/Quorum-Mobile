@@ -48,10 +48,6 @@ const styles = StyleSheet.create({
     todo: {
         paddingBottom: 10,
     },
-    container: {
-        width: '100%',
-        marginBottom: '5%',
-    },
     textos: {
         marginLeft: 10,
     },

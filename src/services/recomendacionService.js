@@ -18,6 +18,9 @@ const DEFAULT_CATEGORIES = [
   'leisure.park',
 ]
 
+const localidadCache = new Map()
+const localidadPending = new Map()
+
 function obtenerTiposParaGusto(nombreGusto) {
   if (!nombreGusto) {
     return []
@@ -112,10 +115,19 @@ async function obtenerCoordenadasDesdeTexto(localidad) {
 }
 
 async function resolverCoordenadasLocalidad(localidad) {
-  return (
-    extractCoordinates(localidad) ||
-    await obtenerCoordenadasDesdeTexto(localidad)
-  )
+  const direct = extractCoordinates(localidad)
+  if (direct) return direct
+  const key = String(localidad || '').trim().toLowerCase()
+  if (!key) return null
+  if (localidadCache.has(key)) return localidadCache.get(key)
+  if (!localidadPending.has(key)) {
+    localidadPending.set(key, obtenerCoordenadasDesdeTexto(localidad).then((value) => {
+      localidadCache.set(key, value)
+      localidadPending.delete(key)
+      return value
+    }))
+  }
+  return localidadPending.get(key)
 }
 
 export async function obtenerTiposUsuario(userId) {

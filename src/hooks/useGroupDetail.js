@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from 'react'
+import { useEffect, useState, useCallback, useRef } from 'react'
 import {
   getGroupById,
   getGroupMemberCount
@@ -21,8 +21,10 @@ export function useGroupDetail(groupId) {
   const [proposals, setProposals] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
+  const requestRef = useRef(0)
 
   const refresh = useCallback(async () => {
+    const requestId = ++requestRef.current
     if (!groupId) {
       setGroup(null)
       setMemberCount(0)
@@ -51,6 +53,7 @@ export function useGroupDetail(groupId) {
         getConfirmedEventsByGroupId(groupId),
         getProposalsByGroupId(groupId)
       ])
+      if (requestId !== requestRef.current) return
 
       const errors = []
 
@@ -94,8 +97,10 @@ export function useGroupDetail(groupId) {
   const loadPastEvents = useCallback(async () => {
     if (!groupId || pastEventsLoaded || loadingPastEvents) return
     setLoadingPastEvents(true)
+    const requestId = ++requestRef.current
     try {
       const pastRes = await getPastEventsByGroupId(groupId)
+      if (requestId !== requestRef.current) return
       if (pastRes.error) {
         setError(pastRes.error.message)
       } else {

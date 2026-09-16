@@ -24,7 +24,6 @@ export default function Recomendaciones() {
   const navigation = useNavigation()
   const [lugarSeleccionado, setLugarSeleccionado] = useState(null)
   const [seccion, setSeccion] = useState('lugares')
-  // Vive en la pantalla para conservarlo cuando se desmonta la solapa Q-Bot.
   const qbot = useQBot()
 
   const {
@@ -88,8 +87,6 @@ export default function Recomendaciones() {
         </View>
       ) : null}
 
-      {/* Conservamos montada la lista para mantener su posición al cambiar de solapa.
-          El hook también permanece en esta pantalla: cambiar de sección no vuelve a consultar. */}
       <View style={[styles.lugares, seccion !== 'lugares' && styles.oculto]}>
       <Text style={styles.titulo}>Recomendación de lugares</Text>
 
@@ -186,21 +183,11 @@ const styles = StyleSheet.create({
     padding: 25,
     paddingBottom: 90,
   },
-  header: {
-    marginTop: 7,
-    marginBottom: 4,
-  },
   titulo: {
     color: "#FFFFFF",
     fontFamily: "CashMarket",
     fontSize: 27,
     letterSpacing: -0.5,
-  },
-  subtitulo: {
-    color: "#A9A9B5",
-    fontFamily: "Utendo",
-    fontSize: 14,
-    marginTop: 4,
   },
   fila: {
     justifyContent: "space-between",
@@ -213,19 +200,6 @@ const styles = StyleSheet.create({
     marginBottom: 14,
     borderWidth: 1,
     borderColor: "#6846A5",
-  },
-  botonGoogleMaps: {
-    width: "100%",
-    height: 120,
-    backgroundColor: "#5C3E94",
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  textoSinImagen: {
-    color: "#BDBDC7",
-    fontFamily: "Utendo",
-    fontSize: 12,
-    marginTop: 8,
   },
   info: {
     padding: 12,

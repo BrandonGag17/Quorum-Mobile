@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { getSession } from '../services/authService'
 import { getGroupsForUser } from '../services/groupService'
 import { getUpcomingConfirmedEventsForUser } from '../services/eventoService'
@@ -8,8 +8,10 @@ export function useHomeSummary() {
   const [events, setEvents] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
+  const requestRef = useRef(0)
 
   const refresh = useCallback(async () => {
+    const requestId = ++requestRef.current
     setLoading(true)
     setError('')
 
@@ -18,6 +20,7 @@ export function useHomeSummary() {
       error: sessionError,
     } = await getSession()
 
+    if (requestId !== requestRef.current) return
     if (sessionError) {
       setError('No se pudo obtener la sesión.')
       setGroups([])
@@ -38,6 +41,7 @@ export function useHomeSummary() {
       getUpcomingConfirmedEventsForUser(session.user.id),
     ])
 
+    if (requestId !== requestRef.current) return
     if (groupsRes.error) {
       setError(groupsRes.error.message)
       setGroups([])

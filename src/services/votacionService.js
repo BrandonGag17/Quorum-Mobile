@@ -36,30 +36,30 @@ export async function getVotacionByEventId(eventId) {
   return { data, error }
 }
 
-export async function getVotosForSurvey(surveyId) {
+export async function getVotosForSurvey(surveyId, optionIds) {
   if (!surveyId) {
     return { data: [], error: null }
   }
 
-  const { data: options, error: optionsError } = await supabase
-    .from('opcion_encuesta')
-    .select('id')
-    .eq('id_encuesta', surveyId)
-
-  if (optionsError) {
-    return { data: [], error: optionsError }
+  let resolvedOptionIds = optionIds
+  if (!resolvedOptionIds) {
+    const { data: options, error: optionsError } = await supabase
+      .from('opcion_encuesta')
+      .select('id')
+      .eq('id_encuesta', surveyId)
+    if (optionsError) {
+      return { data: [], error: optionsError }
+    }
+    resolvedOptionIds = (options ?? []).map(option => option.id).filter(Boolean)
   }
-
-  const optionIds = (options ?? []).map(option => option.id).filter(Boolean)
-
-  if (optionIds.length === 0) {
+  if (resolvedOptionIds.length === 0) {
     return { data: [], error: null }
   }
 
   const { data, error } = await supabase
     .from('voto')
     .select('id_usuario, id_opcion')
-    .in('id_opcion', optionIds)
+    .in('id_opcion', resolvedOptionIds)
 
   return { data: data ?? [], error: error ?? null }
 }
