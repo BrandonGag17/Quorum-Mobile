@@ -1,6 +1,4 @@
 import { createNativeStackNavigator } from '@react-navigation/native-stack'
-import { TouchableOpacity } from 'react-native'
-import Ionicons from '@expo/vector-icons/Ionicons'
 
 import Home from '../screens/Home/Home'
 import Grupo from '../screens/Home/Grupo'

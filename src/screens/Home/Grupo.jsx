@@ -52,24 +52,24 @@ export default function Grupo({ navigation }) {
 
   const translateY = useRef(new Animated.Value(500)).current;
 
-useLayoutEffect(() => {
-  if (!group) return;
-  navigation.setOptions({
-    headerTitle: () => (
-      <GroupNavigationHeader
-        navigation={navigation}
-        group={group}
-        memberCount={memberCount}
-        idGrupo={idGrupo}
-      />
-    ),
-    headerTitleAlign: "left",
-    headerStyle: {
-      backgroundColor: "#15151C",
-    },
-    headerShadowVisible: false,
-  });
-}, [navigation, group, memberCount, idGrupo]);
+  useLayoutEffect(() => {
+    if (!group) return;
+    navigation.setOptions({
+      headerTitle: () => (
+        <GroupNavigationHeader
+          navigation={navigation}
+          group={group}
+          memberCount={memberCount}
+          idGrupo={idGrupo}
+        />
+      ),
+      headerTitleAlign: "left",
+      headerStyle: {
+        backgroundColor: "#15151C",
+      },
+      headerShadowVisible: false,
+    });
+  }, [navigation, group, memberCount, idGrupo]);
 
   useEffect(() => {
     Animated.timing(translateY, {
@@ -107,6 +107,17 @@ useLayoutEffect(() => {
 
   return (
     <SafeAreaView style={styles.container}>
+      <View style={styles.sectionRow}>
+        <View style={styles.sectionTitleContainer}>
+          <MaterialCommunityIcons
+            name="lightbulb-variant"
+            size={25}
+            color="#FFFFFF"
+          />
+
+          <Text style={styles.sectionTitle}>Proximas juntadas</Text>
+        </View>
+      </View>
       <View style={styles.content}>
         {events.length > 0 ? (
           <FlatList
@@ -273,7 +284,7 @@ useLayoutEffect(() => {
                 </View>
               </TouchableOpacity>
 
-            
+
               <TouchableOpacity
                 onPress={cerrarCrear}
                 style={styles.cancelButton}

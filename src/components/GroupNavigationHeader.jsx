@@ -4,7 +4,6 @@ import {
   StyleSheet,
   TouchableOpacity,
 } from "react-native";
-import Ionicons from "@expo/vector-icons/Ionicons";
 
 import GroupHeader from "./GroupHeader";
 
@@ -15,20 +14,6 @@ export default function GroupNavigationHeader({
   idGrupo,
 }) {
   return (
-    <View style={styles.container}>
-
-      <TouchableOpacity
-        onPress={() => navigation.goBack()}
-        style={styles.backButton}
-        activeOpacity={0.7}
-      >
-        <Ionicons
-          name="chevron-back"
-          size={30}
-          color="#FFFFFF"
-        />
-      </TouchableOpacity>
-
       <GroupHeader
         group={group}
         memberCount={memberCount}
@@ -39,27 +24,11 @@ export default function GroupNavigationHeader({
         groupNameStyle={styles.groupName}
         memberCountStyle={styles.memberCount}
       />
-
-    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flexDirection: "row",
-    alignItems: "center",
-    flex: 1,
-  },
-
-  backButton: {
-    width: 35,
-    height: 50,
-    justifyContent: "center",
-    alignItems: "center",
-    marginRight: 5,
-  },
-
-  groupHeader: {
+ groupHeader: {
     flex: 1,
     margin: 0,
     padding: 0,
