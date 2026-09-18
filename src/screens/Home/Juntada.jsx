@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useLayoutEffect } from 'react'
 import {
   View,
   Text,
@@ -11,10 +11,10 @@ import {
 
 import Ionicons from "@expo/vector-icons/Ionicons";
 
-import Loading from "../../components/Loading";
-import ErrorMessage from "../../components/MensajeError";
-import { useJuntadaDetail } from "../../hooks/useJuntadaDetail";
-import GroupHeader from "../../components/GroupHeader";
+import Loading from '../../components/Loading'
+import ErrorMessage from '../../components/MensajeError'
+import { useJuntadaDetail } from '../../hooks/useJuntadaDetail'
+import GroupNavigationHeader from '../../components/GroupNavigationHeader'
 
 export default function Juntada({ route, navigation }) {
   const eventId = route?.params?.idEvento;
@@ -32,6 +32,29 @@ export default function Juntada({ route, navigation }) {
     timeRemaining,
     changeAttendance,
   } = useJuntadaDetail(eventId);
+
+  useLayoutEffect(() => {
+  if (!event) return
+
+  navigation.setOptions({
+    headerTitle: () => (
+      <GroupNavigationHeader
+        navigation={navigation}
+        group={event.grupo}
+        memberCount={memberCount}
+        idGrupo={event.grupo?.id}
+      />
+    ),
+
+    headerTitleAlign: 'left',
+
+    headerStyle: {
+      backgroundColor: '#15151C',
+    },
+
+    headerShadowVisible: false,
+  })
+}, [navigation, event, memberCount])
 
   if (loading) {
     return <Loading />;
@@ -170,17 +193,6 @@ export default function Juntada({ route, navigation }) {
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.scrollContent}
       >
-        <View>
-          <GroupHeader
-            group={event.grupo}
-            memberCount={memberCount}
-            onPress={() =>
-              navigation.navigate("InfoGrupo", {
-                idGrupo: event.grupo?.id,
-              })
-            }
-          />
-        </View>
         <View style={styles.nextRow}>
           <Text style={styles.nextText}>Próximo encuentro</Text>
 

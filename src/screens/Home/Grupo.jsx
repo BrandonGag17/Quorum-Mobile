@@ -21,7 +21,7 @@ import Ionicons from "@expo/vector-icons/Ionicons";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 
 import { useGroupDetail } from "../../hooks/useGroupDetail";
-import GroupHeader from "../../components/GroupHeader";
+import GroupNavigationHeader from "../../components/GroupNavigationHeader";
 
 import ErrorMessage from "../../components/MensajeError";
 import Loading from "../../components/Loading";
@@ -50,6 +50,7 @@ export default function Grupo({ navigation }) {
   const translateY = useRef(new Animated.Value(500)).current;
 
   useLayoutEffect(() => {
+    if (!group) return;
     navigation.setOptions({
       headerTitle:
         loading || !group
@@ -72,10 +73,12 @@ export default function Grupo({ navigation }) {
               />
             ),
       headerTitleAlign: "left",
-      headerTitleContainerStyle: styles.headerTitleContainer,
-      headerStyle: styles.headerStyle,
+      headerStyle: {
+        backgroundColor: "#15151C",
+      },
+      headerShadowVisible: false,
     });
-  }, [navigation, group, memberCount, idGrupo, loading]);
+  }, [navigation, group, memberCount, idGrupo]);
 
   useEffect(() => {
     Animated.timing(translateY, {
@@ -204,6 +207,17 @@ export default function Grupo({ navigation }) {
 
   return (
     <SafeAreaView style={styles.container}>
+      <View style={styles.sectionRow}>
+        <View style={styles.sectionTitleContainer}>
+          <MaterialCommunityIcons
+            name="lightbulb-variant"
+            size={25}
+            color="#FFFFFF"
+          />
+
+          <Text style={styles.sectionTitle}>Proximas juntadas</Text>
+        </View>
+      </View>
       <View style={styles.content}>
         {upcomingEvents.length > 0 ? (
           <FlatList
@@ -384,6 +398,7 @@ export default function Grupo({ navigation }) {
 
                 <Ionicons name="chevron-forward" size={20} color="#777782" />
               </TouchableOpacity>
+
 
               <TouchableOpacity
                 onPress={cerrarCrear}
