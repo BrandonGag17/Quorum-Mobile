@@ -11,7 +11,7 @@ export function ThemeProvider({ children }) {
   // Elegimos los colores segun el estado actual.
   const colors = isDarkMode
     ? { texbackground: '#15151C', text: '#FFFFFF' }
-    : { background: '#FFt', text:'#111116'}
+    : { background: '#ffffff', text:'#111116'}
 
   const texto = isDarkMode ? 'Modo oscuro' : 'Modo claro'
   // value indica que datos y funciones compartimos con los descendientes.
