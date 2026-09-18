@@ -1,4 +1,4 @@
-import React from 'react'
+import React from "react";
 import {
   ActivityIndicator,
   FlatList,
@@ -7,18 +7,18 @@ import {
   StyleSheet,
   Text,
   View,
-} from 'react-native'
-import { SafeAreaView } from 'react-native-safe-area-context'
-import { useNavigation, useRoute } from '@react-navigation/native'
-import Feather from '@expo/vector-icons/Feather'
-import FontAwesome6 from '@expo/vector-icons/FontAwesome6'
-import useGroupRecommendations from '../../hooks/useGroupRecommendations'
-import ErrorMessage from '../../components/MensajeError'
+} from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { useNavigation, useRoute } from "@react-navigation/native";
+import Feather from "@expo/vector-icons/Feather";
+import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
+import useGroupRecommendations from "../../hooks/useGroupRecommendations";
+import ErrorMessage from "../../components/MensajeError";
 
 export default function RecomendacionesGrupo() {
-  const navigation = useNavigation()
-  const route = useRoute()
-  const idGrupo = route.params?.idGrupo
+  const navigation = useNavigation();
+  const route = useRoute();
+  const idGrupo = route.params?.idGrupo;
 
   const {
     lugares,
@@ -31,21 +31,19 @@ export default function RecomendacionesGrupo() {
     getGoogleMapsUrl,
     volverARecomendar,
     reintentar,
-  } = useGroupRecommendations(idGrupo)
+  } = useGroupRecommendations(idGrupo);
 
   function confirmarSeleccion() {
-    if (!cantidadSeleccionados) return
+    if (!cantidadSeleccionados) return;
 
-    // Volvemos a la instancia existente. Así no se pierden el nombre, las
-    // fechas ni los lugares manuales que ya estaban en el formulario.
-    navigation.popTo('ProponerJuntada', {
+    navigation.popTo("ProponerJuntada", {
       idGrupo,
       lugaresRecomendados: lugaresSeleccionados,
-    })
+    });
   }
 
   function abrirEnGoogleMaps(lugar) {
-    Linking.openURL(getGoogleMapsUrl(lugar))
+    Linking.openURL(getGoogleMapsUrl(lugar));
   }
 
   return (
@@ -71,7 +69,10 @@ export default function RecomendacionesGrupo() {
       {error ? (
         <View>
           <ErrorMessage mensaje={error} />
-          <Pressable style={styles.botonSecundario} onPress={() => reintentar()}>
+          <Pressable
+            style={styles.botonSecundario}
+            onPress={() => reintentar()}
+          >
             <Text style={styles.textoBoton}>Reintentar</Text>
           </Pressable>
         </View>
@@ -80,7 +81,9 @@ export default function RecomendacionesGrupo() {
       {loading ? (
         <View style={styles.cargando}>
           <ActivityIndicator size="large" color="#A846E9" />
-          <Text style={styles.textoCargando}>Buscando lugares para el grupo...</Text>
+          <Text style={styles.textoCargando}>
+            Buscando lugares para el grupo...
+          </Text>
         </View>
       ) : (
         <FlatList
@@ -96,7 +99,7 @@ export default function RecomendacionesGrupo() {
             ) : null
           }
           renderItem={({ item }) => {
-            const seleccionado = estaSeleccionado(item)
+            const seleccionado = estaSeleccionado(item);
 
             return (
               <View
@@ -112,19 +115,23 @@ export default function RecomendacionesGrupo() {
                     <FontAwesome6
                       name="map-location-dot"
                       size={31}
-                      color={seleccionado ? '#FFFFFF' : '#BDBDC7'}
+                      color={seleccionado ? "#FFFFFF" : "#BDBDC7"}
                     />
                     <Feather
-                      name={seleccionado ? 'check-circle' : 'circle'}
+                      name={seleccionado ? "check-circle" : "circle"}
                       size={23}
-                      color={seleccionado ? '#FFFFFF' : '#BDBDC7'}
+                      color={seleccionado ? "#FFFFFF" : "#BDBDC7"}
                       style={styles.indicadorSeleccion}
                     />
                   </View>
 
                   <View style={styles.info}>
-                    <Text numberOfLines={1} style={styles.nombre}>{item.nombre}</Text>
-                    <Text numberOfLines={2} style={styles.direccion}>{item.direccion}</Text>
+                    <Text numberOfLines={1} style={styles.nombre}>
+                      {item.nombre}
+                    </Text>
+                    <Text numberOfLines={2} style={styles.direccion}>
+                      {item.direccion}
+                    </Text>
                   </View>
                 </Pressable>
 
@@ -134,11 +141,15 @@ export default function RecomendacionesGrupo() {
                   accessibilityRole="link"
                   accessibilityLabel={`Ver ${item.nombre} en Google Maps`}
                 >
-                  <FontAwesome6 name="map-location-dot" size={14} color="#FFFFFF" />
+                  <FontAwesome6
+                    name="map-location-dot"
+                    size={14}
+                    color="#FFFFFF"
+                  />
                   <Text style={styles.textoMaps}>Ver en Google Maps</Text>
                 </Pressable>
               </View>
-            )
+            );
           }}
         />
       )}
@@ -167,79 +178,79 @@ export default function RecomendacionesGrupo() {
         </Pressable>
       </View>
     </SafeAreaView>
-  )
+  );
 }
 
 const styles = StyleSheet.create({
-  fondo: { flex: 1, backgroundColor: '#15151C', paddingHorizontal: 25 },
-  encabezado: { flexDirection: 'row', marginTop: 12, marginBottom: 18 },
+  fondo: { flex: 1, backgroundColor: "#15151C", paddingHorizontal: 25 },
+  encabezado: { flexDirection: "row", marginTop: 12, marginBottom: 18 },
   botonVolver: {
     width: 42,
     height: 42,
     borderRadius: 12,
-    backgroundColor: '#2B2B35',
-    alignItems: 'center',
-    justifyContent: 'center',
+    backgroundColor: "#2B2B35",
+    alignItems: "center",
+    justifyContent: "center",
     marginRight: 12,
   },
   titulos: { flex: 1 },
-  titulo: { color: '#FFFFFF', fontFamily: 'CashMarket', fontSize: 24 },
+  titulo: { color: "#FFFFFF", fontFamily: "CashMarket", fontSize: 24 },
   subtitulo: {
-    color: '#BDBDC7',
-    fontFamily: 'Utendo',
+    color: "#BDBDC7",
+    fontFamily: "Utendo",
     fontSize: 13,
     lineHeight: 18,
     marginTop: 4,
   },
   lista: { paddingBottom: 12, flexGrow: 1 },
-  fila: { justifyContent: 'space-between' },
+  fila: { justifyContent: "space-between" },
   card: {
-    width: '48%',
-    backgroundColor: '#4D216B',
+    width: "48%",
+    backgroundColor: "#4D216B",
     borderRadius: 12,
     borderWidth: 2,
-    borderColor: 'transparent',
-    overflow: 'hidden',
+    borderColor: "transparent",
+    overflow: "hidden",
     marginBottom: 16,
   },
-  cardSeleccionada: { backgroundColor: '#66278F', borderColor: '#C98BFF' },
+  cardSeleccionada: { backgroundColor: "#66278F", borderColor: "#C98BFF" },
   imagenPlaceholder: {
     height: 105,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: '#3C1B53',
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "#3C1B53",
   },
-  indicadorSeleccion: { position: 'absolute', top: 9, right: 9 },
+  indicadorSeleccion: { position: "absolute", top: 9, right: 9 },
   info: { padding: 10 },
-  nombre: { color: '#FFFFFF', fontFamily: 'CashMarket', fontSize: 15 },
+  nombre: { color: "#FFFFFF", fontFamily: "CashMarket", fontSize: 15 },
   direccion: {
-    color: '#E7D8FF',
-    fontFamily: 'Utendo',
+    color: "#E7D8FF",
+    fontFamily: "Utendo",
     fontSize: 11,
     lineHeight: 15,
     marginTop: 4,
   },
   botonMaps: {
     borderTopWidth: 1,
-    borderTopColor: 'rgba(255,255,255,0.2)',
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
+    borderTopColor: "rgba(255,255,255,0.2)",
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
     paddingHorizontal: 7,
     paddingVertical: 9,
   },
   textoMaps: {
-    color: '#FFFFFF',
-    fontFamily: 'Utendo',
+    color: "#FFFFFF",
+    fontFamily: "Utendo",
     fontSize: 10,
     marginLeft: 5,
   },
-  cargando: { flex: 1, alignItems: 'center', justifyContent: 'center' },
-  textoCargando: { color: '#FFFFFF', fontFamily: 'Utendo', marginTop: 12 },
+  cargando: { flex: 1, alignItems: "center", justifyContent: "center" },
+  textoCargando: { color: "#FFFFFF", fontFamily: "Utendo", marginTop: 12 },
   vacio: {
-    color: '#BDBDC7',
-    fontFamily: 'Utendo',
-    textAlign: 'center',
+    color: "#BDBDC7",
+    fontFamily: "Utendo",
+    textAlign: "center",
     marginTop: 50,
   },
   acciones: { paddingVertical: 12 },
@@ -247,26 +258,26 @@ const styles = StyleSheet.create({
     minHeight: 46,
     borderRadius: 14,
     borderWidth: 1,
-    borderColor: '#8C60B8',
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
+    borderColor: "#8C60B8",
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
     marginBottom: 10,
     paddingHorizontal: 14,
   },
   botonPrincipal: {
     minHeight: 48,
     borderRadius: 14,
-    backgroundColor: '#5E2D82',
-    alignItems: 'center',
-    justifyContent: 'center',
+    backgroundColor: "#5E2D82",
+    alignItems: "center",
+    justifyContent: "center",
     paddingHorizontal: 14,
   },
   botonDeshabilitado: { opacity: 0.45 },
   textoBoton: {
-    color: '#FFFFFF',
-    fontFamily: 'CashMarket',
+    color: "#FFFFFF",
+    fontFamily: "CashMarket",
     fontSize: 16,
     marginLeft: 7,
   },
-})
+});

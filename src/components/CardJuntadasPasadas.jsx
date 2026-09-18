@@ -123,11 +123,6 @@ function CardJuntadasPasadas({ evento }) {
     )
 }
 const styles = StyleSheet.create({
-    textoModalBoton: {
-        color: '#FFFFFF',
-        fontSize: 14,
-        fontFamily: 'Utendo',
-    },
     card: {
         width: 350,
         alignSelf: 'center',
@@ -151,16 +146,6 @@ const styles = StyleSheet.create({
     derecha: {
         flex: 1,
     },
-    filaSuperior: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        marginBottom: 14,
-    },
-    filaInferior: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-    },
-
     horaContainer: {
         flexDirection: 'row',
         alignItems: 'center',

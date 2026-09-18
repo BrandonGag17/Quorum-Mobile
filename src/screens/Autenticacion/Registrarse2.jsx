@@ -2,7 +2,7 @@ import { View, Text, StyleSheet, SafeAreaView } from "react-native";
 import { useState } from "react";
 import { useNavigation, useRoute } from "@react-navigation/native";
 
-import Button from '../../components/BotonesIntro'
+import Button from "../../components/BotonesIntro";
 import Input from "../../components/Input";
 import ErrorMessage from "../../components/MensajeError";
 

@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { getSession } from '../services/authService'
+import { getCurrentUser } from '../services/authService'
 import { createEvent } from '../services/eventoService'
 
 export default function useCreateEvent() {
@@ -17,7 +17,6 @@ export default function useCreateEvent() {
     setError(null)
     if (loading) return { data: null, error: { message: 'busy' } }
 
-    // basic validations
     if (!nombre || !nombre.trim()) {
       const err = { message: 'El nombre del evento es obligatorio' }
       setError(err.message)
@@ -39,14 +38,12 @@ export default function useCreateEvent() {
     setLoading(true)
 
     try {
-      const { data: { session }, error: sessionError } = await getSession()
+      const { data: user, error: sessionError } = await getCurrentUser()
 
       if (sessionError) {
         setError(sessionError.message || 'No se pudo obtener la sesión')
         return { data: null, error: sessionError }
       }
-
-      const user = session?.user
 
       if (!user) {
         const err = { message: 'No hay sesión activa' }

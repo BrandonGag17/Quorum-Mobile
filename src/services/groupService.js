@@ -1,5 +1,7 @@
 import supabase from './supabaseClient'
 
+const GROUP_LIST_LIMIT = 50
+
 export async function createGroup({ nombre, fotoPerfil = null, creatorId, miembros = [] }) {
   if (!nombre?.trim() || !creatorId || !Array.isArray(miembros)) {
     return { data: null, error: { message: 'Faltan datos válidos para crear el grupo.' } }
@@ -16,7 +18,7 @@ export async function createGroup({ nombre, fotoPerfil = null, creatorId, miembr
         foto_perfil: fotoPerfil,
         id_creador: creatorId,
       })
-      .select()
+      .select('id, nombre, foto_perfil, id_creador')
       .single()
 
     if (error) return { data: null, error }
@@ -39,9 +41,16 @@ export async function createGroup({ nombre, fotoPerfil = null, creatorId, miembr
     miembrosError = error
   }
 
-  // Son dos solicitudes: intentamos retirar el grupo recién creado si falla
-  // la incorporación de integrantes, y avisamos si no se puede deshacer.
   try {
+    const { error: relationsCleanupError } = await supabase
+      .from('usuario_grupo')
+      .delete()
+      .eq('id_grupo', grupo.id)
+
+    if (relationsCleanupError) {
+      miembrosError = relationsCleanupError
+    }
+
     const { data: eliminado, error: cleanupError } = await supabase
       .from('grupo')
       .delete()
@@ -57,7 +66,6 @@ export async function createGroup({ nombre, fotoPerfil = null, creatorId, miembr
       }
     }
   } catch {
-    // El resultado parcial se informa abajo también si falla la conexión.
   }
 
   return {
@@ -71,7 +79,7 @@ export async function createGroup({ nombre, fotoPerfil = null, creatorId, miembr
 export async function getGroupById(groupId) {
   const { data, error } = await supabase
     .from('grupo')
-    .select('*')
+    .select('id, nombre, descripcion, foto_perfil, id_creador')
     .eq('id', groupId)
     .single()
 
@@ -140,13 +148,24 @@ export async function getUserByUsername(username) {
 }
 
 export async function addUserToGroup({ groupId, userId }) {
+  if (!groupId || !userId) {
+    return { data: null, error: { message: 'Faltan datos para agregar al grupo.' } }
+  }
+  const { data: existing, error: lookupError } = await supabase
+    .from('usuario_grupo')
+    .select('id_grupo, id_usuario')
+    .eq('id_grupo', groupId)
+    .eq('id_usuario', userId)
+    .maybeSingle()
+  if (lookupError) return { data: null, error: lookupError }
+  if (existing) return { data: existing, error: null }
   const { data, error } = await supabase
     .from('usuario_grupo')
     .insert({
       id_grupo: groupId,
       id_usuario: userId
     })
-    .select()
+    .select('id, id_grupo, id_usuario')
     .single()
 
   return { data, error }
@@ -158,7 +177,7 @@ export async function removeUserFromGroup({ groupId, userId }) {
     .delete()
     .eq('id_grupo', groupId)
     .eq('id_usuario', userId)
-    .select()
+    .select('id_grupo, id_usuario')
     .maybeSingle()
 
   return { data, error }
@@ -179,6 +198,7 @@ export async function getGroupsForUser(userId) {
     `
     )
     .eq('id_usuario', userId)
+    .limit(GROUP_LIST_LIMIT)
 
   if (error) {
     return { data: [], error }

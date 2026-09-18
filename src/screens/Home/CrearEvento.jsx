@@ -31,14 +31,11 @@ function CrearEvento({ route, onCreado }) {
 
 	const [mensaje, setMensaje] = useState('');
 
-	// pasos
 	const [paso, setPaso] = useState('paso1');
 
-	// paso 1
 	const [nombreJuntada, setNombreJuntada] = useState(eventoBase?.nombre || '');
 	const [descripcion, setDescripcion] = useState(eventoBase?.descripcion || '');
 
-	// paso 2
 	const [date, setDate] = useState(new Date());
 	const [pickerMode, setPickerMode] = useState('date');
 	const [showPicker, setShowPicker] = useState(false);
@@ -97,7 +94,6 @@ function CrearEvento({ route, onCreado }) {
 			return;
 		}
 
-		// crear evento via hook
 		const { data, error: createError } = await crearEvento({
 			nombre: nombreJuntada,
 			descripcion,
@@ -143,7 +139,6 @@ function CrearEvento({ route, onCreado }) {
 		);
 	}
 
-	// paso2
 	return (
 		<View style={styles.fondo}>
 			<View style={styles.contenedorIndicador}>

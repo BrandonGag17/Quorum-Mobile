@@ -116,7 +116,6 @@ function InfoGrupo() {
     setMostrarPopupMiembro(true);
   }
 
-
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.contenido}>
@@ -139,7 +138,9 @@ function InfoGrupo() {
         <FlatList
           data={members}
           extraData={group?.id_creador}
-          keyExtractor={(item, index) => String(item.id ?? item.id_usuario ?? item.usuario?.id ?? index)}
+          keyExtractor={(item, index) =>
+            String(item.id ?? item.id_usuario ?? item.usuario?.id ?? index)
+          }
           showsVerticalScrollIndicator={members.length > 4}
           scrollEnabled={members.length > 4}
           contentContainerStyle={styles.listaMiembros}
@@ -157,16 +158,18 @@ function InfoGrupo() {
               <View style={styles.infoUsuario}>
                 <View style={styles.filaNombre}>
                   <Text style={styles.nombreUsuario}>
-                    {item.usuario?.username || 'Sin usuario'}
+                    {item.usuario?.username || "Sin usuario"}
                   </Text>
                   {group?.id_creador &&
-                    (item.id_usuario ?? item.usuario?.id) === group.id_creador ? (
+                  (item.id_usuario ?? item.usuario?.id) === group.id_creador ? (
                     <Text style={styles.etiquetaAdmin}>Admin</Text>
                   ) : null}
                 </View>
 
                 <Text style={styles.username}>
-                  {item.usuario?.username ? `@${item.usuario.username}` : 'Usuario no disponible'}
+                  {item.usuario?.username
+                    ? `@${item.usuario.username}`
+                    : "Usuario no disponible"}
                 </Text>
               </View>
             </TouchableOpacity>
@@ -174,10 +177,16 @@ function InfoGrupo() {
         />
 
         <View>
-          <Button onPress={() => setMostrarModal(true)} nombre={loading ? "Cargando..." : "+ Añadir miembros"} />
+          <Button
+            onPress={() => setMostrarModal(true)}
+            nombre={loading ? "Cargando..." : "+ Añadir miembros"}
+          />
         </View>
 
-        <TouchableOpacity style={styles.botonSalir} onPress={() => setMostrarPopupSalir(true)}>
+        <TouchableOpacity
+          style={styles.botonSalir}
+          onPress={() => setMostrarPopupSalir(true)}
+        >
           <Text style={styles.textoBotonSalir}>Salir del grupo</Text>
         </TouchableOpacity>
 
@@ -282,12 +291,10 @@ function InfoGrupo() {
                 />
 
                 <Text style={styles.popupNombre}>
-                  {miembroSeleccionado.usuario?.username || 'Sin usuario'}
+                  {miembroSeleccionado.usuario?.username || "Sin usuario"}
                 </Text>
 
-                <Text style={styles.popupInfo}>
-                  Cumpleaños
-                </Text>
+                <Text style={styles.popupInfo}>Cumpleaños</Text>
 
                 <TouchableOpacity
                   style={styles.botonSalir}
@@ -301,7 +308,7 @@ function InfoGrupo() {
         </View>
       </Modal>
     </SafeAreaView>
-  )
+  );
 }
 
 const styles = StyleSheet.create({
@@ -317,29 +324,6 @@ const styles = StyleSheet.create({
     fontWeight: "700",
     marginLeft: 8,
   },
-  headerGrupo: {
-    alignItems: "center",
-    marginBottom: 30,
-  },
-  fotoGrupo: {
-    width: 110,
-    height: 110,
-    borderRadius: 60,
-    marginBottom: 14,
-    borderWidth: 2,
-    borderColor: "#5E2D82",
-  },
-  nombreGrupo: {
-    color: "white",
-    fontSize: 28,
-    fontFamily: "CashMarket",
-    marginBottom: 4,
-  },
-  cantidadMiembros: {
-    color: "#B8B8B8",
-    fontSize: 14,
-    fontFamily: "Utendo",
-  },
   container: {
     flex: 1,
     backgroundColor: "#15151C",
@@ -347,7 +331,7 @@ const styles = StyleSheet.create({
     paddingTop: "5%",
   },
   contenido: {
-        padding: 24,
+    padding: 24,
     flex: 1,
     paddingBottom: 50,
   },
@@ -402,7 +386,7 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     alignItems: "center",
     marginTop: 4,
-    bottom: 60
+    bottom: 60,
   },
   textoBotonSalir: {
     color: "white",
@@ -445,14 +429,6 @@ const styles = StyleSheet.create({
   botonCerrar: {
     color: "#B0B0B0",
     fontSize: 24,
-    fontFamily: "Utendo",
-  },
-  input: {
-    backgroundColor: "#2E2E3A",
-    color: "white",
-    padding: 12,
-    borderRadius: 10,
-    marginBottom: 15,
     fontFamily: "Utendo",
   },
   botonModal: {

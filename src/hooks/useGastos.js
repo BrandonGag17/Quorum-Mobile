@@ -28,8 +28,6 @@ export default function useGastos(eventId) {
     setError('')
 
     try {
-      // Gastos y personas no dependen entre sí, así que pueden consultarse al
-      // mismo tiempo para reducir la espera de la pantalla.
       const [
         respuestaGastos, respuestaPersonas, respuestaHistorial,
       ] = await Promise.all([getGastosByEventId(eventId), getPersonasByEventId(eventId), getHistorialGastosByEventId(eventId),
@@ -71,8 +69,6 @@ export default function useGastos(eventId) {
     cargarGastos()
   }, [cargarGastos])
 
-  // Se recalcula solamente cuando cambia la lista. No guardamos el total como
-  // otro estado porque siempre puede derivarse de los gastos existentes.
   const totalGastado = useMemo(() => {
     return gastos.reduce(
       (total, gasto) => total + Number(gasto.monto || 0),
@@ -80,9 +76,6 @@ export default function useGastos(eventId) {
     )
   }, [gastos])
 
-  // Conservamos cada gasto individual en Supabase, pero para la pantalla los
-  // agrupamos por persona. Así cada asistente aparece una sola vez con su total
-  // y todavía podemos mostrar el detalle de todo lo que pagó.
   const gastosPorPersona = useMemo(() => {
     return personas.map((persona) => {
       const gastosDeLaPersona = gastos.filter(
@@ -123,8 +116,6 @@ export default function useGastos(eventId) {
         return { data: null, error: errorCreacion }
       }
 
-      // El servicio devuelve la fila recién creada, por eso podemos agregarla
-      // localmente y actualizar el total sin hacer otra consulta a Supabase.
       setGastos((gastosActuales) => [...gastosActuales, data])
 
       return { data, error: null }

@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { getSession } from '../services/authService'
+import { getCurrentUser } from '../services/authService'
 import { createProposalJuntada } from '../services/propuestaService'
 
 export default function useCreateProposal() {
@@ -19,16 +19,11 @@ export default function useCreateProposal() {
         setError('')
 
         try {
-            const {
-                data: { session },
-                error: errorUsuario
-            } = await getSession()
+            const { data: user, error: errorUsuario } = await getCurrentUser()
 
             if (errorUsuario) {
                 throw errorUsuario
             }
-
-            const user = session?.user
 
             if (!user) {
                 throw new Error('No se pudo obtener el usuario')

@@ -9,14 +9,10 @@ import {
   Image,
 } from "react-native";
 import * as ImagePicker from "expo-image-picker";
-import supabase from "../../services/supabaseClient";
 import ErrorMessage from "../../components/MensajeError";
 import useCreateGroup from "../../hooks/useCreateGroup";
 import UserSearch from "../../components/UserSearch";
-import Button from "../../components/Botones";
-
-const FOTO_DEFAULT =
-  "https://fusjhtyvjkshuzxofeqj.supabase.co/storage/v1/object/public/avatars/PlaceholderGrupo.png";
+import { useSession } from "../../hooks/useSession";
 
 function CrearGrupo({ onGrupoCreado }) {
   const [nombreGrupo, setNombreGrupo] = useState("");
@@ -26,6 +22,8 @@ function CrearGrupo({ onGrupoCreado }) {
   const [mensaje, setMensaje] = useState("");
 
   const { create, loading: creating, error: createError } = useCreateGroup();
+  const { session } = useSession();
+  const currentUserId = session?.user?.id;
 
   async function seleccionarFoto() {
     const resultado = await ImagePicker.launchImageLibraryAsync({
@@ -40,9 +38,7 @@ function CrearGrupo({ onGrupoCreado }) {
 
   async function handleSelectUser(user) {
     setMensaje("");
-    const { data: me } = await supabase.auth.getUser();
-    const myId = me?.user?.id;
-    if (user.id === myId) {
+    if (user.id === currentUserId) {
       setMensaje("No podés agregarte a vos mismo");
       return;
     }
@@ -77,11 +73,7 @@ function CrearGrupo({ onGrupoCreado }) {
       return;
     }
 
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-
-    if (!user) {
+    if (!currentUserId) {
       setMensaje("No se pudo obtener el usuario");
       return;
     }
@@ -91,7 +83,7 @@ function CrearGrupo({ onGrupoCreado }) {
     const { data: grupoCreado, error } = await create({
       nombre: nombreGrupo.trim(),
       fotoUri: foto?.uri || null,
-      creatorId: user.id,
+      creatorId: currentUserId,
       miembros: miembrosIds,
     });
 
@@ -120,7 +112,10 @@ function CrearGrupo({ onGrupoCreado }) {
 
       <Text style={styles.label}>Foto del grupo (opcional)</Text>
 
-      <TouchableOpacity style={styles.botonSecundario} onPress={seleccionarFoto}>
+      <TouchableOpacity
+        style={styles.botonSecundario}
+        onPress={seleccionarFoto}
+      >
         {foto ? (
           <View style={styles.previewContainer}>
             <Image source={{ uri: foto.uri }} style={styles.preview} />
@@ -137,7 +132,9 @@ function CrearGrupo({ onGrupoCreado }) {
         value={miembroUsername}
         onChangeText={setMiembroUsername}
         onSelect={handleSelectUser}
-        excludeIds={miembros.map((m) => m.id)}
+        excludeIds={[currentUserId, ...miembros.map((m) => m.id)].filter(
+          Boolean,
+        )}
       />
 
       <FlatList
@@ -173,7 +170,9 @@ function CrearGrupo({ onGrupoCreado }) {
         onPress={manejarSubmit}
         disabled={creating}
       >
-        <Text style={styles.botonCrearTexto}>{creating ? "Creando..." : "Crear grupo"}</Text>
+        <Text style={styles.botonCrearTexto}>
+          {creating ? "Creando..." : "Crear grupo"}
+        </Text>
       </TouchableOpacity>
     </View>
   );
@@ -216,11 +215,6 @@ const styles = StyleSheet.create({
     height: 30,
     borderRadius: 10,
   },
-  fila: {
-    flexDirection: "row",
-    gap: 10,
-    alignItems: "center",
-  },
   miembroContainer: {
     flexDirection: "row",
     alignItems: "center",
@@ -248,29 +242,6 @@ const styles = StyleSheet.create({
   botonEliminarTexto: {
     color: "white",
     fontSize: 20,
-    fontFamily: "Utendo",
-  },
-  suggestionsContainer: {
-    backgroundColor: "#2B2B32",
-    borderRadius: 10,
-    marginTop: 8,
-    maxHeight: 200,
-  },
-  suggestionItem: {
-    flexDirection: "row",
-    alignItems: "center",
-    padding: 10,
-    borderBottomColor: "#3a3a3a",
-    borderBottomWidth: 1,
-  },
-  suggestionAvatar: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    marginRight: 10,
-  },
-  suggestionText: {
-    color: "white",
     fontFamily: "Utendo",
   },
   botonCrear: {
