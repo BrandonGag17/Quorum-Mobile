@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import {
     View,
     Text,
@@ -70,7 +70,9 @@ export default function OrganizadorHorarios() {
         agregarHorarioRecurrente,
         limpiarError,
         loading,
-        error
+        error,
+        horarios,
+        horariosRecurrentes,
     } = useHorarios();
 
     const obtenerDiasDelMes = () => {
@@ -115,6 +117,123 @@ export default function OrganizadorHorarios() {
     };
 
     const dias = obtenerDiasDelMes();
+
+    const marcadoresPorDia = useMemo(() => {
+        const mapa = {};
+
+        const primerDiaMes = new Date(anioActual, mesActual, 1);
+        const ultimoDiaMes = new Date(anioActual, mesActual + 1, 0);
+
+        // contar horarios normales
+        (horarios || []).forEach((h) => {
+            try {
+                const inicio = new Date(h.fecha_hora_inicio);
+                if (
+                    inicio.getFullYear() === anioActual &&
+                    inicio.getMonth() === mesActual
+                ) {
+                    const d = inicio.getDate();
+                    mapa[d] = (mapa[d] || 0) + 1;
+                }
+            } catch (e) {
+                // ignore parse errors
+            }
+        });
+
+        // contar horarios recurrentes: considerar fecha_inicio, fecha_fin y dias de semana
+        (horariosRecurrentes || []).forEach((r) => {
+            try {
+                const fechaInicio = r.fecha_inicio ? new Date(r.fecha_inicio) : new Date(-8640000000000000);
+                const fechaFin = r.fecha_fin ? new Date(r.fecha_fin) : new Date(8640000000000000);
+
+                // lista de dias de semana en el objeto (campo dia_horario_recurrente puede variar)
+                const diasSemana = (r.dia_horario_recurrente || r.dias || []).map(x => x?.dia_semana ?? x).filter(Boolean);
+
+                // recorrer cada día del mes y sumar si aplica
+                for (let dia = 1; dia <= ultimoDiaMes.getDate(); dia++) {
+                    const fecha = new Date(anioActual, mesActual, dia);
+                    if (fecha < fechaInicio || fecha > fechaFin) continue;
+                    // ajustar: en la base los días parecen venir 1=lun..7=dom o similar; normalizamos a JS getDay()
+                    const jsDay = fecha.getDay(); // 0=dom,1=lun..6=sab
+                    const diaSem = jsDay === 0 ? 7 : jsDay; // 1=lun..7=dom
+                    if (diasSemana.includes(diaSem) || diasSemana.includes(jsDay)) {
+                        mapa[dia] = (mapa[dia] || 0) + 1;
+                    }
+                }
+            } catch (e) {
+                // ignore
+            }
+        });
+
+        return mapa;
+    }, [horarios, horariosRecurrentes, mesActual, anioActual]);
+
+    const formatTime = (date) => {
+        if (!date) return "";
+        try {
+            return new Date(date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        } catch (e) {
+            return '';
+        }
+    };
+
+    const eventosDelDia = useMemo(() => {
+        if (!diaSeleccionado) return [];
+        const fechaObj = new Date(anioActual, mesActual, diaSeleccionado);
+        const resultados = [];
+
+        (horarios || []).forEach((h) => {
+            try {
+                const inicio = new Date(h.fecha_hora_inicio);
+                const fin = new Date(h.fecha_hora_fin);
+                if (
+                    inicio.getFullYear() === anioActual &&
+                    inicio.getMonth() === mesActual &&
+                    inicio.getDate() === diaSeleccionado
+                ) {
+                    resultados.push({
+                        tipo: 'normal',
+                        id: h.id_horario || h.id,
+                        titulo: h.titulo,
+                        inicio,
+                        fin,
+                        repeticion: false,
+                    });
+                }
+            } catch (e) {}
+        });
+
+        (horariosRecurrentes || []).forEach((r) => {
+            try {
+                const fechaInicio = r.fecha_inicio ? new Date(r.fecha_inicio) : new Date(-8640000000000000);
+                const fechaFin = r.fecha_fin ? new Date(r.fecha_fin) : new Date(8640000000000000);
+                if (fechaObj < fechaInicio || fechaObj > fechaFin) return;
+
+                const diasSemana = (r.dia_horario_recurrente || r.dias || []).map(x => x?.dia_semana ?? x).filter(Boolean);
+                const jsDay = fechaObj.getDay();
+                const diaSem = jsDay === 0 ? 7 : jsDay;
+
+                if (diasSemana.includes(diaSem) || diasSemana.includes(jsDay)) {
+                    // hora_inicio/hora_fin suelen venir como 'HH:MM:SS'
+                    const partsI = (r.hora_inicio || '').split(':').map(Number);
+                    const partsF = (r.hora_fin || '').split(':').map(Number);
+                    const inicio = new Date(anioActual, mesActual, diaSeleccionado, partsI[0] || 0, partsI[1] || 0);
+                    const fin = new Date(anioActual, mesActual, diaSeleccionado, partsF[0] || 0, partsF[1] || 0);
+                    resultados.push({
+                        tipo: 'recurrente',
+                        id: r.id_horario_recurrente || r.id,
+                        titulo: r.titulo,
+                        inicio,
+                        fin,
+                        repeticion: true,
+                    });
+                }
+            } catch (e) {}
+        });
+
+        resultados.sort((a, b) => a.inicio - b.inicio);
+        return resultados;
+    }, [diaSeleccionado, horarios, horariosRecurrentes, mesActual, anioActual]);
 
     const abrirFormulario = () => {
         limpiarError();
@@ -206,6 +325,7 @@ export default function OrganizadorHorarios() {
                 <View style={styles.calendarGrid}>
                     {dias.map((dia, index) => {
                         const seleccionado = dia === diaSeleccionado;
+                        const count = dia ? (marcadoresPorDia[dia] || 0) : 0;
 
                         return (
                             <View
@@ -229,6 +349,16 @@ export default function OrganizadorHorarios() {
                                         >
                                             {dia}
                                         </Text>
+
+                                        <View style={styles.dotsContainer}>
+                                            {Array.from({ length: Math.min(count, 3) }).map((_, i) => (
+                                                <View key={i} style={styles.dot} />
+                                            ))}
+                                            {count > 3 && (
+                                                <Text style={styles.extra}>+{count - 3}</Text>
+                                            )}
+                                        </View>
+
                                     </TouchableOpacity>
                                 )}
                             </View>
@@ -245,6 +375,23 @@ export default function OrganizadorHorarios() {
                             </TouchableOpacity>
                         )}
                     </View>
+
+                    {diaSeleccionado && (
+                        <View style={styles.dayEventsContainer}>
+                            <Text style={styles.text}>Actividades del {diaSeleccionado}/{String(mesActual + 1).padStart(2, '0')}/{anioActual}</Text>
+                            {eventosDelDia.length === 0 ? (
+                                <Text style={styles.text}>No hay actividades ese día</Text>
+                            ) : (
+                                eventosDelDia.map((e) => (
+                                    <View key={`${e.tipo}-${e.id}`} style={styles.eventItem}>
+                                        <Text style={styles.eventTitle}>{e.titulo}</Text>
+                                        <Text style={styles.text}>{formatTime(e.inicio)} - {formatTime(e.fin)} {e.repeticion ? '• Repite' : ''}</Text>
+                                    </View>
+                                ))
+                            )}
+                        </View>
+                    )}
+
                     {guardado && <Text style={styles.text}>Evento guardado correctamente</Text>}
                     {mostrarFormulario && (
                         <View style={styles.form}>
@@ -507,6 +654,43 @@ const styles = StyleSheet.create({
 
     selectedDayText: {
         fontWeight: "600",
+    },
+
+    dotsContainer: {
+        flexDirection: "row",
+        marginTop: 4,
+        justifyContent: "center",
+        alignItems: "center",
+    },
+
+    dot: {
+        width: 6,
+        height: 6,
+        borderRadius: 3,
+        backgroundColor: "#57C7A3",
+        marginHorizontal: 2,
+    },
+
+    extra: {
+        color: "#57C7A3",
+        fontSize: 10,
+        marginLeft: 4,
+    },
+
+    dayEventsContainer: {
+        paddingVertical: 12,
+        gap: 8,
+    },
+
+    eventItem: {
+        paddingVertical: 8,
+        borderBottomWidth: 1,
+        borderBottomColor: '#333',
+    },
+
+    eventTitle: {
+        color: '#FFFFFF',
+        fontWeight: '700',
     },
 
     eventsSection: {
