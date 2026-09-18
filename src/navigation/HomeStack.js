@@ -8,6 +8,7 @@ import Juntada from '../screens/Home/Juntada'
 import VotacionJuntada from '../screens/Home/VotacionJuntada'
 import RecomendacionesGrupo from '../screens/Recomendaciones/RecomendacionesGrupo'
 import DivisionGastos from '../screens/Home/DivisionGastos'
+import OrganizadorHorarios from '../screens/Home/OrganizadorHorarios'
 
 const Stack = createNativeStackNavigator()
 
@@ -32,6 +33,7 @@ export default function HomeStack() {
       <Stack.Screen name="CrearEvento" component={CrearEvento} />
       <Stack.Screen name="Juntada" component={Juntada} />
       <Stack.Screen name="DivisionGastos" component={DivisionGastos} options={{ headerShown: false }} />
+      <Stack.Screen name="OrganizadorHorarios" component={OrganizadorHorarios} />
     </Stack.Navigator>
   )
 }

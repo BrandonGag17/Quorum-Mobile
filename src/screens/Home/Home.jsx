@@ -81,8 +81,16 @@ export default function Home() {
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.content}
       >
-        <Text style={styles.title}>Quórum</Text>
+        <View style={styles.header}>
+          <Text style={styles.title}>Quórum</Text>
 
+          <TouchableOpacity
+            style={styles.calendarButton}
+            onPress={() => navigation.navigate("OrganizadorHorarios")}
+          >
+            <Ionicons name="calendar-outline" size={25} color="#FFFFFF" />
+          </TouchableOpacity>
+        </View>
         <View style={styles.searchBox}>
           <Feather name="search" size={20} color="#A0A0A0" />
           <TextInput
@@ -179,6 +187,23 @@ export default function Home() {
 }
 
 const styles = StyleSheet.create({
+  header: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 15,
+  },
+
+  calendarButton: {
+    width: 44,
+    height: 44,
+    borderRadius: 12,
+    backgroundColor: "#202027",
+    borderWidth: 1,
+    borderColor: "#353540",
+    justifyContent: "center",
+    alignItems: "center",
+  },
   container: {
     flex: 1,
     backgroundColor: "#15151C",
@@ -194,7 +219,6 @@ const styles = StyleSheet.create({
     color: "#FFFFFF",
     fontSize: 34,
     fontWeight: "700",
-    marginBottom: 15,
   },
   searchBox: {
     flexDirection: "row",
