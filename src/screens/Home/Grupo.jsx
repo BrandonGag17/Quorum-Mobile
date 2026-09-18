@@ -1,8 +1,9 @@
-import React, { useEffect, useLayoutEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
   SafeAreaView,
   View,
   Text,
+  Image,
   TouchableOpacity,
   StyleSheet,
   FlatList,
@@ -11,6 +12,7 @@ import {
   Animated,
 } from "react-native";
 import { useRoute } from "@react-navigation/native";
+import CardJuntadasPasadas from "../../components/CardJuntadasPasadas";
 
 import {
   IconBulbFilled,
@@ -21,12 +23,12 @@ import Ionicons from "@expo/vector-icons/Ionicons";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 
 import { useGroupDetail } from "../../hooks/useGroupDetail";
-import GroupNavigationHeader from "../../components/GroupNavigationHeader";
 
 import ErrorMessage from "../../components/MensajeError";
 import Loading from "../../components/Loading";
 import CardJuntadas from "../../components/CardJuntadas";
-import CardJuntadasPasadas from "../../components/CardJuntadasPasadas";
+
+import { useHomeSummary } from "../../hooks/useHome";
 
 export default function Grupo({ navigation }) {
   const route = useRoute();
@@ -37,48 +39,17 @@ export default function Grupo({ navigation }) {
     memberCount,
     upcomingEvents,
     pastEvents,
-    loadPastEvents,
-    loadingPastEvents,
     proposals,
     loading,
     error,
   } = useGroupDetail(idGrupo);
 
   const [mostrarCrear, setMostrarCrear] = useState(false);
+  const { events } = useHomeSummary();
+
   const [mostrarJuntadasPasadas, setMostrarJuntadasPasadas] = useState(false);
 
   const translateY = useRef(new Animated.Value(500)).current;
-
-  useLayoutEffect(() => {
-    if (!group) return;
-    navigation.setOptions({
-      headerTitle:
-        loading || !group
-          ? () => null
-          : () => (
-              <GroupHeader
-                group={group}
-                memberCount={memberCount}
-                compact
-                avatarSize={40}
-                onPress={() =>
-                  navigation.navigate("InfoGrupo", {
-                    idGrupo,
-                  })
-                }
-                containerStyle={styles.headerGroupTitle}
-                contentStyle={styles.headerGroupContent}
-                groupNameStyle={styles.headerGroupName}
-                memberCountStyle={styles.headerGroupCount}
-              />
-            ),
-      headerTitleAlign: "left",
-      headerStyle: {
-        backgroundColor: "#15151C",
-      },
-      headerShadowVisible: false,
-    });
-  }, [navigation, group, memberCount, idGrupo]);
 
   useEffect(() => {
     Animated.timing(translateY, {
@@ -106,145 +77,39 @@ export default function Grupo({ navigation }) {
 
   const irAProponer = () => {
     cerrarCrear();
-
-    navigation.navigate("ProponerJuntada", {
-      idGrupo,
-    });
+    navigation.navigate("ProponerJuntada", { idGrupo });
   };
 
   const irACrearEvento = () => {
     cerrarCrear();
-
-    navigation.navigate("CrearEvento", {
-      idGrupo,
-    });
-  };
-
-  const obtenerFecha = (fecha) => {
-    if (!fecha) {
-      return {
-        dia: "--",
-        mes: "---",
-        hora: "--:--",
-      };
-    }
-
-    const fechaObjeto = new Date(fecha);
-
-    return {
-      dia: fechaObjeto.toLocaleDateString("es-AR", {
-        day: "2-digit",
-      }),
-
-      mes: fechaObjeto
-        .toLocaleDateString("es-AR", {
-          month: "short",
-        })
-        .replace(".", "")
-        .toUpperCase(),
-
-      hora: fechaObjeto.toLocaleTimeString("es-AR", {
-        hour: "2-digit",
-        minute: "2-digit",
-      }),
-    };
-  };
-
-  const renderPropuesta = ({ item }) => {
-    const evento = item.evento;
-    const fecha = obtenerFecha(evento?.fecha_hora_inicio);
-
-    return (
-      <TouchableOpacity
-        activeOpacity={0.85}
-        style={styles.proposalCard}
-        onPress={() =>
-          navigation.navigate("VotacionJuntada", {
-            idEvento: evento?.id,
-          })
-        }
-      >
-        <View style={styles.proposalHeader}>
-          <View style={styles.proposalHeaderLeft}>
-            <View style={styles.proposalIcon}>
-              <Ionicons name="bulb" size={17} color="#5CC2A7" />
-            </View>
-
-            <Text style={styles.proposalLabel}>PROPUESTA</Text>
-          </View>
-
-          <View style={styles.openBadge}>
-            <View style={styles.openDot} />
-
-            <Text style={styles.openText}>ABIERTA</Text>
-          </View>
-        </View>
-
-        <Text style={styles.proposalTitle} numberOfLines={2}>
-          {item.pregunta || evento?.nombre || "Propuesta de juntada"}
-        </Text>
-
-        <View style={styles.proposalSeparator} />
-
-        <View style={styles.proposalFooter}>
-          <View>
-            <Text style={styles.voteTitle}>Tu opinión cuenta</Text>
-
-            <Text style={styles.voteSubtitle}>
-              Elegí las opciones de la juntada
-            </Text>
-          </View>
-
-          <View style={styles.voteButton}>
-            <Text style={styles.voteButtonText}>Votar</Text>
-
-            <Ionicons name="arrow-forward" size={16} color="#15151C" />
-          </View>
-        </View>
-      </TouchableOpacity>
-    );
+    navigation.navigate("CrearEvento", { idGrupo });
   };
 
   return (
     <SafeAreaView style={styles.container}>
-      <View style={styles.sectionRow}>
-        <View style={styles.sectionTitleContainer}>
-          <MaterialCommunityIcons
-            name="lightbulb-variant"
-            size={25}
-            color="#FFFFFF"
-          />
 
-          <Text style={styles.sectionTitle}>Proximas juntadas</Text>
-        </View>
-      </View>
       <View style={styles.content}>
-        {upcomingEvents.length > 0 ? (
+        {events.length > 0 ? (
           <FlatList
             horizontal
-            data={upcomingEvents}
+            data={events}
             renderItem={({ item }) => (
-              <CardJuntadas evento={item} navigation={navigation} />
+              <CardJuntadas
+                evento={item}
+                navigation={navigation}
+              />
             )}
             keyExtractor={(item) => item.id.toString()}
             showsHorizontalScrollIndicator={false}
             contentContainerStyle={styles.eventList}
           />
+
         ) : (
           <View style={styles.emptyState}>
-            <View style={styles.emptyIcon}>
-              <Ionicons name="calendar-outline" size={22} color="#5CC2A7" />
-            </View>
-
-            <View style={styles.emptyContent}>
-              <Text style={styles.emptyTitle}>No hay próximas juntadas</Text>
-
-              <Text style={styles.emptyText}>
-                Cuando creen una, aparecerá acá.
-              </Text>
-            </View>
+            <Text style={styles.emptyText}>No tenés próximas juntadas</Text>
           </View>
         )}
+
         <View style={styles.sectionRow}>
           <View style={styles.sectionTitleContainer}>
             <MaterialCommunityIcons
@@ -259,11 +124,8 @@ export default function Grupo({ navigation }) {
           <TouchableOpacity
             onPress={abrirCrear}
             style={styles.createButton}
-            activeOpacity={0.8}
           >
-            <Ionicons name="add" size={18} color="#15151C" />
-
-            <Text style={styles.createButtonText}>Crear</Text>
+            <Text style={styles.createButtonText}>+ Crear</Text>
           </TouchableOpacity>
         </View>
 
@@ -274,50 +136,45 @@ export default function Grupo({ navigation }) {
             keyExtractor={(item) => item.id.toString()}
             showsHorizontalScrollIndicator={false}
             contentContainerStyle={styles.horizontalList}
-            renderItem={renderPropuesta}
+            renderItem={({ item }) => (
+              <TouchableOpacity
+                style={styles.proposalCard}
+                onPress={() =>
+                  navigation.navigate("VotacionJuntada", {
+                    idEvento: item.evento?.id,
+                  })
+                }
+              >
+                <Text style={styles.proposalTitle}>
+                  {item.pregunta || item.evento?.nombre || "Propuesta"}
+                </Text>
+
+                <Text style={styles.proposalMeta}>Abierta para votar</Text>
+              </TouchableOpacity>
+            )}
           />
         ) : (
           <View style={styles.emptyState}>
-            <View style={styles.emptyIcon}>
-              <Ionicons name="bulb-outline" size={22} color="#5CC2A7" />
-            </View>
-
-            <View style={styles.emptyContent}>
-              <Text style={styles.emptyTitle}>No hay propuestas</Text>
-
-              <Text style={styles.emptyText}>
-                Acá aparecerán las próximas propuestas de juntada.
-              </Text>
-            </View>
-          </View>
-        )}
-        <TouchableOpacity
-          style={styles.pastToggle}
-          activeOpacity={0.7}
-          onPress={() => {
-            const mostrar = !mostrarJuntadasPasadas;
-
-            setMostrarJuntadasPasadas(mostrar);
-
-            if (mostrar) {
-              loadPastEvents();
-            }
-          }}
-        >
-          <View style={styles.pastToggleLeft}>
-            <Ionicons name="time-outline" size={19} color="#8E8E99" />
-
-            <Text style={styles.pastToggleText}>
-              {mostrarJuntadasPasadas
-                ? "Ocultar juntadas pasadas"
-                : "Ver juntadas pasadas"}
+            <Text style={styles.emptyText}>
+              Aquí aparecerán las propuestas de juntada.
             </Text>
           </View>
+        )}
+
+        <TouchableOpacity
+          style={styles.pastToggle}
+          onPress={() => setMostrarJuntadasPasadas(!mostrarJuntadasPasadas)}
+        >
+          <Text style={styles.pastToggleText}>
+            {mostrarJuntadasPasadas
+              ? "Ocultar juntadas pasadas"
+              : "Ver juntadas pasadas"}
+          </Text>
 
           <Ionicons
             name={mostrarJuntadasPasadas ? "chevron-up" : "chevron-down"}
-            size={19}
-            color="#5CC2A7"
+            size={20}
+            color="#57C7A3"
           />
         </TouchableOpacity>
 
@@ -328,11 +185,15 @@ export default function Grupo({ navigation }) {
                 data={pastEvents}
                 keyExtractor={(item) => item.id.toString()}
                 scrollEnabled={false}
-                renderItem={({ item }) => <CardJuntadasPasadas evento={item} />}
+                renderItem={({ item }) => (
+                  <CardJuntadasPasadas evento={item} />
+                )}
               />
             ) : (
               <View style={styles.emptyState}>
-                <Text style={styles.emptyText}>No hay juntadas pasadas.</Text>
+                <Text style={styles.emptyText}>
+                  No hay juntadas pasadas.
+                </Text>
               </View>
             )}
           </>
@@ -354,7 +215,7 @@ export default function Grupo({ navigation }) {
               },
             ]}
           >
-            <Pressable onPress={() => {}}>
+            <Pressable onPress={() => { }}>
               <View style={styles.sheetHandle} />
 
               <Text style={styles.sheetTitle}>Crear</Text>
@@ -362,48 +223,41 @@ export default function Grupo({ navigation }) {
               <TouchableOpacity
                 style={styles.sheetButton}
                 onPress={irAProponer}
-                activeOpacity={0.8}
               >
-                <View style={styles.sheetIcon}>
-                  <IconBulbFilled size={28} color="#5CC2A7" />
+                <View style={styles.sheetButtonContent}>
+                  <IconBulbFilled size={35} color="#FFFFFF" />
+
+                  <View style={styles.modalTexts}>
+                    <Text style={styles.modalTitle}>Proponer juntada</Text>
+
+                    <Text style={styles.modalSubtitle}>
+                      El grupo vota fechas, lugares y más
+                    </Text>
+                  </View>
                 </View>
-
-                <View style={styles.modalTexts}>
-                  <Text style={styles.modalTitle}>Proponer juntada</Text>
-
-                  <Text style={styles.modalSubtitle}>
-                    El grupo vota fechas, lugares y más
-                  </Text>
-                </View>
-
-                <Ionicons name="chevron-forward" size={20} color="#777782" />
               </TouchableOpacity>
 
               <TouchableOpacity
                 style={styles.sheetButton}
                 onPress={irACrearEvento}
-                activeOpacity={0.8}
               >
-                <View style={styles.sheetIcon}>
-                  <IconCalendarEventFilled size={28} color="#5CC2A7" />
+                <View style={styles.sheetButtonContent}>
+                  <IconCalendarEventFilled size={35} color="#FFFFFF" />
+
+                  <View style={styles.modalTexts}>
+                    <Text style={styles.modalTitle}>Crear evento</Text>
+
+                    <Text style={styles.modalSubtitle}>
+                      Sin votaciones, fecha, hora y lugares fijos
+                    </Text>
+                  </View>
                 </View>
-
-                <View style={styles.modalTexts}>
-                  <Text style={styles.modalTitle}>Crear evento</Text>
-
-                  <Text style={styles.modalSubtitle}>
-                    Sin votaciones, fecha, hora y lugar fijos
-                  </Text>
-                </View>
-
-                <Ionicons name="chevron-forward" size={20} color="#777782" />
               </TouchableOpacity>
 
-
+            
               <TouchableOpacity
                 onPress={cerrarCrear}
                 style={styles.cancelButton}
-                activeOpacity={0.7}
               >
                 <Text style={styles.cancelButtonText}>Cancelar</Text>
               </TouchableOpacity>
@@ -423,45 +277,14 @@ const styles = StyleSheet.create({
 
   content: {
     paddingHorizontal: 25,
-    paddingBottom: 25,
-  },
-
-  headerStyle: {
-    backgroundColor: "#15151C",
-    shadowColor: "transparent",
-    elevation: 0,
-  },
-
-  headerTitleContainer: {
-    flexGrow: 1,
-    marginLeft: 0,
-  },
-
-  headerGroupTitle: {
-    marginTop: 0,
-    marginBottom: 0,
-    padding: 0,
-    flex: 1,
-  },
-
-  headerGroupContent: {
-    marginLeft: 10,
-  },
-
-  headerGroupName: {
-    fontSize: 17,
-  },
-
-  headerGroupCount: {
-    fontSize: 11,
   },
 
   sectionRow: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    marginTop: 22,
-    marginBottom: 13,
+    marginTop: 20,
+    marginBottom: 12,
   },
 
   sectionTitleContainer: {
@@ -474,231 +297,122 @@ const styles = StyleSheet.create({
     fontSize: 22,
     fontFamily: "CashMarket",
     marginLeft: 9,
-    letterSpacing: -0.3,
-  },
-
-  createButton: {
-    height: 40,
-    paddingHorizontal: 13,
-    borderRadius: 12,
-    backgroundColor: "#5CC2A7",
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-
-  createButtonText: {
-    color: "#15151C",
-    fontSize: 14,
-    fontFamily: "CashMarket",
-    marginLeft: 3,
-  },
-
-  eventList: {
-    paddingRight: 10,
-    paddingBottom: 2,
   },
 
   horizontalList: {
     paddingRight: 10,
-    paddingBottom: 7,
+    paddingBottom: 5,
+  },
+
+  eventCard: {
+    width: 220,
+    backgroundColor: "#4A216F",
+    borderRadius: 16,
+    padding: 16,
+    marginRight: 12,
+  },
+
+  eventTitle: {
+    color: "#FFFFFF",
+    fontSize: 18,
+    fontFamily: "CashMarket",
+  },
+
+  eventDate: {
+    color: "#D6D6D6",
+    fontSize: 13,
+    fontFamily: "Utendo",
+    marginTop: 7,
   },
 
   proposalCard: {
-    width: 245,
-    minHeight: 100,
+    width: 220,
     backgroundColor: "#5C3E94",
-    borderRadius: 20,
+    borderRadius: 16,
     padding: 16,
-    marginRight: 15,
-
-    borderWidth: 1,
-    borderColor: "#6A4AA1",
-
-    shadowColor: "#000",
-    shadowOffset: {
-      width: 0,
-      height: 5,
-    },
-    shadowOpacity: 0.28,
-    shadowRadius: 7,
-    elevation: 6,
-  },
-
-  proposalHeader: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    marginBottom: 14,
-  },
-
-  proposalHeaderLeft: {
-    flexDirection: "row",
-    alignItems: "center",
-  },
-
-  proposalIcon: {
-    width: 31,
-    height: 31,
-    borderRadius: 10,
-    backgroundColor: "rgba(92, 194, 167, 0.14)",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-
-  proposalLabel: {
-    color: "#CFC5E8",
-    fontFamily: "Utendo",
-    fontSize: 10,
-    fontWeight: "700",
-    letterSpacing: 0.7,
-    marginLeft: 8,
-  },
-
-  openBadge: {
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: "rgba(21, 21, 28, 0.28)",
-    borderRadius: 20,
-    paddingHorizontal: 8,
-    paddingVertical: 5,
-  },
-
-  openDot: {
-    width: 6,
-    height: 6,
-    borderRadius: 3,
-    backgroundColor: "#5CC2A7",
-    marginRight: 5,
-  },
-
-  openText: {
-    color: "#5CC2A7",
-    fontFamily: "Utendo",
-    fontSize: 9,
-    fontWeight: "700",
+    marginRight: 12,
   },
 
   proposalTitle: {
     color: "#FFFFFF",
+    fontSize: 17,
     fontFamily: "CashMarket",
-    fontSize: 21,
-    lineHeight: 25,
-    minHeight: 50,
-    letterSpacing: -0.3,
   },
 
-  proposalSeparator: {
-    height: 1,
-    backgroundColor: "rgba(255, 255, 255, 0.14)",
-    marginTop: 3,
-    marginBottom: 11,
-  },
-
-  proposalFooter: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-  },
-
-  voteTitle: {
-    color: "#FFFFFF",
-    fontFamily: "CashMarket",
-    fontSize: 12,
-  },
-
-  voteSubtitle: {
-    color: "#B9B0D0",
+  proposalMeta: {
+    color: "#D3D3D3",
+    fontSize: 13,
     fontFamily: "Utendo",
-    fontSize: 9,
-    marginTop: 2,
+    marginTop: 7,
   },
 
-  voteButton: {
-    height: 34,
-    paddingHorizontal: 11,
+  createButton: {
+    backgroundColor: "#57C7A3",
+    paddingVertical: 8,
+    paddingHorizontal: 12,
     borderRadius: 10,
-    backgroundColor: "#5CC2A7",
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
   },
 
-  voteButtonText: {
+  createButtonText: {
     color: "#15151C",
+    fontSize: 15,
     fontFamily: "CashMarket",
-    fontSize: 12,
-    marginRight: 5,
   },
 
   emptyState: {
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: "#202027",
-    borderRadius: 16,
-    padding: 15,
-    borderWidth: 1,
-    borderColor: "#30303A",
-    marginBottom: 5,
-  },
-
-  emptyIcon: {
-    width: 42,
-    height: 42,
-    borderRadius: 13,
-    backgroundColor: "rgba(92, 194, 167, 0.10)",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-
-  emptyContent: {
-    flex: 1,
-    marginLeft: 12,
-  },
-
-  emptyTitle: {
-    color: "#FFFFFF",
-    fontFamily: "CashMarket",
-    fontSize: 14,
+    backgroundColor: "#5C3E94",
+    borderRadius: 12,
+    paddingVertical: 22,
+    paddingHorizontal: 18,
+    marginBottom: 10,
   },
 
   emptyText: {
-    color: "#8E8E99",
-    fontFamily: "Utendo",
-    fontSize: 11,
-    lineHeight: 16,
-    marginTop: 3,
+    color: "#FFFFFF",
+    textAlign: "center",
+    fontFamily: "CashMarket",
   },
 
   pastToggle: {
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "space-between",
-    marginTop: 21,
+    justifyContent: "center",
+    marginTop: 22,
     marginBottom: 15,
-    paddingVertical: 11,
-    paddingHorizontal: 4,
-    borderTopWidth: 1,
-    borderBottomWidth: 1,
-    borderColor: "#292932",
-  },
-
-  pastToggleLeft: {
-    flexDirection: "row",
-    alignItems: "center",
+    paddingVertical: 10,
   },
 
   pastToggleText: {
-    color: "#A5A5B0",
+    color: "#57C7A3",
     fontFamily: "Utendo",
+    fontSize: 15,
+    marginRight: 7,
+  },
+
+  pastEvent: {
+    backgroundColor: "#2C2C33",
+    padding: 15,
+    borderRadius: 12,
+    marginBottom: 10,
+  },
+
+  pastTitle: {
+    color: "#FFFFFF",
+    fontSize: 16,
+    fontFamily: "CashMarket",
+  },
+
+  pastDate: {
+    color: "#8E8E93",
     fontSize: 13,
-    marginLeft: 8,
+    fontFamily: "Utendo",
+    marginTop: 5,
   },
 
   modalOverlay: {
     flex: 1,
     justifyContent: "flex-end",
-    backgroundColor: "rgba(0, 0, 0, 0.52)",
+    backgroundColor: "rgba(0, 0, 0, 0.45)",
   },
 
   bottomSheet: {
@@ -707,75 +421,81 @@ const styles = StyleSheet.create({
     borderTopRightRadius: 25,
     padding: 25,
     paddingBottom: 35,
-    borderTopWidth: 1,
-    borderColor: "#34343F",
   },
 
   sheetHandle: {
-    width: 45,
-    height: 4,
-    backgroundColor: "#555560",
+    width: 50,
+    height: 5,
+    backgroundColor: "#666666",
     borderRadius: 10,
     alignSelf: "center",
-    marginBottom: 21,
+    marginBottom: 20,
   },
 
   sheetTitle: {
     color: "#FFFFFF",
-    fontSize: 23,
+    fontSize: 22,
     fontFamily: "CashMarket",
-    marginBottom: 18,
+    marginBottom: 20,
   },
 
   sheetButton: {
-    backgroundColor: "#2D2D37",
-    padding: 14,
-    borderRadius: 16,
-    marginBottom: 10,
-    flexDirection: "row",
-    alignItems: "center",
-    borderWidth: 1,
-    borderColor: "#383844",
+    backgroundColor: "#4A216F",
+    padding: 16,
+    borderRadius: 14,
+    marginBottom: 12,
   },
 
-  sheetIcon: {
-    width: 47,
-    height: 47,
-    borderRadius: 14,
-    backgroundColor: "#3B3B47",
+  sheetButtonDisabled: {
+    backgroundColor: "#2E2E2E",
+    opacity: 0.7,
+  },
+
+  sheetButtonContent: {
+    flexDirection: "row",
     alignItems: "center",
-    justifyContent: "center",
   },
 
   modalTexts: {
     flex: 1,
     marginLeft: 12,
-    marginRight: 8,
   },
 
   modalTitle: {
     color: "#FFFFFF",
     fontFamily: "CashMarket",
+    marginBottom: 5,
     fontSize: 16,
-    marginBottom: 4,
   },
 
   modalSubtitle: {
-    color: "#9999A5",
+    color: "#B6B6B6",
     fontFamily: "Utendo",
-    fontSize: 11,
-    lineHeight: 16,
+    fontSize: 13,
+  },
+
+  modalTitleDisabled: {
+    color: "#727272",
+    fontFamily: "CashMarket",
+    marginBottom: 5,
+    fontSize: 16,
+  },
+
+  modalSubtitleDisabled: {
+    color: "#727272",
+    fontFamily: "Utendo",
+    fontSize: 13,
   },
 
   cancelButton: {
     alignItems: "center",
-    paddingVertical: 12,
-    marginTop: 2,
+    paddingVertical: 10,
+    marginTop: 3,
   },
 
   cancelButtonText: {
-    color: "#8F8F9A",
+    color: "#FF7A7A",
     fontFamily: "Utendo",
-    fontSize: 14,
+    fontSize: 16,
   },
 });

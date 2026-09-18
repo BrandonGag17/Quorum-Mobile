@@ -14,7 +14,7 @@ import Ionicons from "@expo/vector-icons/Ionicons";
 import Loading from '../../components/Loading'
 import ErrorMessage from '../../components/MensajeError'
 import { useJuntadaDetail } from '../../hooks/useJuntadaDetail'
-import GroupNavigationHeader from '../../components/GroupNavigationHeader'
+import GroupHeader from '../../components/GroupHeader'
 
 export default function Juntada({ route, navigation }) {
   const eventId = route?.params?.idEvento;
@@ -34,27 +34,21 @@ export default function Juntada({ route, navigation }) {
   } = useJuntadaDetail(eventId);
 
   useLayoutEffect(() => {
-  if (!event) return
+    if (!event) return
 
-  navigation.setOptions({
-    headerTitle: () => (
-      <GroupNavigationHeader
-        navigation={navigation}
-        group={event.grupo}
-        memberCount={memberCount}
-        idGrupo={event.grupo?.id}
-      />
-    ),
-
-    headerTitleAlign: 'left',
-
-    headerStyle: {
-      backgroundColor: '#15151C',
-    },
-
-    headerShadowVisible: false,
-  })
-}, [navigation, event, memberCount])
+    navigation.setOptions({
+      headerTitle: () => (
+        <GroupHeader
+          navigation={navigation}
+          group={event.grupo}
+          memberCount={memberCount}
+          compact
+          avatarSize={40}
+          idGrupo={event.grupo?.id}
+        />
+      ),
+    })
+  }, [navigation, event, memberCount])
 
   if (loading) {
     return <Loading />;
@@ -88,20 +82,20 @@ export default function Juntada({ route, navigation }) {
 
   const mes = fecha
     ? fecha
-        .toLocaleDateString("es-AR", {
-          month: "short",
-        })
-        .replace(".", "")
-        .toLowerCase()
+      .toLocaleDateString("es-AR", {
+        month: "short",
+      })
+      .replace(".", "")
+      .toLowerCase()
     : "---";
 
   const anio = fecha ? fecha.getFullYear() : "----";
 
   const hora = fecha
     ? fecha.toLocaleTimeString("es-AR", {
-        hour: "2-digit",
-        minute: "2-digit",
-      })
+      hour: "2-digit",
+      minute: "2-digit",
+    })
     : "--:--";
 
   const nombreEvento = event.nombre || "Sin nombre";
@@ -306,7 +300,7 @@ export default function Juntada({ route, navigation }) {
           icon="images-outline"
           title="Galería"
           subtitle="Ve las fotos super que sacaste"
-          onPress={() => {}}
+          onPress={() => { }}
         />
       </ScrollView>
     </SafeAreaView>
