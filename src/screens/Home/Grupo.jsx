@@ -21,7 +21,7 @@ import Ionicons from "@expo/vector-icons/Ionicons";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 
 import { useGroupDetail } from "../../hooks/useGroupDetail";
-import GroupNavigationHeader from "../../components/GroupNavigationHeader";
+import GroupHeader from "../../components/GroupHeader";
 
 import ErrorMessage from "../../components/MensajeError";
 import Loading from "../../components/Loading";
@@ -207,18 +207,18 @@ export default function Grupo({ navigation }) {
 
   return (
     <SafeAreaView style={styles.container}>
-      <View style={styles.sectionRow}>
-        <View style={styles.sectionTitleContainer}>
-          <MaterialCommunityIcons
-            name="lightbulb-variant"
-            size={25}
-            color="#FFFFFF"
-          />
-
-          <Text style={styles.sectionTitle}>Proximas juntadas</Text>
-        </View>
-      </View>
       <View style={styles.content}>
+        <View style={styles.sectionRow}>
+          <View style={styles.sectionTitleContainer}>
+            <MaterialCommunityIcons
+              name="lightbulb-variant"
+              size={25}
+              color="#FFFFFF"
+            />
+
+            <Text style={styles.sectionTitle}>Proximas juntadas</Text>
+          </View>
+        </View>
         {upcomingEvents.length > 0 ? (
           <FlatList
             horizontal
@@ -398,7 +398,6 @@ export default function Grupo({ navigation }) {
 
                 <Ionicons name="chevron-forward" size={20} color="#777782" />
               </TouchableOpacity>
-
 
               <TouchableOpacity
                 onPress={cerrarCrear}
