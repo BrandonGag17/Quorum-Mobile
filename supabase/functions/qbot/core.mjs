@@ -5,7 +5,7 @@ export class QBotError extends Error {
 }
 
 const CATEGORIAS = [
-  'catering.restaurant', 'catering.cafe', 'catering.bar', 'catering.pub',
+  'catering.res taurant', 'catering.cafe', 'catering.bar', 'catering.pub',
   'catering.fast_food', 'adult.nightclub', 'entertainment.cinema',
   'entertainment.amusement_arcade', 'entertainment.bowling_alley',
   'entertainment.escape_game', 'entertainment.museum', 'entertainment.culture',
