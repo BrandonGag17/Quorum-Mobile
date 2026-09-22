@@ -1,20 +1,20 @@
-import React from "react";
+import React, { useLayoutEffect } from 'react'
 import {
   View,
   Text,
   StyleSheet,
-  SafeAreaView,
   ScrollView,
   TouchableOpacity,
   Image,
 } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 import Ionicons from "@expo/vector-icons/Ionicons";
 
-import Loading from "../../components/Loading";
-import ErrorMessage from "../../components/MensajeError";
-import { useJuntadaDetail } from "../../hooks/useJuntadaDetail";
-import GroupHeader from "../../components/GroupHeader";
+import Loading from '../../components/Loading'
+import ErrorMessage from '../../components/MensajeError'
+import { useJuntadaDetail } from '../../hooks/useJuntadaDetail'
+import GroupNavigationHeader from '../../components/GroupNavigationHeader'
 
 export default function Juntada({ route, navigation }) {
   const eventId = route?.params?.idEvento;
@@ -32,6 +32,29 @@ export default function Juntada({ route, navigation }) {
     timeRemaining,
     changeAttendance,
   } = useJuntadaDetail(eventId);
+
+  useLayoutEffect(() => {
+  if (!event) return
+
+  navigation.setOptions({
+    headerTitle: () => (
+      <GroupNavigationHeader
+        navigation={navigation}
+        group={event.grupo}
+        memberCount={memberCount}
+        idGrupo={event.grupo?.id}
+      />
+    ),
+
+    headerTitleAlign: 'left',
+
+    headerStyle: {
+      backgroundColor: '#15151C',
+    },
+
+    headerShadowVisible: false,
+  })
+}, [navigation, event, memberCount])
 
   if (loading) {
     return <Loading />;
@@ -170,17 +193,6 @@ export default function Juntada({ route, navigation }) {
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.scrollContent}
       >
-        <View>
-          <GroupHeader
-            group={event.grupo}
-            memberCount={memberCount}
-            onPress={() =>
-              navigation.navigate("InfoGrupo", {
-                idGrupo: event.grupo?.id,
-              })
-            }
-          />
-        </View>
         <View style={styles.nextRow}>
           <Text style={styles.nextText}>Próximo encuentro</Text>
 
@@ -262,9 +274,9 @@ export default function Juntada({ route, navigation }) {
         </View>
 
         <View style={styles.organize}>
-          <Text style={styles.organizeSmall}>Organizá tu grupo</Text>
+          <Text style={styles.organizeTitle}>Organizá tu grupo</Text>
 
-          <Text style={styles.organizeTitle}>Todo en un solo lugar</Text>
+          <Text style={styles.organizeSmall}>Todo en un solo lugar</Text>
         </View>
 
         <ActionCard
@@ -273,11 +285,9 @@ export default function Juntada({ route, navigation }) {
           title="Fecha y hora"
           subtitle="Si te arrepentís de tu voto podes volver a votar"
           onPress={() => {
-            if (survey?.activa) {
-              navigation.navigate("VotacionJuntada", {
-                idEvento: event.id,
-              });
-            }
+            navigation.push("VotacionJuntada", {
+              idEvento: event.id,
+            });
           }}
         />
 
@@ -305,11 +315,6 @@ export default function Juntada({ route, navigation }) {
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
-    backgroundColor: "#15151C",
-  },
-
-  screen: {
     flex: 1,
     backgroundColor: "#15151C",
   },

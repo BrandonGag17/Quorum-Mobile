@@ -324,29 +324,6 @@ const styles = StyleSheet.create({
     fontWeight: "700",
     marginLeft: 8,
   },
-  headerGrupo: {
-    alignItems: "center",
-    marginBottom: 30,
-  },
-  fotoGrupo: {
-    width: 110,
-    height: 110,
-    borderRadius: 60,
-    marginBottom: 14,
-    borderWidth: 2,
-    borderColor: "#5E2D82",
-  },
-  nombreGrupo: {
-    color: "white",
-    fontSize: 28,
-    fontFamily: "CashMarket",
-    marginBottom: 4,
-  },
-  cantidadMiembros: {
-    color: "#B8B8B8",
-    fontSize: 14,
-    fontFamily: "Utendo",
-  },
   container: {
     flex: 1,
     backgroundColor: "#15151C",
@@ -452,14 +429,6 @@ const styles = StyleSheet.create({
   botonCerrar: {
     color: "#B0B0B0",
     fontSize: 24,
-    fontFamily: "Utendo",
-  },
-  input: {
-    backgroundColor: "#2E2E3A",
-    color: "white",
-    padding: 12,
-    borderRadius: 10,
-    marginBottom: 15,
     fontFamily: "Utendo",
   },
   botonModal: {

@@ -93,7 +93,7 @@ export async function createUserProfile({
       localidad,
       foto_perfil,
     })
-    .select()
+    .select('id, username, email, nombre, apellido, fecha_nacimiento, localidad, foto_perfil')
     .single()
 
   return { data, error }
@@ -113,9 +113,9 @@ export async function saveUserGustos({ userId, gustos = [] }) {
     return { data: [], error: gustosError }
   }
 
-  const registros = (gustosRows || []).map((gusto) => ({
+  const registros = [...new Set((gustosRows || []).map((gusto) => gusto.id_gusto))].map((idGusto) => ({
     id_usuario: userId,
-    id_gusto: gusto.id_gusto,
+    id_gusto: idGusto,
   }))
 
   if (!registros.length) {
@@ -125,7 +125,7 @@ export async function saveUserGustos({ userId, gustos = [] }) {
   const { data, error } = await supabase
     .from('usuario_gusto')
     .insert(registros)
-    .select()
+    .select('id_usuario, id_gusto')
 
   return { data, error }
 }

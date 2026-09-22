@@ -3,10 +3,14 @@ import {
   View,
   Text,
   StyleSheet,
-  SafeAreaView,
   ScrollView,
   TouchableOpacity,
+  Modal,
+  Pressable,
+  Platform,
+  TextInput,
 } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import Octicons from "@expo/vector-icons/Octicons";
 import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
@@ -15,6 +19,13 @@ import GroupHeader from "../../components/GroupHeader";
 import Loading from "../../components/Loading";
 import ErrorMessage from "../../components/MensajeError";
 import { useVotacionDetail } from "../../hooks/useVotacionDetail";
+import InputApp from "../../components/Input";
+import ButtonApp from "../../components/Botones";
+
+const DateTimePicker =
+  Platform.OS !== "web"
+    ? require("@react-native-community/datetimepicker").default
+    : null;
 
 function OptionCard({ option, votes, selected, onPress, disabled }) {
   return (
@@ -54,8 +65,19 @@ export default function VotacionJuntada({ route, navigation }) {
     error,
     categories,
     voteOption,
+    suggestOption,
+    suggestionLoading,
     isCreator,
   } = useVotacionDetail(eventId);
+
+  const [suggestionType, setSuggestionType] = React.useState(null);
+  const [placeSuggestion, setPlaceSuggestion] = React.useState("");
+  const [dateSuggestion, setDateSuggestion] = React.useState("");
+  const [webDateSuggestion, setWebDateSuggestion] = React.useState("");
+  const [date, setDate] = React.useState(new Date());
+  const [pickerMode, setPickerMode] = React.useState("date");
+  const [showPicker, setShowPicker] = React.useState(false);
+  const [suggestionError, setSuggestionError] = React.useState("");
 
   const totalVotes = useMemo(() => {
     return Object.values(voteCounts ?? {}).reduce(
@@ -63,6 +85,94 @@ export default function VotacionJuntada({ route, navigation }) {
       0,
     );
   }, [voteCounts]);
+
+  const formatDate = (value) => {
+    const day = value.getDate();
+    const month = value.getMonth() + 1;
+    const year = value.getFullYear();
+    const hours = value.getHours();
+    const minutes = value.getMinutes().toString().padStart(2, "0");
+
+    return `${day}/${month}/${year} ${hours}:${minutes}`;
+  };
+
+  const handleNativeDateChange = (event, selectedDate) => {
+    if (event.type === "dismissed") {
+      setShowPicker(false);
+      setPickerMode("date");
+      return;
+    }
+
+    const nextDate = selectedDate || date;
+    setDate(nextDate);
+
+    if (Platform.OS === "android" && pickerMode === "date") {
+      setPickerMode("time");
+      setShowPicker(true);
+      return;
+    }
+
+    setShowPicker(false);
+    setPickerMode("date");
+    setDateSuggestion(formatDate(nextDate));
+  };
+
+  const openSuggestion = (type) => {
+    setSuggestionType(type);
+    setSuggestionError("");
+    setPlaceSuggestion("");
+    setDateSuggestion("");
+    setWebDateSuggestion("");
+    setDate(new Date());
+  };
+
+  const closeSuggestion = () => {
+    if (suggestionLoading) {
+      return;
+    }
+
+    setSuggestionType(null);
+    setSuggestionError("");
+    setShowPicker(false);
+    setPickerMode("date");
+
+  };
+
+  const submitSuggestion = async () => {
+    const description =
+      suggestionType === "fecha"
+        ? Platform.OS === "web" && webDateSuggestion
+          ? (() => {
+              const [datePart, timePart] = webDateSuggestion.split("T");
+              const [year, month, day] = datePart.split("-");
+              return `${Number(day)}/${Number(month)}/${year} ${timePart}`;
+            })()
+          : dateSuggestion
+        : placeSuggestion.trim();
+
+    if (!description) {
+      setSuggestionError(
+        suggestionType === "fecha"
+          ? "Seleccioná una fecha y hora."
+          : "Ingresá un lugar.",
+      );
+      return;
+    }
+
+    const { error: submitError } = await suggestOption({
+      tipo: suggestionType,
+      descripcion: description,
+    });
+
+    if (submitError) {
+      setSuggestionError(
+        submitError.message || "No se pudo guardar la sugerencia.",
+      );
+      return;
+    }
+
+    closeSuggestion();
+  };
 
   if (loading) {
     return <Loading />;
@@ -138,8 +248,20 @@ export default function VotacionJuntada({ route, navigation }) {
 
         <View style={styles.card}>
           <View style={styles.sectionHeader}>
-            <Ionicons name="calendar" size={20} color="#FFFFFF" />
-            <Text style={styles.sectionTitle}>Fecha y horario</Text>
+            <View style={styles.sectionTitleGroup}>
+              <Ionicons name="calendar" size={20} color="#FFFFFF" />
+              <Text style={styles.sectionTitle}>Fecha y horario</Text>
+            </View>
+            <TouchableOpacity
+              style={styles.suggestButton}
+              onPress={(event) => {
+                event.stopPropagation();
+                openSuggestion("fecha");
+              }}
+              disabled={suggestionLoading}
+            >
+              <Text style={styles.suggestButtonText}>Sugerir</Text>
+            </TouchableOpacity>
           </View>
 
           {categories.fechas.length > 0 ? (
@@ -162,8 +284,20 @@ export default function VotacionJuntada({ route, navigation }) {
 
         <View style={styles.card}>
           <View style={styles.sectionHeader}>
-            <FontAwesome6 name="location-dot" size={18} color="#FFFFFF" />
-            <Text style={styles.sectionTitle}>Lugar</Text>
+            <View style={styles.sectionTitleGroup}>
+              <FontAwesome6 name="location-dot" size={18} color="#FFFFFF" />
+              <Text style={styles.sectionTitle}>Lugar</Text>
+            </View>
+            <TouchableOpacity
+              style={styles.suggestButton}
+              onPress={(event) => {
+                event.stopPropagation();
+                openSuggestion("lugar");
+              }}
+              disabled={suggestionLoading}
+            >
+              <Text style={styles.suggestButtonText}>Sugerir</Text>
+            </TouchableOpacity>
           </View>
 
           {categories.lugares.length > 0 ? (
@@ -184,6 +318,110 @@ export default function VotacionJuntada({ route, navigation }) {
           )}
         </View>
       </ScrollView>
+
+      <Modal
+        visible={Boolean(suggestionType)}
+        transparent
+        animationType="fade"
+        onRequestClose={closeSuggestion}
+      >
+        <View style={styles.modalOverlay}>
+          <Pressable
+            style={styles.suggestionModal}
+            onPress={(event) => event.stopPropagation()}
+          >
+            <TouchableOpacity
+              style={styles.closeButton}
+              onPress={(event) => {
+                event.stopPropagation();
+                closeSuggestion();
+              }}
+              disabled={suggestionLoading}
+            >
+              <Text style={styles.closeText}>✕</Text>
+            </TouchableOpacity>
+
+            <ScrollView
+              showsVerticalScrollIndicator={false}
+              contentContainerStyle={styles.modalContent}
+            >
+              <Text style={styles.modalTitle}>
+                Sugerir{" "}
+                {suggestionType === "fecha" ? "fecha y horario" : "lugar"}
+              </Text>
+
+              <Text style={styles.modalDescription}>
+                Agregá una opción para que el grupo pueda votarla.
+              </Text>
+
+              {suggestionType === "fecha" ? (
+                <>
+                  {Platform.OS === "web" ? (
+                    <input
+                      type="datetime-local"
+                      value={webDateSuggestion}
+                      onChange={(event) =>
+                        setWebDateSuggestion(event.target.value)
+                      }
+                      style={styles.datetimeInput}
+                    />
+                  ) : (
+                    <>
+                      <TextInput
+                        value={dateSuggestion}
+                        onChangeText={setDateSuggestion}
+                        style={styles.datetimeInput}
+                        placeholder="Ej: 01/07/2026 22:26"
+                        placeholderTextColor="#888"
+                      />
+
+                      <Pressable
+                        style={styles.selector}
+                        onPress={() => {
+                          setPickerMode("date");
+                          setShowPicker(true);
+                        }}
+                      >
+                        <Text style={styles.selectorText}>
+                          Seleccionar fecha y hora
+                        </Text>
+                      </Pressable>
+                    </>
+                  )}
+
+                  {showPicker && DateTimePicker ? (
+                    <DateTimePicker
+                      value={date}
+                      mode={Platform.OS === "ios" ? "datetime" : pickerMode}
+                      is24Hour
+                      onChange={handleNativeDateChange}
+                    />
+                  ) : null}
+                </>
+              ) : (
+                <InputApp
+                  value={placeSuggestion}
+                  onChangeText={setPlaceSuggestion}
+                  placeholder="Ej: Palermo, Parque Centenario..."
+                />
+              )}
+
+              {suggestionError ? (
+                <Text style={styles.suggestionError}>{suggestionError}</Text>
+              ) : null}
+
+              <ButtonApp
+                nombre={
+                  suggestionLoading ? "Guardando..." : "Agregar sugerencia"
+                }
+                onPress={submitSuggestion}
+                disabled={suggestionLoading}
+                backgroundColor="#57C7A3"
+              />
+            </ScrollView>
+          </Pressable>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 }
@@ -215,6 +453,7 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     padding: 18,
     marginBottom: 14,
+    marginTop: 20,
     borderWidth: 1,
     borderColor: "#5E2D82",
   },
@@ -278,13 +517,30 @@ const styles = StyleSheet.create({
   sectionHeader: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 10,
+    justifyContent: "space-between",
     marginBottom: 12,
+  },
+  sectionTitleGroup: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 10,
+    flex: 1,
   },
   sectionTitle: {
     color: "#FFFFFF",
     fontSize: 18,
     fontFamily: "CashMarket",
+  },
+  suggestButton: {
+    backgroundColor: "#57C7A3",
+    borderRadius: 10,
+    paddingHorizontal: 11,
+    paddingVertical: 7,
+  },
+  suggestButtonText: {
+    color: "#111111",
+    fontFamily: "CashMarket",
+    fontSize: 12,
   },
   option: {
     flexDirection: "row",
@@ -335,5 +591,91 @@ const styles = StyleSheet.create({
     paddingVertical: 4,
     borderRadius: 12,
     overflow: "hidden",
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: "rgba(0, 0, 0, 0.45)",
+    justifyContent: "center",
+    alignItems: "center",
+    paddingHorizontal: 20,
+  },
+  suggestionModal: {
+    width: "100%",
+    maxHeight: "85%",
+    backgroundColor: "#23232D",
+    borderRadius: 24,
+    paddingHorizontal: 22,
+    position: "relative",
+  },
+  modalContent: {
+    paddingTop: 48,
+    paddingBottom: 18,
+  },
+  closeButton: {
+    position: "absolute",
+    top: 12,
+    right: 16,
+    zIndex: 2,
+  },
+  closeText: {
+    color: "#FFFFFF",
+    fontSize: 22,
+    fontWeight: "bold",
+  },
+  modalTitle: {
+    color: "#FFFFFF",
+    fontFamily: "CashMarket",
+    fontSize: 21,
+    textAlign: "center",
+    marginBottom: 10,
+  },
+  modalDescription: {
+    color: "#B9B9C7",
+    fontFamily: "Utendo",
+    fontSize: 14,
+    lineHeight: 20,
+    textAlign: "center",
+    marginBottom: 22,
+  },
+  datetimeInput: {
+    width: "100%",
+    height: 52,
+    borderRadius: 15,
+    border: "2px solid #57575C",
+    backgroundColor: "#36363A",
+    paddingHorizontal: 15,
+    color: "#888",
+    fontFamily: "Utendo",
+    fontSize: 15,
+    outlineStyle: "none",
+    outline: "none",
+    appearance: "none",
+    WebkitAppearance: "none",
+    boxShadow: "none",
+    boxSizing: "border-box",
+    colorScheme: "dark",
+    marginBottom: 12,
+    paddingLeft: 10,
+    paddingRight: 10
+  },
+  selector: {
+    borderRadius: 15,
+    borderWidth: 2,
+    borderColor: "#57575C",
+    backgroundColor: "#36363A",
+    padding: 15,
+    marginBottom: 12,
+  },
+  selectorText: {
+    color: "#FFFFFF",
+    fontFamily: "Utendo",
+    fontSize: 15,
+  },
+  suggestionError: {
+    color: "#FF8F8F",
+    fontFamily: "Utendo",
+    fontSize: 13,
+    textAlign: "center",
+    marginBottom: 8,
   },
 });

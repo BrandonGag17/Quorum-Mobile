@@ -3,9 +3,10 @@ import { useFonts } from 'expo-font'
 import * as SplashScreen from 'expo-splash-screen'
 import { useEffect, useState } from 'react'
 
-import supabase from './src/services/supabaseClient'
+import { getSession, onAuthStateChange } from './src/services/authService'
 import AuthStack from './src/navigation/AuthStack'
 import AppTabs from './src/navigation/AppTabs'
+import { ThemeProvider } from './src/context/ThemeContext'
 
 SplashScreen.preventAutoHideAsync()
 
@@ -25,7 +26,7 @@ export default function App() {
       try {
         const {
           data: { session },
-        } = await supabase.auth.getSession()
+        } = await getSession()
 
         setIsLoggedIn(Boolean(session))
       } finally {
@@ -38,7 +39,7 @@ export default function App() {
   }, [fontsLoaded])
 
   useEffect(() => {
-    const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
+    const { data: authListener } = onAuthStateChange((event, session) => {
       setIsLoggedIn(Boolean(session))
     })
 
@@ -52,8 +53,11 @@ export default function App() {
   }
 
   return (
-    <NavigationContainer>
-      {isLoggedIn ? <AppTabs /> : <AuthStack />}
-    </NavigationContainer>
+    // El proveedor permite que las pantallas dentro de la navegacion lean el tema.
+    <ThemeProvider>
+      <NavigationContainer>
+        {isLoggedIn ? <AppTabs /> : <AuthStack />}
+      </NavigationContainer>
+    </ThemeProvider>
   )
 }

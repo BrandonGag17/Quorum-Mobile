@@ -1,10 +1,11 @@
-import { useCallback, useEffect, useMemo, useState } from 'react'
-import { getSession } from '../services/authService'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { getCurrentUser, getSession } from '../services/authService'
 import { getGroupMemberCount } from '../services/groupService'
 import {
   getVotacionByEventId,
   getVotosForSurvey,
-  toggleVote
+  toggleVote,
+  addSurveySuggestion
 } from '../services/votacionService'
 
 function buildCounts(options, votes) {
@@ -30,7 +31,9 @@ export function useVotacionDetail(eventId) {
   const [currentUserId, setCurrentUserId] = useState(null)
   const [loading, setLoading] = useState(true)
   const [actionLoading, setActionLoading] = useState(false)
+  const [suggestionLoading, setSuggestionLoading] = useState(false)
   const [error, setError] = useState(null)
+  const requestRef = useRef(0)
 
   const refreshVotes = useCallback(async (nextSurvey, userId = currentUserId) => {
     if (!nextSurvey?.id) {
@@ -40,7 +43,8 @@ export function useVotacionDetail(eventId) {
     }
 
     const options = nextSurvey.opcion_encuesta ?? []
-    const { data: votes, error: votesError } = await getVotosForSurvey(nextSurvey.id)
+    const optionIds = options.map(option => option.id).filter(Boolean)
+    const { data: votes, error: votesError } = await getVotosForSurvey(nextSurvey.id, optionIds)
 
     if (votesError) {
       throw votesError
@@ -60,6 +64,7 @@ export function useVotacionDetail(eventId) {
   }, [currentUserId])
 
   const refresh = useCallback(async () => {
+    const requestId = ++requestRef.current
     if (!eventId) {
       setSurvey(null)
       setEvent(null)
@@ -84,6 +89,7 @@ export function useVotacionDetail(eventId) {
       setCurrentUserId(userId)
 
       const { data, error: surveyError } = await getVotacionByEventId(eventId)
+      if (requestId !== requestRef.current) return
 
       if (surveyError) {
         throw surveyError
@@ -115,10 +121,15 @@ export function useVotacionDetail(eventId) {
       }
 
       await refreshVotes(data, userId)
+      if (requestId !== requestRef.current) return
     } catch (err) {
-      setError(err?.message || 'Ocurrió un error al cargar la votación')
+      if (requestId === requestRef.current) {
+        setError(err?.message || 'Ocurrió un error al cargar la votación')
+      }
     } finally {
-      setLoading(false)
+      if (requestId === requestRef.current) {
+        setLoading(false)
+      }
     }
   }, [eventId, refreshVotes])
 
@@ -167,7 +178,8 @@ export function useVotacionDetail(eventId) {
       }
 
       const options = survey?.opcion_encuesta ?? []
-      const { data: votes, error: votesError } = await getVotosForSurvey(survey.id)
+      const optionIds = options.map(option => option.id).filter(Boolean)
+      const { data: votes, error: votesError } = await getVotosForSurvey(survey.id, optionIds)
 
       if (votesError) {
         throw votesError
@@ -189,6 +201,51 @@ export function useVotacionDetail(eventId) {
     }
   }, [currentUserId, survey])
 
+  const suggestOption = useCallback(async ({ tipo, descripcion }) => {
+    if (!survey?.id) {
+      return {
+        data: null,
+        error: {
+          message: 'No se encontró la votación'
+        }
+      }
+    }
+
+    setSuggestionLoading(true)
+    setError(null)
+
+    try {
+      const { data: user, error: userError } = await getCurrentUser()
+
+      if (userError) {
+        throw userError
+      }
+
+      if (!user) {
+        throw new Error('No se pudo obtener el usuario actual')
+      }
+
+      const { data, error: suggestionError } = await addSurveySuggestion({
+        surveyId: survey.id,
+        userId: user.id,
+        tipo,
+        descripcion
+      })
+
+      if (suggestionError) {
+        throw suggestionError
+      }
+
+      await refresh()
+
+      return { data, error: null }
+    } catch (err) {
+      return { data: null, error: err }
+    } finally {
+      setSuggestionLoading(false)
+    }
+  }, [refresh, survey])
+
   return {
     survey,
     event,
@@ -197,10 +254,12 @@ export function useVotacionDetail(eventId) {
     myVotes,
     loading,
     actionLoading,
+    suggestionLoading,
     error,
     categories,
     refresh,
     voteOption,
+    suggestOption,
     isCreator: !!(currentUserId && event?.id_creador && currentUserId === event.id_creador)
   }
 }

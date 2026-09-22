@@ -255,12 +255,6 @@ const styles = StyleSheet.create({
     color: "#9F9F9F",
     fontFamily: "Utendo",
   },
-  ayuda: {
-    color: "#D8D8D8",
-    fontFamily: "Utendo",
-    fontSize: 14,
-    marginBottom: 10,
-  },
 });
 
 export default Registrarse3;

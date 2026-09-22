@@ -1,6 +1,5 @@
 import React, { useCallback } from "react";
 import {
-  SafeAreaView,
   ScrollView,
   View,
   Text,
@@ -11,6 +10,7 @@ import {
   StyleSheet,
   Modal,
 } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import Feather from "@expo/vector-icons/Feather";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { IconUserFilled } from "@tabler/icons-react-native";
@@ -362,20 +362,5 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: "700",
     textAlign: "center",
-  },
-  closeText: {
-    color: "#B0B0B0",
-    fontSize: 24,
-  },
-  modalButton: {
-    color: "#57C7A3",
-    textAlign: "center",
-    fontWeight: "700",
-    marginTop: 10,
-  },
-  errorText: {
-    color: "#FF7A7A",
-    textAlign: "center",
-    marginTop: 24,
   },
 });

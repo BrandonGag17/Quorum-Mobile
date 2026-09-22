@@ -1,12 +1,17 @@
-import React from "react";
-import { View, Text, StyleSheet, SafeAreaView } from "react-native";
+import React, { useContext } from "react";
+import { ThemeContext } from "../../context/ThemeContext";
+import { View, Text, StyleSheet } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function Notificaciones() {
+  // Leemos los colores compartidos por el ThemeProvider de App.js.
+  const { colors } = useContext(ThemeContext);
+
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
       <View style={styles.content}>
-        <Text style={styles.title}>Notificaciones</Text>
-        <Text style={styles.subtitle}>Pantalla en construcción</Text>
+        <Text style={[styles.title, { color: colors.text }]}>Notificaciones</Text>
+        <Text style={[styles.subtitle, { color: colors.text }]}>Pantalla en construcción</Text>
       </View>
     </SafeAreaView>
   );
@@ -15,7 +20,6 @@ export default function Notificaciones() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#15151C",
     justifyContent: "center",
     alignItems: "center",
   },
@@ -25,13 +29,12 @@ const styles = StyleSheet.create({
     paddingBottom: 110,
   },
   title: {
-    color: "#FFFFFF",
     fontSize: 28,
     fontWeight: "700",
     marginBottom: 8,
   },
   subtitle: {
-    color: "#B0B0B0",
+    opacity: 0.7,
     fontSize: 16,
     textAlign: "center",
   },

@@ -213,17 +213,6 @@ const styles = StyleSheet.create({
     textAlign: "center",
     marginBottom: 30,
   },
-  iconoTexto: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 10,
-  },
-  texto: {
-    color: "white",
-    fontFamily: "Utendo",
-    fontSize: 20,
-    marginTop: 5,
-  },
   botonGoogle: {
     padding: 10,
     margin: 10,

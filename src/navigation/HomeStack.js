@@ -1,4 +1,5 @@
 import { createNativeStackNavigator } from '@react-navigation/native-stack'
+
 import Home from '../screens/Home/Home'
 import Grupo from '../screens/Home/Grupo'
 import InfoGrupo from '../screens/Home/InfoGrupo'
@@ -19,7 +20,9 @@ export default function HomeStack() {
         headerShown: true,
         headerTitle: '',
         headerTintColor: '#FFFFFF',
-        headerStyle: { backgroundColor: '#15151C' },
+        headerStyle: {
+          backgroundColor: '#15151C',
+        },
         headerShadowVisible: false,
         headerBackButtonDisplayMode: 'minimal',
       }}

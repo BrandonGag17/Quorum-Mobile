@@ -1,11 +1,11 @@
-import React, { useMemo } from "react";
+import React, { useContext, useMemo } from "react";
 import {
   StyleSheet,
   Text,
   View,
   TouchableOpacity,
   Image,
-  ActivityIndicator,
+  Switch,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
@@ -13,8 +13,12 @@ import { useSession } from "../../hooks/useSession";
 import { useUserProfile } from "../../hooks/useUserProfile";
 import ErrorMessage from "../../components/MensajeError";
 import Loading from "../../components/Loading";
+import { ThemeContext } from "../../context/ThemeContext";
 
 export default function Configuracion() {
+  // Leemos el estado y la funcion para cambiarlo del mismo proveedor que Notificaciones.
+  const { isDarkMode, setIsDarkMode, colors, texto } = useContext(ThemeContext);
+
   const {
     profile,
     loading: profileLoading,
@@ -29,7 +33,7 @@ export default function Configuracion() {
   };
 
   return (
-    <SafeAreaView style={styles.fondo}>
+    <SafeAreaView style={[styles.fondo, { backgroundColor: colors.background }]}>
       {profileLoading ? (
         <Loading />
       ) : (
@@ -41,8 +45,8 @@ export default function Configuracion() {
                 style={styles.fotoPerfil}
               />
 
-              <Text style={styles.username}>@{profile.username}</Text>
-              <Text style={styles.nombreCompleto}>
+              <Text style={[styles.username, { color: colors.text }]}>@{profile.username}</Text>
+              <Text style={[styles.nombreCompleto, { color: colors.text }]}>
                 {profile.nombre} {profile.apellido}
               </Text>
             </View>
@@ -59,6 +63,19 @@ export default function Configuracion() {
             <ErrorMessage mensaje="No se pudo cerrar sesión. Intentalo de nuevo." />
           ) : null}
 
+          <View style={styles.filaTema}>
+            <Text style={[styles.etiquetaTema, { color: colors.text }]}>
+              {texto}
+            </Text>
+            <Switch
+              value={isDarkMode}
+              onValueChange={setIsDarkMode}
+              accessibilityLabel="Modo oscuro"
+              trackColor={{ false: "#767577", true: "#7950A8" }}
+              thumbColor="#FFFFFF"
+            />
+          </View>
+
           <TouchableOpacity
             onPress={handleLogout}
             disabled={logoutLoading}
@@ -72,10 +89,10 @@ export default function Configuracion() {
             </Text>
           </TouchableOpacity>
 
-          <Text style={styles.textoCopyVersion}>
+          <Text style={[styles.textoCopyVersion, { color: colors.text }]}>
             Copyright © {currentYear} - Quórum
           </Text>
-          <Text style={styles.textoCopyVersion}>Versión Demo 0.0.0</Text>
+          <Text style={[styles.textoCopyVersion, { color: colors.text }]}>Versión Demo 0.0.0</Text>
         </>
       )}
     </SafeAreaView>
@@ -83,6 +100,16 @@ export default function Configuracion() {
 }
 
 const styles = StyleSheet.create({
+  filaTema: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 20,
+  },
+  etiquetaTema: {
+    fontFamily: "Utendo",
+    fontSize: 18,
+  },
   fondo: {
     flex: 1,
     backgroundColor: "#15151C",
