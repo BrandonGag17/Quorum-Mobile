@@ -1,6 +1,5 @@
 import React, { useCallback } from "react";
 import {
-  SafeAreaView,
   ScrollView,
   View,
   Text,
@@ -11,6 +10,7 @@ import {
   StyleSheet,
   Modal,
 } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import Feather from "@expo/vector-icons/Feather";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { IconUserFilled } from "@tabler/icons-react-native";

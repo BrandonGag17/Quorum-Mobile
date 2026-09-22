@@ -65,7 +65,7 @@ export default function Configuracion() {
 
           <View style={styles.filaTema}>
             <Text style={[styles.etiquetaTema, { color: colors.text }]}>
-              <p>{texto}</p>
+              {texto}
             </Text>
             <Switch
               value={isDarkMode}
