@@ -648,7 +648,6 @@ const styles = StyleSheet.create({
     fontFamily: "Utendo",
     fontSize: 15,
     outlineStyle: "none",
-    outline: "none",
     appearance: "none",
     WebkitAppearance: "none",
     boxShadow: "none",
