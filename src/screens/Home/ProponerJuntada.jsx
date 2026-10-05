@@ -16,6 +16,7 @@ import InputApp from "../../components/Input";
 import ButtonApp from "../../components/Botones";
 import IndicadorPasos from "../../components/IndicadorPasos";
 import ErrorMessage from "../../components/MensajeError";
+import BuscadorFechas from "../../components/BuscadorFechas";
 
 const DateTimePicker =
   Platform.OS !== "web"
@@ -41,6 +42,29 @@ export default function ProponerJuntada() {
   const [opcionesLugares, setOpcionesLugares] = useState([]);
 
   const [lugarTemporal, setLugarTemporal] = useState("");
+
+  const [mostrarBuscadorFechas, setMostrarBuscadorFechas] = useState(false);
+
+  const agregarFechaSugerida = (fecha) => {
+    if (!fecha) {
+      return;
+    }
+
+    const valor = String(fecha).trim();
+    if (!valor) {
+      return;
+    }
+
+    setOpcionesFechas((actuales) => {
+      if (actuales.includes(valor)) {
+        return actuales;
+      }
+
+      return [...actuales, valor];
+    });
+
+    setMostrarBuscadorFechas(false);
+  };
 
   useEffect(() => {
     const recomendados = route?.params?.lugaresRecomendados;
@@ -289,6 +313,30 @@ export default function ProponerJuntada() {
           </Text>
 
           <Text style={styles.seccion}>Fechas y horarios</Text>
+
+          <Pressable
+            style={styles.botonRecomendar}
+            onPress={() => setMostrarBuscadorFechas(true)}
+            disabled={cargando || !idGrupo}
+          >
+            <MaterialCommunityIcons
+              name="lightbulb-on"
+              size={18}
+              color="#FFFFFF"
+            />
+
+            <Text style={styles.textoRecomendar}>
+              Sugerir!
+            </Text>
+          </Pressable>
+
+          <BuscadorFechas
+            visible={mostrarBuscadorFechas}
+            onClose={() => setMostrarBuscadorFechas(false)}
+            idGrupo={idGrupo}
+            opcionesExistentes={opcionesFechas}
+            onAgregarFecha={agregarFechaSugerida}
+          />
 
           {Platform.OS === "web" ? (
             <input

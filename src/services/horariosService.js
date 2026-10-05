@@ -1,4 +1,248 @@
 import supabase from './supabaseClient'
+import { getSession } from './authService'
+
+function normalizarNombrePersona(usuario) {
+    const nombre = typeof usuario?.nombre === 'string' ? usuario.nombre.trim() : ''
+    const apellido = typeof usuario?.apellido === 'string' ? usuario.apellido.trim() : ''
+    const username = typeof usuario?.username === 'string' ? usuario.username.trim() : ''
+    const partes = [nombre, apellido].filter(Boolean)
+    if (partes.length > 0) return partes.join(' ')
+    return username || 'Integrante'
+}
+
+function parseHoraHora(hora) {
+    if (typeof hora !== 'string') return null
+
+    const parts = hora.split(':')
+    if (parts.length < 2) return null
+
+    const horas = Number(parts[0])
+    const minutos = Number(parts[1])
+    const segundos = Number(parts[2] || 0)
+
+    if (!Number.isFinite(horas) || !Number.isFinite(minutos) || !Number.isFinite(segundos)) {
+        return null
+    }
+
+    return { horas, minutos, segundos }
+}
+
+function formatearFechaHora(fecha) {
+    const dia = String(fecha.getDate()).padStart(2, '0')
+    const mes = String(fecha.getMonth() + 1).padStart(2, '0')
+    const anio = fecha.getFullYear()
+    const horas = String(fecha.getHours()).padStart(2, '0')
+    const minutos = String(fecha.getMinutes()).padStart(2, '0')
+
+    return `${dia}/${mes}/${anio} ${horas}:${minutos}`
+}
+
+function getDiaSemanaNumero(date) {
+    return (date.getDay() + 6) % 7 + 1
+}
+
+function horarioSolapa(inicioA, finA, inicioB, finB) {
+    return inicioA < finB && inicioB < finA
+}
+
+export async function buscarSugerenciasFechasPorGrupo({
+    idGrupo,
+    anticipacion = 7,
+    horaDesde = '09:00',
+    horaHasta = '21:00',
+}) {
+    if (!idGrupo) {
+        return { data: [], error: { message: 'Falta el grupo para sugerir fechas.' } }
+    }
+
+    const dias = Number(anticipacion)
+    if (!Number.isFinite(dias) || dias <= 0) {
+        return { data: [], error: { message: 'La anticipación debe ser mayor a 0.' } }
+    }
+
+    const horaInicio = parseHoraHora(horaDesde)
+    const horaFin = parseHoraHora(horaHasta)
+    if (!horaInicio || !horaFin) {
+        return { data: [], error: { message: 'Seleccioná una franja horaria válida.' } }
+    }
+
+    const inicioMinutos = horaInicio.horas * 60 + horaInicio.minutos
+    const finMinutos = horaFin.horas * 60 + horaFin.minutos
+    if (finMinutos <= inicioMinutos) {
+        return { data: [], error: { message: 'La hora final debe ser posterior a la de inicio.' } }
+    }
+
+    const { data: sessionData, error: sessionError } = await getSession()
+    if (sessionError) {
+        return { data: [], error: sessionError }
+    }
+
+    const userId = sessionData?.session?.user?.id
+    if (!userId) {
+        return { data: [], error: { message: 'Necesitás iniciar sesión para sugerir fechas.' } }
+    }
+
+    const { data: membresias, error: membresiasError } = await supabase
+        .from('usuario_grupo')
+        .select('id_usuario')
+        .eq('id_grupo', idGrupo)
+
+    if (membresiasError) {
+        return { data: [], error: membresiasError }
+    }
+
+    const idsMiembros = [...new Set((membresias ?? []).map(item => item.id_usuario).filter(Boolean))]
+    if (idsMiembros.length === 0) {
+        return { data: [], error: { message: 'Este grupo no tiene integrantes cargados.' } }
+    }
+
+    const { data: usuarios, error: usuariosError } = await supabase
+        .from('usuario')
+        .select('id, nombre, apellido, username')
+        .in('id', idsMiembros)
+
+    if (usuariosError) {
+        return { data: [], error: usuariosError }
+    }
+
+    const nombresPorUsuario = Object.fromEntries((usuarios ?? []).map(usuario => [usuario.id, normalizarNombrePersona(usuario)]))
+
+    const { data: horariosPuntuales, error: puntualesError } = await supabase
+        .from('horario_usuario')
+        .select('id_usuario, fecha_hora_inicio, fecha_hora_fin')
+        .in('id_usuario', idsMiembros)
+        .eq('origen', 'manual')
+
+    if (puntualesError) {
+        return { data: [], error: puntualesError }
+    }
+
+    const { data: horariosRecurrentes, error: recurrentesError } = await supabase
+        .from('horario_recurrente')
+        .select('id_usuario, hora_inicio, hora_fin, fecha_inicio, fecha_fin, dia_horario_recurrente (dia_semana)')
+        .in('id_usuario', idsMiembros)
+        .eq('origen', 'manual')
+
+    if (recurrentesError) {
+        return { data: [], error: recurrentesError }
+    }
+
+    const horariosPorUsuario = new Map()
+
+    for (const horario of horariosPuntuales ?? []) {
+        const inicio = new Date(horario.fecha_hora_inicio)
+        const fin = new Date(horario.fecha_hora_fin)
+        if (!Number.isFinite(inicio.getTime()) || !Number.isFinite(fin.getTime())) continue
+
+        const lista = horariosPorUsuario.get(horario.id_usuario) ?? []
+        lista.push({ inicio, fin, tipo: 'puntual' })
+        horariosPorUsuario.set(horario.id_usuario, lista)
+    }
+
+    const fechaHasta = new Date()
+    fechaHasta.setDate(fechaHasta.getDate() + dias)
+    fechaHasta.setHours(23, 59, 59, 999)
+
+    for (const horario of horariosRecurrentes ?? []) {
+        const idUsuario = horario.id_usuario
+        const filasDias = Array.isArray(horario.dia_horario_recurrente)
+            ? horario.dia_horario_recurrente
+            : (horario.dia_horario_recurrente ? [horario.dia_horario_recurrente] : [])
+
+        const diasSemana = filasDias
+            .map((item) => Number(item?.dia_semana ?? item))
+            .filter((valor) => Number.isFinite(valor) && valor >= 1 && valor <= 7)
+
+        if (diasSemana.length === 0) continue
+
+        const fechaInicio = horario.fecha_inicio ? new Date(`${horario.fecha_inicio}T00:00:00`) : new Date()
+        const fechaFin = horario.fecha_fin ? new Date(`${horario.fecha_fin}T23:59:59`) : fechaHasta
+
+        let cursor = new Date(fechaInicio)
+        cursor.setHours(0, 0, 0, 0)
+
+        while (cursor <= fechaFin && cursor <= fechaHasta) {
+            const diaSemanaActual = getDiaSemanaNumero(cursor)
+            if (diasSemana.includes(diaSemanaActual)) {
+                const horaInicioRec = parseHoraHora(horario.hora_inicio)
+                const horaFinRec = parseHoraHora(horario.hora_fin)
+
+                if (horaInicioRec && horaFinRec) {
+                    const inicio = new Date(cursor)
+                    const fin = new Date(cursor)
+                    inicio.setHours(horaInicioRec.horas, horaInicioRec.minutos, horaInicioRec.segundos, 0)
+                    fin.setHours(horaFinRec.horas, horaFinRec.minutos, horaFinRec.segundos, 0)
+                    const lista = horariosPorUsuario.get(idUsuario) ?? []
+                    lista.push({ inicio, fin, tipo: 'recurrente' })
+                    horariosPorUsuario.set(idUsuario, lista)
+                }
+            }
+            cursor.setDate(cursor.getDate() + 1)
+        }
+    }
+
+    const usuariosConHorario = [...new Set([...horariosPorUsuario.keys()])]
+    if (usuariosConHorario.length === 0) {
+        return {
+            data: [],
+            error: { message: 'Ningún integrante del grupo tiene horarios cargados manualmente.' },
+        }
+    }
+
+    const sugerencias = []
+    const fechaDesde = new Date()
+    fechaDesde.setHours(0, 0, 0, 0)
+
+    for (let diaActual = new Date(fechaDesde); diaActual <= fechaHasta; diaActual.setDate(diaActual.getDate() + 1)) {
+        for (let minutoActual = inicioMinutos; minutoActual + 60 <= finMinutos; minutoActual += 60) {
+            const candidatoInicio = new Date(diaActual)
+            candidatoInicio.setHours(Math.floor(minutoActual / 60), minutoActual % 60, 0, 0)
+            const candidatoFin = new Date(candidatoInicio.getTime() + 60 * 60 * 1000)
+
+            const disponibles = []
+            const conflictos = []
+
+            for (const idUsuario of usuariosConHorario) {
+                const horarios = horariosPorUsuario.get(idUsuario) ?? []
+                const tieneConflicto = horarios.some((horario) => horarioSolapa(
+                    horario.inicio.getTime(),
+                    horario.fin.getTime(),
+                    candidatoInicio.getTime(),
+                    candidatoFin.getTime(),
+                ))
+
+                if (tieneConflicto) {
+                    conflictos.push(nombresPorUsuario[idUsuario] || 'Integrante')
+                } else {
+                    disponibles.push(nombresPorUsuario[idUsuario] || 'Integrante')
+                }
+            }
+
+            sugerencias.push({
+                fecha: formatearFechaHora(candidatoInicio),
+                fechaHoraInicio: candidatoInicio.toISOString(),
+                fechaHoraFin: candidatoFin.toISOString(),
+                personasDisponibles: disponibles.length,
+                personasConConflicto: conflictos.length,
+                nombresDisponibles: disponibles,
+                conflictos: [...new Set(conflictos)],
+                totalConHorario: usuariosConHorario.length,
+            })
+        }
+    }
+
+    sugerencias.sort((a, b) => {
+        if (b.personasDisponibles !== a.personasDisponibles) {
+            return b.personasDisponibles - a.personasDisponibles
+        }
+        return new Date(a.fechaHoraInicio).getTime() - new Date(b.fechaHoraInicio).getTime()
+    })
+
+    return {
+        data: sugerencias.slice(0, 15),
+        error: null,
+    }
+}
 
 export async function createHorario({
     userId,
