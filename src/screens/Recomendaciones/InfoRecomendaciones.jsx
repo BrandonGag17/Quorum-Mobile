@@ -142,42 +142,6 @@ export default function InfoRecomendaciones({ lugarOverride, onBack }) {
           </View>
         ) : null}
 
-        <View style={styles.seccion}>
-          <Text style={styles.seccionTitulo}>Información</Text>
-
-          <View style={styles.infoCard}>
-            <View style={styles.infoRow}>
-              <Text style={styles.label}>Ciudad</Text>
-
-              <Text style={styles.valor}>{lugar?.ciudad || "-"}</Text>
-            </View>
-
-            <View style={styles.separador} />
-
-            <View style={styles.infoRow}>
-              <Text style={styles.label}>Provincia</Text>
-
-              <Text style={styles.valor}>{lugar?.provincia || "-"}</Text>
-            </View>
-
-            <View style={styles.separador} />
-
-            <View style={styles.infoRow}>
-              <Text style={styles.label}>Código Postal</Text>
-
-              <Text style={styles.valor}>{lugar?.codigoPostal || "-"}</Text>
-            </View>
-
-            <View style={styles.separador} />
-
-            <View style={styles.infoRow}>
-              <Text style={styles.label}>País</Text>
-
-              <Text style={styles.valor}>{lugar?.pais || "-"}</Text>
-            </View>
-          </View>
-        </View>
-
         {lugar?.telefono || lugar?.sitioWeb || lugar?.email ? (
           <View style={styles.seccion}>
             <Text style={styles.seccionTitulo}>Contacto</Text>
@@ -236,6 +200,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#15151C",
     paddingHorizontal: 25,
     paddingTop: 18,
+    paddingBottom: 40
   },
 
   contenido: {

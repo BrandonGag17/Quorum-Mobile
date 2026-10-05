@@ -291,8 +291,8 @@ const styles = StyleSheet.create({
     color: "#FFFFFF",
   },
   botonGoogle: {
-    padding: 10,
-    margin: 10,
+    padding: 9,
+    margin: 8,
     backgroundColor: "#ffffff",
     borderRadius: 15,
     flexDirection: "row",
@@ -305,10 +305,10 @@ const styles = StyleSheet.create({
     marginRight: 15,
   },
   textoGoogle: {
-    fontFamily: "Utendo",
+    fontFamily: "CashMarket",
     textAlign: "center",
     color: "black",
-    fontSize: 22.5,
+    fontSize: 18,
   },
   separador: {
     flexDirection: "row",
