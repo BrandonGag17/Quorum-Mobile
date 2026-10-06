@@ -248,7 +248,8 @@ export async function createHorario({
     userId,
     titulo,
     fechaHoraInicio,
-    fechaHoraFin
+    fechaHoraFin,
+    origen = 'manual'
 }) {
     const nombre = typeof titulo === 'string' ? titulo.trim() : ''
     if (!userId || !nombre || !fechaHoraInicio || !fechaHoraFin) {
@@ -274,7 +275,7 @@ export async function createHorario({
             titulo: nombre,
             fecha_hora_inicio: inicio.toISOString(),
             fecha_hora_fin: fin.toISOString(),
-            origen: 'manual'
+            origen
         })
         .select()
         .single()

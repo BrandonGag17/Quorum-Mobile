@@ -7,6 +7,7 @@ import {
   KeyboardAvoidingView,
   ScrollView,
   Platform,
+  Alert,
 } from "react-native";
 import Checkbox from "expo-checkbox";
 import {
@@ -23,6 +24,7 @@ import Button from "../../components/BotonesIntro";
 import { useCallback } from "react";
 
 import { useForm, Controller } from "react-hook-form";
+import { signInWithGoogle } from "../../services/authService";
 
 function Registrarse1() {
   const navigation = useNavigation();
@@ -72,7 +74,15 @@ function Registrarse1() {
 
   const handleGoogle = async () => {
     setError("");
-    setError("Google todavía no está configurado en este flujo.");
+
+    const { error } = await signInWithGoogle();
+
+    if (error) {
+      Alert.alert(
+        "Google",
+        error.message || "No se pudo iniciar sesión con Google",
+      );
+    }
   };
 
   return (
@@ -278,18 +288,6 @@ const styles = StyleSheet.create({
     textAlign: "center",
     marginBottom: 30,
   },
-  checkbox: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 10,
-    marginBottom: 20,
-    marginTop: 10,
-  },
-  texto: {
-    fontFamily: "Utendo",
-    fontSize: 16,
-    color: "#FFFFFF",
-  },
   botonGoogle: {
     padding: 10,
     margin: 10,
@@ -298,33 +296,57 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
+    gap: 10,
   },
   googleLogo: {
-    width: 28,
-    height: 28,
-    marginRight: 15,
+    width: 24,
+    height: 24,
   },
   textoGoogle: {
-    fontFamily: "Utendo",
-    textAlign: "center",
-    color: "black",
-    fontSize: 22.5,
+    color: "#111827",
+    fontSize: 16,
+    fontWeight: "600",
   },
   separador: {
     flexDirection: "row",
     alignItems: "center",
-    marginVertical: 10,
+    marginVertical: 20,
   },
   linea: {
     flex: 1,
     height: 1,
-    backgroundColor: "#4F4F55",
+    backgroundColor: "#2D3748",
   },
   textoSeparador: {
-    color: "#A0A0A0",
-    marginHorizontal: 15,
+    marginHorizontal: 10,
+    color: "#9CA3AF",
+    fontSize: 14,
+  },
+  checkbox: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginVertical: 12,
+  },
+  texto: {
+    color: "#FFFFFF",
+    marginLeft: 8,
+    fontSize: 14,
+  },
+  botonCuenta: {
+    minHeight: 48,
+    marginTop: 16,
+    paddingVertical: 12,
+    justifyContent: "center",
+  },
+  textoCuenta: {
     fontFamily: "Utendo",
     fontSize: 16,
+    color: "#FFFFFF",
+    textAlign: "center",
+  },
+  enlaceCuenta: {
+    color: "#A846E9",
+    textDecorationLine: "underline",
   },
 });
 

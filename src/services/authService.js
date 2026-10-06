@@ -1,4 +1,5 @@
 import supabase from './supabaseClient'
+import { Platform } from 'react-native'
 
 export async function signInWithEmail(email, password) {
     const { data, error } = await supabase.auth.signInWithPassword({
@@ -43,10 +44,14 @@ export function onAuthStateChange(callback) {
 }
 
 export async function signInWithGoogle() {
+    const redirectTo = Platform.OS === 'web'
+        ? window.location.origin
+        : 'quorum://auth/callback'
+
     const { data, error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-            redirectTo: 'https://quorum.app',
+            redirectTo,
         },
     })
 

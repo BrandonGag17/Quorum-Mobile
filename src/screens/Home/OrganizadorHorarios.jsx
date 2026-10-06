@@ -7,12 +7,20 @@ import {
     TouchableOpacity,
     TextInput,
     Platform,
+    Alert,
 } from "react-native";
 
 import { SafeAreaView } from "react-native-safe-area-context";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { useHorarios } from "../../hooks/useHorarios";
 import Ionicons from "@expo/vector-icons/Ionicons";
+import { signInWithGoogle } from "../../utils/googleSignIn";
+import {
+    fetchGoogleCalendarEvents,
+    normalizarEventoGoogleAHorario,
+} from "../../services/googleCalendarService";
+import { getSession } from "../../services/authService";
+import { createHorario } from "../../services/horariosService";
 
 const MESES = [
     "Enero",
@@ -73,6 +81,7 @@ export default function OrganizadorHorarios() {
         error,
         horarios,
         horariosRecurrentes,
+        cargarHorarios,
     } = useHorarios();
 
     const obtenerDiasDelMes = () => {
@@ -259,6 +268,89 @@ export default function OrganizadorHorarios() {
         setSeRepite(false);
         setDiasSeleccionados([]);
         setMostrarFormulario(false);
+    };
+
+    const handleGoogleCalendar = async () => {
+        try {
+            Alert.alert("Google Calendar", "Conectando con tu calendario de Google...");
+            
+            const { data: oauthData, error: oauthError } = await signInWithGoogle();
+
+            if (oauthError) {
+                Alert.alert("Google Calendar", oauthError.message || "No se pudo conectar con Google Calendar");
+                return;
+            }
+
+            const { data: sessionData, error: sessionError } = await getSession();
+
+            if (sessionError) {
+                Alert.alert("Google Calendar", sessionError.message || "No se pudo obtener la sesión");
+                return;
+            }
+
+            if (!sessionData?.session?.provider_token) {
+                Alert.alert("Google Calendar", "La sesión de Google todavía no está disponible. Probá otra vez más tarde.");
+                return;
+            }
+
+            const { data, error: eventoError } = await fetchGoogleCalendarEvents();
+
+            if (eventoError) {
+                Alert.alert("Google Calendar", eventoError.message || "No se pudo sincronizar");
+                return;
+            }
+
+            const eventos = (data || [])
+                .map(normalizarEventoGoogleAHorario)
+                .filter(Boolean);
+
+            if (!eventos.length) {
+                Alert.alert("Google Calendar", "No hay eventos próximos para sincronizar.");
+                return;
+            }
+
+            const userId = sessionData?.session?.user?.id;
+            if (!userId) {
+                Alert.alert("Google Calendar", "No se pudo identificar el usuario activo.");
+                return;
+            }
+
+            const eventosExistentes = [...(horarios || [])].map(h => `${h.fecha_hora_inicio}|${h.titulo}`);
+            let importados = 0;
+            let duplicados = 0;
+
+            for (const evento of eventos) {
+                const clave = `${evento.fechaHoraInicio}|${evento.titulo}`;
+                
+                if (eventosExistentes.includes(clave)) {
+                    duplicados += 1;
+                    continue;
+                }
+
+                const { error: insertError } = await createHorario({
+                    userId,
+                    titulo: evento.titulo,
+                    fechaHoraInicio: evento.fechaHoraInicio,
+                    fechaHoraFin: evento.fechaHoraFin,
+                    origen: "google",
+                });
+
+                if (!insertError) {
+                    importados += 1;
+                    eventosExistentes.push(clave);
+                }
+            }
+
+            await cargarHorarios();
+
+            let mensaje = `Se sincronizaron ${importados} eventos en tu calendario de Quorum.`;
+            if (duplicados > 0) {
+                mensaje += ` (${duplicados} ya estaban agregados)`;
+            }
+            Alert.alert("Google Calendar", mensaje);
+        } catch (err) {
+            Alert.alert("Google Calendar", err?.message || "Hubo un error al sincronizar");
+        }
     };
 
     return (
@@ -459,6 +551,14 @@ export default function OrganizadorHorarios() {
                             </TouchableOpacity>
                         </View>
                     )}
+                    <View style={styles.footerActions}>
+                        <TouchableOpacity
+                            style={styles.googleButton}
+                            onPress={handleGoogleCalendar}
+                        >
+                            <Text style={styles.googleButtonText}>Conectar con Google Calendar</Text>
+                        </TouchableOpacity>
+                    </View>
                 </View>
 
             </ScrollView>
@@ -533,6 +633,23 @@ const styles = StyleSheet.create({
         alignItems: "center",
         borderRadius: 8,
         padding: 12,
+    },
+    googleButton: {
+        flexDirection: "row",
+        alignItems: "center",
+        justifyContent: "center",
+        gap: 8,
+        backgroundColor: "#1F2937",
+        borderWidth: 1,
+        borderColor: "#374151",
+        borderRadius: 12,
+        paddingVertical: 12,
+        paddingHorizontal: 16,
+    },
+    googleButtonText: {
+        color: "#FFFFFF",
+        fontWeight: "700",
+        fontSize: 14,
     },
     eventsTitle:
     {
@@ -698,5 +815,9 @@ const styles = StyleSheet.create({
         borderTopColor: "#676772",
         marginHorizontal: 30,
         marginTop: 8,
+    },
+    footerActions: {
+        marginTop: 18,
+        marginHorizontal: 30,
     },
 });

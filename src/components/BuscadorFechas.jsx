@@ -196,7 +196,7 @@ export default function BuscadorFechas({
 const styles = StyleSheet.create({
   capa: {
     flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.6)',
+    backgroundColor: 'rgba(255, 255, 255, 0.6)',
     justifyContent: 'center',
     paddingHorizontal: 20,
   },

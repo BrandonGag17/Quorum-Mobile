@@ -242,6 +242,4 @@ export function useHorarios() {
         loading,
         error
     }
-
-
 }

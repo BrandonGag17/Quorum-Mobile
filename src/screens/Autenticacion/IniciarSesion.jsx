@@ -18,6 +18,7 @@ import Input from "../../components/Input";
 import ErrorMessage from "../../components/MensajeError";
 import { IconMailFilled, IconLockFilled } from "@tabler/icons-react-native";
 import { useForm, Controller } from "react-hook-form";
+import { signInWithGoogle } from "../../services/authService";
 
 function normalizeAuthError(message) {
   if (!message) return "";
@@ -60,11 +61,17 @@ export default function IniciarSesion({ navigation }) {
 
   const displayError = error ? normalizeAuthError(error) : "";
 
-  const handleGoogle = () => {
-    Alert.alert(
-      "Inicio con Google",
-      "Google todavía no está configurado en este flujo.",
-    );
+  const handleGoogle = async () => {
+    clearError();
+
+    const { error } = await signInWithGoogle();
+
+    if (error) {
+      Alert.alert(
+        "Google",
+        error.message || "No se pudo iniciar sesión con Google",
+      );
+    }
   };
 
   return (
@@ -221,47 +228,36 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    shadowColor: "#000",
-    shadowOffset: {
-      width: 0,
-      height: 5,
-    },
-    shadowOpacity: 0.35,
-    shadowRadius: 5,
-    elevation: 6,
+    gap: 10,
   },
   googleLogo: {
-    width: 26,
-    height: 26,
-    marginRight: 15,
+    width: 24,
+    height: 24,
   },
   textoGoogle: {
-    fontFamily: "CashMarket",
-    textAlign: "center",
-    color: "black",
-    fontSize: 20,
+    color: "#111827",
+    fontSize: 16,
+    fontWeight: "600",
   },
   separador: {
     flexDirection: "row",
     alignItems: "center",
-    marginVertical: 10,
+    marginVertical: 20,
   },
   linea: {
     flex: 1,
     height: 1,
-    backgroundColor: "#4F4F55",
+    backgroundColor: "#2D3748",
   },
   textoSeparador: {
-    color: "#A0A0A0",
-    marginHorizontal: 15,
-    fontFamily: "Utendo",
-    fontSize: 16,
+    marginHorizontal: 10,
+    color: "#9CA3AF",
+    fontSize: 14,
   },
   olvido: {
-    alignItems: "flex-end",
-    color: "#A846E9",
-    textDecorationLine: "underline",
+    color: "#FFFFFF",
     textAlign: "right",
-    marginBottom: 20,
+    marginBottom: 10,
+    marginTop: -5,
   },
 });
