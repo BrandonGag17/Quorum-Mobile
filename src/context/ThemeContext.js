@@ -19,7 +19,7 @@ export function ThemeProvider({ children }) {
   // children son los componentes que envolvamos con este proveedor.
   return (
     <ThemeContext.Provider value={{ isDarkMode, setIsDarkMode, colors, texto }}>
-      {children}
+      {children} 
     </ThemeContext.Provider>
   )
 }
