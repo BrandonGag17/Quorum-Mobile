@@ -154,14 +154,38 @@ export async function finalizeJuntadaSurvey({ eventId, survey }) {
     }
   }
 
-  const opciones = survey.opcion_encuesta ?? []
+  const { data: eventoBase, error: eventoBaseError } = await supabase
+    .from('evento')
+    .select('id, id_grupo, estado')
+    .eq('id', eventId)
+    .single()
 
-  if (opciones.length === 0) {
-    return {
-      data: null,
-      error: null
-    }
+  if (eventoBaseError) return { data: null, error: eventoBaseError }
+
+  const [{ count: memberCount, error: memberError }, { data: attendance, error: attendanceError }] = await Promise.all([
+    supabase.from('usuario_grupo').select('id_usuario', { count: 'exact', head: true }).eq('id_grupo', eventoBase.id_grupo),
+    supabase.from('usuario_evento').select('id_usuario').eq('id_evento', eventId).eq('asistencia', 'voy')
+  ])
+
+  if (memberError) return { data: null, error: memberError }
+  if (attendanceError) return { data: null, error: attendanceError }
+
+  const goingUserIds = [...new Set((attendance ?? []).map(row => row.id_usuario).filter(Boolean))]
+  const quorumRequired = Math.ceil((memberCount ?? 0) / 2)
+  const quorumReached = quorumRequired > 0 && goingUserIds.length >= quorumRequired
+
+  if (!quorumReached) {
+    const { data: encuestaCerrada, error: closeError } = await supabase
+      .from('encuesta')
+      .update({ activa: false })
+      .eq('id', survey.id)
+      .select('id, id_evento, pregunta, activa, cierre_en')
+      .single()
+    if (closeError) return { data: null, error: closeError }
+    return { data: { event: null, survey: encuestaCerrada, quorumReached: false, goingCount: goingUserIds.length, quorumRequired, winners: null }, error: null }
   }
+
+  const opciones = survey.opcion_encuesta ?? []
 
   const idsOpciones = opciones.map(opcion => opcion.id)
 
@@ -187,10 +211,12 @@ export async function finalizeJuntadaSurvey({ eventId, survey }) {
   })
 
   const elegirGanador = (tipo) => {
-    const opcionesDelTipo = opciones.filter(opcion => opcion.tipo === tipo)
+    const opcionesDelTipo = opciones
+      .filter(opcion => opcion.tipo === tipo)
+      .sort((a, b) => String(a.id).localeCompare(String(b.id), undefined, { numeric: true }))
 
     let ganador = null
-    let maxVotos = -1
+    let maxVotos = 0
 
     opcionesDelTipo.forEach(opcion => {
       const votosOpcion = conteo[opcion.id] ?? 0
@@ -207,6 +233,18 @@ export async function finalizeJuntadaSurvey({ eventId, survey }) {
   const fechaGanadora = elegirGanador('fecha')
   const lugarGanador = elegirGanador('lugar')
 
+  if (!fechaGanadora || !parseFechaTextoPropuesta(fechaGanadora.descripcion) || !lugarGanador) {
+    const { data: encuestaCerrada, error: closeError } = await supabase
+      .from('encuesta')
+      .update({ activa: false })
+      .eq('id', survey.id)
+      .eq('activa', true)
+      .select('id, id_evento, pregunta, activa, cierre_en')
+      .single()
+    if (closeError) return { data: null, error: closeError }
+    return { data: { event: null, survey: encuestaCerrada, quorumReached: true, optionsComplete: false, goingCount: goingUserIds.length, quorumRequired, winners: null }, error: null }
+  }
+
   const { data: eventoActualizado, error: errorEvento } = await supabase
     .from('evento')
     .update({
@@ -217,6 +255,7 @@ export async function finalizeJuntadaSurvey({ eventId, survey }) {
       lugar: lugarGanador?.descripcion || null
     })
     .eq('id', eventId)
+    .eq('estado', 'planificacion')
     .select(`
       id,
       nombre,
@@ -236,10 +275,15 @@ export async function finalizeJuntadaSurvey({ eventId, survey }) {
     }
   }
 
+  if (!eventoActualizado) {
+    return { data: null, error: { message: 'La propuesta ya fue cerrada o el evento ya no está en planificación.' } }
+  }
+
   const { data: encuestaActualizada, error: errorEncuesta } = await supabase
     .from('encuesta')
     .update({ activa: false })
     .eq('id', survey.id)
+    .eq('activa', true)
     .select(`
       id,
       id_evento,
@@ -270,7 +314,10 @@ export async function finalizeJuntadaSurvey({ eventId, survey }) {
       winners: {
         fecha: fechaGanadora?.descripcion ?? null,
         lugar: lugarGanador?.descripcion ?? null
-      }
+      },
+      quorumReached: true,
+      goingCount: goingUserIds.length,
+      quorumRequired
     },
     error: null
   }

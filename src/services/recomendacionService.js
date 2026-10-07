@@ -409,33 +409,129 @@ function filtrarLugares(lugares, busqueda) {
   })
 }
 
+/**
+ * Obtiene el perfil (gustos con peso) del usuario desde usuario_gusto
+ */
+async function obtenerPerfilRecomendacionUsuario(userId) {
+  if (!userId) {
+    return {
+      gustosConPeso: [],
+      categoriasConPeso: [],
+    }
+  }
+
+  const { data: gustos, error } = await supabase
+    .from('usuario_gusto')
+    .select(`
+      id_usuario,
+      gusto (
+        nombre
+      )
+    `)
+    .eq('id_usuario', userId)
+
+  if (error) {
+    return {
+      gustosConPeso: [],
+      categoriasConPeso: [],
+    }
+  }
+
+  const gustosMap = new Map()
+  const categoriasMap = new Map()
+
+  for (const fila of gustos || []) {
+    const nombreGusto = fila?.gusto?.nombre
+
+    if (nombreGusto) {
+      // Cada gusto cuenta como 1 voto
+      gustosMap.set(nombreGusto, (gustosMap.get(nombreGusto) || 0) + 1)
+
+      // Obtener las categorías asociadas a este gusto
+      const categorias = obtenerTiposParaGusto(nombreGusto)
+      for (const categoria of categorias) {
+        // Cada categoría hereda el peso del gusto
+        categoriasMap.set(
+          categoria,
+          (categoriasMap.get(categoria) || 0) + 1
+        )
+      }
+    }
+  }
+
+  const gustosConPeso = [...gustosMap.entries()]
+    .map(([gusto, votos]) => ({ gusto, votos }))
+    .sort((a, b) => b.votos - a.votos)
+
+  const categoriasConPeso = [...categoriasMap.entries()]
+    .map(([categoria, votos]) => ({ categoria, votos }))
+    .sort((a, b) => b.votos - a.votos)
+
+  return {
+    gustosConPeso,
+    categoriasConPeso,
+  }
+}
+
 export async function obtenerRecomendacionesUsuario({
   userId,
   busqueda = '',
   limit = 20,
   radio = 3000,
 }) {
-  const [tipos, coordenadas] = await Promise.all([
-    obtenerTiposUsuario(userId),
+  const [perfilUsuario, coordenadas] = await Promise.all([
+    obtenerPerfilRecomendacionUsuario(userId),
     obtenerCoordenadasUsuario(userId),
   ])
 
-  const categorias = (tipos.length ? tipos : DEFAULT_CATEGORIES)
-    .slice(0, Math.max(limit, 1))
+  const { categoriasConPeso } = perfilUsuario
+
+  // Si el usuario tiene gustos guardados, priorizar esas categorías
+  // Si no, usar las categorías por defecto
+  const categoriasBusqueda = (
+    categoriasConPeso.length
+      ? categoriasConPeso.map((item) => item.categoria)
+      : DEFAULT_CATEGORIES
+  )
+    .slice(0, 12)
     .join(',')
 
   const lugares = await obtenerLugares(
-    categorias,
+    categoriasBusqueda,
     coordenadas.lat,
     coordenadas.lon,
     radio
   )
 
-  const basicos = (lugares || [])
-    .slice(0, limit)
-    .map(normalizarLugarBasico)
+  // Calcular puntaje de relevancia para cada lugar según los gustos del usuario
+  const lugaresConPuntaje = (lugares || []).map((lugar, indice) => {
+    const categoriasLugar = Array.isArray(lugar.categoria)
+      ? lugar.categoria
+      : []
 
-  return filtrarLugares(basicos, busqueda)
+    // Calcular puntaje basado en coincidencia con categorías preferidas
+    const puntaje = categoriasConPeso.reduce(
+      (puntuacion, preferencia) => {
+        const coincide = categoriasLugar.some((categoriaLugar) =>
+          categoriasCoinciden(categoriaLugar, preferencia.categoria)
+        )
+
+        // El puntaje por coincidencia es el peso de la categoría
+        return puntuacion + (coincide ? preferencia.votos * 10 : 0)
+      },
+      0
+    )
+
+    return { lugar, indice, puntaje }
+  })
+
+  // Ordenar por puntaje (descendente) y luego por índice original
+  const lugaresOrdenados = lugaresConPuntaje
+    .sort((a, b) => b.puntaje - a.puntaje || a.indice - b.indice)
+    .slice(0, limit)
+    .map(({ lugar }) => normalizarLugarBasico(lugar))
+
+  return filtrarLugares(lugaresOrdenados, busqueda)
 }
 
 function normalizarDetalle(baseLugar, detalleLugar) {

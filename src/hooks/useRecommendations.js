@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useFocusEffect } from '@react-navigation/native'
 import { getSession } from '../services/authService'
 import {
   obtenerRecomendacionesUsuario,
@@ -10,6 +11,7 @@ export default function useRecommendations() {
   const [busqueda, setBusqueda] = useState('')
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
+  const [userId, setUserId] = useState(null)
 
   const refresh = useCallback(async () => {
     setLoading(true)
@@ -28,22 +30,36 @@ export default function useRecommendations() {
         return
       }
 
+      if (!session?.user?.id) {
+        setLugares([])
+        setError('No hay sesión activa')
+        setLoading(false)
+        return
+      }
+
+      setUserId(session.user.id)
+
       const data = await obtenerRecomendacionesUsuario({
-        userId: session?.user?.id,
+        userId: session.user.id,
       })
 
-      setLugares(data)
+      setLugares(data || [])
+      setError('')
     } catch (err) {
       setLugares([])
       setError(err?.message || 'No se pudieron cargar recomendaciones')
+      console.error('[useRecommendations] Error:', err)
     } finally {
       setLoading(false)
     }
   }, [])
 
-  useEffect(() => {
-    refresh()
-  }, [refresh])
+  // Cargar recomendaciones cuando se enfoca la pantalla
+  useFocusEffect(
+    useCallback(() => {
+      refresh()
+    }, [refresh])
+  )
 
   const lugaresFiltrados = useMemo(() => {
     const query = busqueda.trim().toLowerCase()
@@ -72,5 +88,6 @@ export default function useRecommendations() {
     error,
     refresh,
     getGoogleMapsUrl,
+    userId,
   }
 }

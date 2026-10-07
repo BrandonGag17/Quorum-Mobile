@@ -60,11 +60,14 @@ export default function VotacionJuntada({ route, navigation }) {
     groupMemberCount,
     voteCounts,
     myVotes,
+    myAttendance,
+    attendanceLoading,
     loading,
     actionLoading,
     error,
     categories,
     voteOption,
+    changeAttendance,
     suggestOption,
     suggestionLoading,
     isCreator,
@@ -246,6 +249,21 @@ export default function VotacionJuntada({ route, navigation }) {
           </View>
         </View>
 
+        {survey.activa ? (
+          <View style={styles.attendanceCard}>
+            <Text style={styles.sectionTitle}>¿Te sumás a la juntada?</Text>
+            <Text style={styles.attendanceHelp}>Tu respuesta cuenta para alcanzar el quorum del grupo.</Text>
+            <View style={styles.attendanceButtons}>
+              <TouchableOpacity disabled={attendanceLoading} onPress={() => changeAttendance('voy')} style={[styles.attendanceButton, myAttendance === 'voy' && styles.attendanceYesSelected]}>
+                <Text style={styles.attendanceButtonText}>Voy</Text>
+              </TouchableOpacity>
+              <TouchableOpacity disabled={attendanceLoading} onPress={() => changeAttendance('no_voy')} style={[styles.attendanceButton, myAttendance === 'no_voy' && styles.attendanceNoSelected]}>
+                <Text style={styles.attendanceButtonText}>No voy</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        ) : null}
+
         <View style={styles.card}>
           <View style={styles.sectionHeader}>
             <View style={styles.sectionTitleGroup}>
@@ -258,7 +276,7 @@ export default function VotacionJuntada({ route, navigation }) {
                 event.stopPropagation();
                 openSuggestion("fecha");
               }}
-              disabled={suggestionLoading}
+              disabled={suggestionLoading || !survey.activa}
             >
               <Text style={styles.suggestButtonText}>Sugerir</Text>
             </TouchableOpacity>
@@ -272,7 +290,7 @@ export default function VotacionJuntada({ route, navigation }) {
                 votes={voteCounts[option.id]}
                 selected={myVotes.includes(option.id)}
                 onPress={() => voteOption(option.id)}
-                disabled={actionLoading}
+                disabled={actionLoading || !survey.activa}
               />
             ))
           ) : (
@@ -294,7 +312,7 @@ export default function VotacionJuntada({ route, navigation }) {
                 event.stopPropagation();
                 openSuggestion("lugar");
               }}
-              disabled={suggestionLoading}
+              disabled={suggestionLoading || !survey.activa}
             >
               <Text style={styles.suggestButtonText}>Sugerir</Text>
             </TouchableOpacity>
@@ -308,7 +326,7 @@ export default function VotacionJuntada({ route, navigation }) {
                 votes={voteCounts[option.id]}
                 selected={myVotes.includes(option.id)}
                 onPress={() => voteOption(option.id)}
-                disabled={actionLoading}
+                disabled={actionLoading || !survey.activa}
               />
             ))
           ) : (
@@ -457,6 +475,13 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: "#5E2D82",
   },
+  attendanceCard: { backgroundColor: '#22222D', borderRadius: 18, padding: 16, marginBottom: 14 },
+  attendanceHelp: { color: '#B8B8C5', fontFamily: 'Utendo', fontSize: 12, marginTop: 5 },
+  attendanceButtons: { flexDirection: 'row', gap: 10, marginTop: 12 },
+  attendanceButton: { flex: 1, borderWidth: 1, borderColor: '#57C7A3', borderRadius: 10, padding: 11, alignItems: 'center' },
+  attendanceYesSelected: { backgroundColor: '#316D61' },
+  attendanceNoSelected: { borderColor: '#7225A4', backgroundColor: '#571674' },
+  attendanceButtonText: { color: '#FFFFFF', fontFamily: 'CashMarket' },
   heroTopRow: {
     flexDirection: "row",
     alignItems: "center",

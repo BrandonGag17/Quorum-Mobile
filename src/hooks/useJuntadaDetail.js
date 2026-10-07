@@ -60,6 +60,7 @@ export function useJuntadaDetail(eventId) {
   const [nowTick, setNowTick] = useState(Date.now())
 
   const autoFinalizedRef = useRef(false)
+  const expirationRefreshRef = useRef(false)
 
   const refreshAttendanceSummary = useCallback(async (idEvento) => {
     if (!idEvento) {
@@ -199,6 +200,7 @@ export function useJuntadaDetail(eventId) {
 
   useEffect(() => {
     autoFinalizedRef.current = false
+    expirationRefreshRef.current = false
     refresh()
   }, [refresh])
 
@@ -215,6 +217,12 @@ export function useJuntadaDetail(eventId) {
 
     return () => clearInterval(interval)
   }, [survey?.activa, survey?.cierre_en])
+
+  useEffect(() => {
+    if (!survey?.activa || !isSurveyExpired(survey.cierre_en) || expirationRefreshRef.current) return
+    expirationRefreshRef.current = true
+    refresh()
+  }, [nowTick, survey, refresh])
 
   const timeRemaining = useMemo(() => {
     if (!survey?.activa || !survey?.cierre_en) {

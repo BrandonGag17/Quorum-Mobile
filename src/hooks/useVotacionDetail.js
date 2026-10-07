@@ -7,6 +7,7 @@ import {
   toggleVote,
   addSurveySuggestion
 } from '../services/votacionService'
+import { getJuntadaUserAttendance, upsertJuntadaAttendance } from '../services/juntadaService'
 
 function buildCounts(options, votes) {
   const counts = {}
@@ -28,6 +29,8 @@ export function useVotacionDetail(eventId) {
   const [groupMemberCount, setGroupMemberCount] = useState(0)
   const [voteCounts, setVoteCounts] = useState({})
   const [myVotes, setMyVotes] = useState([])
+  const [myAttendance, setMyAttendance] = useState(null)
+  const [attendanceLoading, setAttendanceLoading] = useState(false)
   const [currentUserId, setCurrentUserId] = useState(null)
   const [loading, setLoading] = useState(true)
   const [actionLoading, setActionLoading] = useState(false)
@@ -39,6 +42,7 @@ export function useVotacionDetail(eventId) {
     if (!nextSurvey?.id) {
       setVoteCounts({})
       setMyVotes([])
+      setMyAttendance(null)
       return
     }
 
@@ -71,6 +75,7 @@ export function useVotacionDetail(eventId) {
       setGroupMemberCount(0)
       setVoteCounts({})
       setMyVotes([])
+      setMyAttendance(null)
       setLoading(false)
       return
     }
@@ -121,6 +126,11 @@ export function useVotacionDetail(eventId) {
       }
 
       await refreshVotes(data, userId)
+      if (userId) {
+        const { data: attendance, error: attendanceError } = await getJuntadaUserAttendance(eventId, userId)
+        if (attendanceError) throw attendanceError
+        setMyAttendance(attendance?.asistencia ?? null)
+      }
       if (requestId !== requestRef.current) return
     } catch (err) {
       if (requestId === requestRef.current) {
@@ -246,12 +256,28 @@ export function useVotacionDetail(eventId) {
     }
   }, [refresh, survey])
 
+  const changeAttendance = useCallback(async (asistencia) => {
+    if (!survey?.activa || !['voy', 'no_voy'].includes(asistencia)) return { data: null, error: { message: 'La propuesta ya no está activa' } }
+    if (!eventId || !currentUserId) return { data: null, error: { message: 'No se pudo obtener el usuario actual' } }
+    setAttendanceLoading(true)
+    try {
+      const result = await upsertJuntadaAttendance({ eventId, userId: currentUserId, asistencia })
+      if (!result.error) setMyAttendance(asistencia)
+      else setError(result.error.message || 'No se pudo guardar la respuesta')
+      return result
+    } finally {
+      setAttendanceLoading(false)
+    }
+  }, [eventId, currentUserId, survey?.activa])
+
   return {
     survey,
     event,
     groupMemberCount,
     voteCounts,
     myVotes,
+    myAttendance,
+    attendanceLoading,
     loading,
     actionLoading,
     suggestionLoading,
@@ -259,6 +285,7 @@ export function useVotacionDetail(eventId) {
     categories,
     refresh,
     voteOption,
+    changeAttendance,
     suggestOption,
     isCreator: !!(currentUserId && event?.id_creador && currentUserId === event.id_creador)
   }

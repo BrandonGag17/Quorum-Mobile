@@ -27,6 +27,7 @@ export async function getProposalsByGroupId(groupId) {
             )
         `)
     .eq('evento.id_grupo', groupId)
+    .eq('activa', true)
     .order('id', { ascending: true })
     .limit(PROPOSAL_LIST_LIMIT)
 

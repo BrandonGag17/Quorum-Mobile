@@ -159,7 +159,7 @@ export default function Grupo({ navigation }) {
         activeOpacity={0.85}
         style={styles.proposalCard}
         onPress={() =>
-          navigation.navigate("VotacionJuntada", {
+          navigation.navigate("Juntada", {
             idEvento: evento?.id,
           })
         }

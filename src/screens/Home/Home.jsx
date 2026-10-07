@@ -21,13 +21,28 @@ import {
 } from "@react-navigation/native";
 
 import { useHomeSummary } from "../../hooks/useHome";
+import { useReviewPopup } from "../../hooks/useReviewPopup";
 import CrearGrupo from "./CrearGrupo";
 import ErrorMessage from "../../components/MensajeError";
 import Loading from "../../components/Loading";
 import CardJuntadas from "../../components/CardJuntadas";
+import PopUpResena from "../../components/PopUpResena";
 
 export default function Home() {
   const { groups, events, loading, error, refresh } = useHomeSummary();
+  const {
+    proximaJuntada,
+    mostrarPopup,
+    loading: loadingResena,
+    error: errorResena,
+    calificacionActual,
+    setCalificacionActual,
+    comentarioActual,
+    setComentarioActual,
+    enviarResena,
+    cerrarPopup,
+  } = useReviewPopup();
+  
   const [busqueda, setBusqueda] = React.useState("");
   const [mostrarModal, setMostrarModal] = React.useState(false);
 
@@ -181,6 +196,20 @@ export default function Home() {
             </View>
           </Modal>
         )}
+
+        {/* PopUp de reseña de juntada */}
+        <PopUpResena
+          visible={mostrarPopup}
+          onClose={cerrarPopup}
+          juntada={proximaJuntada}
+          calificacion={calificacionActual}
+          setCalificacion={setCalificacionActual}
+          comentario={comentarioActual}
+          setComentario={setComentarioActual}
+          onEnviar={enviarResena}
+          loading={loadingResena}
+          error={errorResena}
+        />
       </ScrollView>
     </SafeAreaView>
   );

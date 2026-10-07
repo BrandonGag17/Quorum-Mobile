@@ -199,6 +199,15 @@ export default function Juntada({ route, navigation }) {
           <Text style={styles.daysText}>{timeRemaining || "En 12 Días"}</Text>
         </View>
 
+        {event.estado === "planificacion" && survey && !survey.activa ? (
+          <View style={styles.proposalClosedNotice}>
+            <Text style={styles.proposalClosedTitle}>La propuesta se cerró</Text>
+            <Text style={styles.proposalClosedText}>
+              No se concretó: faltó quorum o alguna categoría quedó sin una opción válida.
+            </Text>
+          </View>
+        ) : null}
+
         <View style={styles.eventCard}>
           <View style={styles.eventMain}>
             <View style={styles.dateBox}>
@@ -279,17 +288,19 @@ export default function Juntada({ route, navigation }) {
           <Text style={styles.organizeSmall}>Todo en un solo lugar</Text>
         </View>
 
-        <ActionCard
-          backgroundColor="#316D61"
-          icon="calendar-outline"
-          title="Fecha y hora"
-          subtitle="Si te arrepentís de tu voto podes volver a votar"
-          onPress={() => {
-            navigation.push("VotacionJuntada", {
-              idEvento: event.id,
-            });
-          }}
-        />
+        {survey?.activa ? (
+          <ActionCard
+            backgroundColor="#316D61"
+            icon="calendar-outline"
+            title="Fecha y hora"
+            subtitle="Votá tus preferencias y respondé si vas a participar"
+            onPress={() => {
+              navigation.push("VotacionJuntada", {
+                idEvento: event.id,
+              });
+            }}
+          />
+        ) : null}
 
         <ActionCard
           backgroundColor="#571674"
@@ -344,6 +355,9 @@ const styles = StyleSheet.create({
     fontSize: 11,
     fontFamily: "CashMarket",
   },
+  proposalClosedNotice: { marginHorizontal: 27, marginBottom: 12, padding: 13, borderRadius: 12, backgroundColor: '#34243B' },
+  proposalClosedTitle: { color: '#FFFFFF', fontFamily: 'CashMarket', fontSize: 14 },
+  proposalClosedText: { color: '#C8B9CF', fontFamily: 'Utendo', fontSize: 12, marginTop: 3 },
 
   eventCard: {
     backgroundColor: "#22222D",
