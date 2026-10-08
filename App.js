@@ -53,7 +53,6 @@ export default function App() {
   }
 
   return (
-    // El proveedor permite que las pantallas dentro de la navegacion lean el tema.
     <ThemeProvider>
       <NavigationContainer>
         {isLoggedIn ? <AppTabs /> : <AuthStack />}

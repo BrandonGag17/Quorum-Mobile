@@ -37,6 +37,7 @@
         }
       ],
       "@react-native-community/datetimepicker",
+      "expo-notifications",
       "expo-status-bar"
     ]
   }

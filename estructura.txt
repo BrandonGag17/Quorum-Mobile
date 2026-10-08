@@ -1,91 +1,233 @@
-Quorum-Mobile/
-├─ App.js
-├─ index.js
-├─ src/
-│  ├─ screens/
-│  │  ├─ auth/
-│  │  │  ├─ Introduccion.jsx
-│  │  │  ├─ IniciarSesion.jsx
-│  │  │  ├─ Registrarse.jsx
-│  │  │  ├─ Registrarse2.jsx
-│  │  │  ├─ Registrarse3.jsx
-│  │  │  └─ Exito.jsx
-│  │  │
-│  │  ├─ home/
-│  │  │  ├─ Inicio.jsx
-│  │  │  ├─ Grupo.jsx
-│  │  │  ├─ Juntada.jsx
-│  │  │  ├─ ProponerJuntada.jsx
-│  │  │  ├─ CrearEvento.jsx
-│  │  │  ├─ VotacionJuntada.jsx
-│  │  │  └─ CrearGrupo.jsx
-│  │  │
-│  │  ├─ recommendations/
-│  │  │  ├─ Recomendaciones.jsx
-│  │  │  └─ InfoRecomendacion.jsx
-│  │  │
-│  │  ├─ notifications/
-│  │  │  └─ Notificaciones.jsx
-│  │  │
-│  │  └─ settings/
-│  │     └─ Configuracion.jsx
-│  │
-│  ├─ data/
-│  │  ├─ services/
-│  │  │  ├─ supabaseClient.js
-│  │  │  ├─ authService.js
-│  │  │  ├─ groupService.js
-│  │  │  ├─ eventService.js
-│  │  │  └─ placesService.js
-│  │  │
-│  │  ├─ hooks/
-│  │  │  ├─ useSession.js
-│  │  │  ├─ useGroups.js
-│  │  │  ├─ useGroupDetail.js
-│  │  │  ├─ useEvents.js
-│  │  │  └─ useRecommendations.js
+GUIA DE ESTRUCTURA Y FLUJO DE QUORUM
+===================================
 
-│  │
-│  ├─ components/
-│  │  ├─ common/
-│  │  │  ├─ Navbar.jsx
-│  │  │  ├─ Button.jsx
-│  │  │  └─ EmptyState.jsx
-│  │  │
-│  │  ├─ home/
-│  │  │  ├─ GroupListItem.jsx
-│  │  │  ├─ EventCard.jsx
-│  │  │  └─ SearchBar.jsx
-│  │  │
-│  │  ├─ groups/
-│  │  │  ├─ GroupHeader.jsx
-│  │  │  └─ GroupMembersList.jsx
-│  │  │
-│  │  └─ recommendations/
-│  │     ├─ PlaceCard.jsx
-│  │     └─ PlaceDetailCard.jsx
-│  │
-│  ├─ navigation/
-│  │  ├─ AuthStack.js
-│  │  ├─ AppTabs.js
-│  │  ├─ HomeStack.js
-│  │  └─ routes.js
-│  │
-│  ├─ utils/
-│  │  ├─ dateHelpers.js
-│  │  ├─ formatters.js
-│  │  └─ normalize.js
-│  │
-│  └─ store/
-│     ├─ authSlice.js
-│     ├─ groupsSlice.js
-│     ├─ eventsSlice.js
-│     └─ recommendationsSlice.js
-│
-└─ assets/
+Proposito
+---------
+Este archivo sirve como contexto para entender y modificar Quorum-Mobile.
+Describe la estructura actual del codigo fuente y el recorrido habitual de
+los datos. El codigo es la fuente de verdad: si este documento y el codigo
+no coinciden, prioriza el codigo y actualiza esta guia.
 
-Cada pantalla carga solo lo que necesita.
-No cargas todo "por si acaso".
-No repites datos en varios estados.
-No hicies fetchs dentro del render.
-No mezclas data + UI + navegación en una sola vista.
+VISION GENERAL
+-------------
+Quorum es una aplicacion movil construida con Expo, React Native y JavaScript.
+Usa React Navigation para navegar y Supabase para autenticacion, base de datos
+y funciones de servidor. La interfaz se organiza principalmente en pantallas,
+componentes reutilizables, hooks de logica y servicios de acceso a datos.
+
+ARBOL ACTUAL DE src
+-------------------
+src/
+|-- components/
+|   |-- Botones.jsx
+|   |-- BotonesIntro.jsx
+|   |-- BuscadorFechas.jsx
+|   |-- CardJuntadas.jsx
+|   |-- CardJuntadasPasadas.jsx
+|   |-- GroupHeader.jsx
+|   |-- GroupNavigationHeader.jsx
+|   |-- Iconos.jsx
+|   |-- IndicadorPasos.jsx
+|   |-- Input.jsx
+|   |-- Loading.jsx
+|   |-- MensajeError.jsx
+|   |-- PopUp.jsx
+|   |-- PopUpResena.jsx
+|   |-- SeccionesRecomendaciones.jsx
+|   `-- UserSearch.jsx
+|-- context/
+|   `-- ThemeContext.js
+|-- hooks/
+|   |-- useCreateEvent.js
+|   |-- useCreateGroup.js
+|   |-- useCreateProposal.js
+|   |-- useGastos.js
+|   |-- useGroupDetail.js
+|   |-- useGroupRecommendations.js
+|   |-- useHome.js
+|   |-- useHorarios.js
+|   |-- useJuntadaDetail.js
+|   |-- useQBot.js
+|   |-- useRecommendationDetail.js
+|   |-- useRecommendations.js
+|   |-- useRegistration.js
+|   |-- useReviewPopup.js
+|   |-- useSession.js
+|   |-- useUserProfile.js
+|   |-- useVotacionDetail.js
+|   `-- userGroupInfo.js
+|-- navigation/
+|   |-- AppTabs.js
+|   |-- AuthStack.js
+|   `-- HomeStack.js
+|-- screens/
+|   |-- Autenticacion/
+|   |   |-- Exito.jsx
+|   |   |-- IniciarSesion.jsx
+|   |   |-- Introduccion.jsx
+|   |   |-- Registrarse1.jsx
+|   |   |-- Registrarse2.jsx
+|   |   |-- Registrarse3.jsx
+|   |   `-- Registrarse4.jsx
+|   |-- Configuracion/
+|   |   `-- Configuracion.jsx
+|   |-- Home/
+|   |   |-- CrearEvento.jsx
+|   |   |-- CrearGrupo.jsx
+|   |   |-- DivisionGastos.jsx
+|   |   |-- Grupo.jsx
+|   |   |-- Home.jsx
+|   |   |-- InfoGrupo.jsx
+|   |   |-- Juntada.jsx
+|   |   |-- OrganizadorHorarios.jsx
+|   |   |-- ProponerJuntada.jsx
+|   |   `-- VotacionJuntada.jsx
+|   |-- Notificaciones/
+|   |   `-- Notificaciones.jsx
+|   `-- Recomendaciones/
+|       |-- InfoRecomendaciones.jsx
+|       |-- PresentacionQBot.jsx
+|       |-- Recomendaciones.jsx
+|       `-- RecomendacionesGrupo.jsx
+|-- services/
+|   |-- authService.js
+|   |-- eventoService.js
+|   |-- gastoService.js
+|   |-- geoapifyClient.js
+|   |-- googleCalendarService.js
+|   |-- groupService.js
+|   |-- horariosService.js
+|   |-- juntadaService.js
+|   |-- localidadService.js
+|   |-- propuestaService.js
+|   |-- qbotService.js
+|   |-- recomendacionService.js
+|   |-- resenaService.js
+|   |-- supabaseClient.js
+|   |-- tiposPorGusto.js
+|   |-- userService.js
+|   `-- votacionService.js
+`-- utils/
+    `-- googleSignIn.js
+
+ARCHIVOS DE ARRANQUE Y CONFIGURACION
+------------------------------------
+- index.js registra el componente principal de Expo (App).
+- App.js carga fuentes, recupera la sesion de Supabase, escucha cambios de
+  autenticacion y muestra el flujo autenticado o el flujo de acceso.
+- app.json y package.json configuran Expo y las dependencias/scripts.
+- supabase/functions/ contiene funciones que corren del lado del servidor;
+  por ejemplo, la funcion qbot. No forma parte de src, pero la app la invoca.
+
+QUE HACE CADA CAPA
+------------------
+
+screens/
+  Son pantallas completas y conectan la interfaz con la navegacion y los hooks.
+  Se agrupan por area funcional: autenticacion, inicio/grupos/juntadas,
+  recomendaciones, notificaciones y configuracion.
+
+components/
+  Son piezas de interfaz reutilizables, por ejemplo botones, campos de entrada,
+  tarjetas, encabezados, indicadores, mensajes y ventanas emergentes. Una
+  pantalla puede componer varios componentes.
+
+hooks/
+  Agrupan estado y comportamiento reutilizable de una funcionalidad. Por
+  ejemplo, useSession.js trabaja con el estado de sesion; useHome.js prepara
+  datos para Inicio; useQBot.js coordina la experiencia de Q-bot. Las pantallas
+  pueden consumir estos hooks para evitar concentrar toda la logica en el JSX.
+
+services/
+  Encapsulan operaciones de datos e integraciones externas. supabaseClient.js
+  crea el cliente de Supabase; authService.js expone operaciones de autenticacion;
+  los demas servicios separan operaciones de grupos, eventos/juntadas, gastos,
+  horarios, recomendaciones, resenas, votaciones, usuarios y servicios externos.
+  Una pantalla normalmente no deberia duplicar consultas a la base que ya
+  pertenecen a un servicio.
+
+navigation/
+  Define como se llega a cada pantalla:
+  - AuthStack.js contiene el flujo de bienvenida, inicio de sesion y registro.
+  - AppTabs.js define las secciones principales una vez iniciada la sesion:
+    Inicio, Recomendaciones, Notificaciones y Configuracion.
+  - HomeStack.js contiene el flujo apilado de Inicio, grupos, juntadas,
+    votaciones, gastos y organizacion de horarios.
+
+context/
+  Contiene estado compartido a nivel de arbol de componentes. ThemeContext.js
+  provee el tema a las pantallas y componentes.
+
+utils/
+  Contiene utilidades que no representan pantallas ni acceso principal a datos.
+  googleSignIn.js agrupa la integracion auxiliar de inicio de sesion con Google.
+
+FLUJO DE ARRANQUE Y AUTENTICACION
+--------------------------------
+1. Expo ejecuta index.js, que registra App.
+2. App.js espera la carga de fuentes y consulta la sesion con authService.js.
+3. Si hay sesion, se muestra AppTabs; si no, se muestra AuthStack.
+4. App.js tambien escucha cambios de autenticacion para cambiar de flujo cuando
+   el usuario inicia o cierra sesion.
+5. ThemeProvider envuelve la navegacion para que sus pantallas puedan leer el
+   tema compartido.
+
+EJEMPLO DE FLUJO DE DATOS: RESUMEN DE INICIO
+-------------------------------------------
+1. La pantalla Home.jsx presenta la interfaz de Inicio.
+2. Puede usar useHome.js para mantener estado de grupos, eventos, carga y error.
+3. El hook obtiene la sesion con authService.js y pide los grupos y eventos a
+   groupService.js y eventoService.js.
+4. Los servicios consultan Supabase usando el cliente compartido de
+   supabaseClient.js.
+5. El hook expone los datos y el estado a la pantalla; la pantalla muestra
+   tarjetas/componentes o estados de carga y error.
+
+La regla mental es:
+  pantalla -> hook de la funcionalidad -> service -> Supabase/servicio externo
+  respuesta -> hook/estado -> pantalla y componentes
+
+No todas las pantallas necesitan un hook dedicado. Antes de crear uno, revisa si
+ya existe un hook o servicio con esa responsabilidad.
+
+EJEMPLO DE FLUJO: Q-BOT
+-----------------------
+1. La experiencia de Q-bot vive en la seccion de Recomendaciones y usa
+   useQBot.js para coordinar la solicitud y el estado de la interfaz.
+2. qbotService.js invoca la Edge Function "qbot" de Supabase mediante
+   supabase.functions.invoke, enviando el pedido y los IDs que se deben excluir
+   para evitar repetir lugares en la pantalla actual.
+3. La funcion del servidor valida la sesion y obtiene localidad y gustos del
+   usuario. Luego interpreta el pedido y busca candidatos reales mediante
+   Groq y Geoapify.
+4. La funcion devuelve un mensaje y lugares recomendados. El servicio valida la
+   forma basica de la respuesta; si hay error o datos invalidos, lo comunica con
+   un error en vez de simular una respuesta exitosa.
+5. El hook actualiza el estado que consumen las pantallas/componentes de Q-bot.
+
+La implementacion del servidor esta en supabase/functions/qbot/. Para detalles
+de ese flujo, consultar supabase/functions/qbot/README_Qbot.md.
+
+PAUTAS PARA UNA IA QUE VAYA A MODIFICAR EL PROYECTO
+--------------------------------------------------
+- Antes de editar, ubica la pantalla, hook, servicio y navegacion relacionados.
+- Conserva la division existente: interfaz en screens/components, logica de
+  funcionalidad en hooks y acceso a datos/integraciones en services.
+- Reutiliza supabaseClient.js; no crees otro cliente de Supabase sin necesidad.
+- Si agregas una pantalla, conectala al stack o tab correspondiente y respeta
+  los nombres de ruta ya utilizados por navigation.navigate.
+- Mantene el manejo visible de loading y errores; no ocultes fallos ni devuelvas
+  datos inventados como si la operacion hubiera tenido exito.
+- No pongas claves, tokens ni credenciales en el codigo, en documentacion o en
+  respuestas. No leas ni publiques el contenido de archivos .env.
+- No asumas que una tabla/columna existe solo por el nombre de una pantalla:
+  verifica las consultas en services/ y el esquema/migraciones de Supabase.
+- Mantene cambios enfocados y coherentes con el estilo de los archivos vecinos.
+- La app utiliza JavaScript/JSX, Expo, React Native, React Navigation y
+  Supabase; no asumas Redux ni una carpeta data/store que no aparece en src.
+
+NOTA SOBRE ESTE ARBOL
+---------------------
+El arbol lista los archivos actuales dentro de src. Puede cambiar con el
+desarrollo. Genera el arbol nuevamente desde el proyecto antes de basarte en el
+como inventario definitivo.
