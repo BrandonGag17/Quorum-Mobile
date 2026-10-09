@@ -20,7 +20,7 @@ import {
     normalizarEventoGoogleAHorario,
 } from "../../services/googleCalendarService";
 import { getSession } from "../../services/authService";
-import { createHorario } from "../../services/horariosService";
+import { createHorario, getHorariosUsuario } from "../../services/horariosService";
 
 const MESES = [
     "Enero",
@@ -83,6 +83,8 @@ export default function OrganizadorHorarios() {
         horariosRecurrentes,
         cargarHorarios,
     } = useHorarios();
+
+    const googleCalendarImportado = horarios.some((horario) => horario.origen === "google");
 
     const obtenerDiasDelMes = () => {
         const primerDia = new Date(anioActual, mesActual, 1).getDay();
@@ -272,16 +274,28 @@ export default function OrganizadorHorarios() {
 
     const handleGoogleCalendar = async () => {
         try {
-            Alert.alert("Google Calendar", "Conectando con tu calendario de Google...");
-            
-            const { data: oauthData, error: oauthError } = await signInWithGoogle();
-
-            if (oauthError) {
-                Alert.alert("Google Calendar", oauthError.message || "No se pudo conectar con Google Calendar");
+            if (googleCalendarImportado) {
+                Alert.alert("Google Calendar", "Tu calendario de Google ya fue importado.");
                 return;
             }
 
-            const { data: sessionData, error: sessionError } = await getSession();
+            let { data: sessionData, error: sessionError } = await getSession();
+
+            if (!sessionError && !sessionData?.session?.provider_token) {
+                Alert.alert("Google Calendar", "Conectando con tu calendario de Google...");
+                const { data: oauthData, error: oauthError } = await signInWithGoogle({ calendar: true });
+
+                if (oauthError) {
+                    Alert.alert("Google Calendar", oauthError.message || "No se pudo conectar con Google Calendar");
+                    return;
+                }
+
+                if (oauthData?.redirecting) {
+                    return;
+                }
+
+                ({ data: sessionData, error: sessionError } = await getSession());
+            }
 
             if (sessionError) {
                 Alert.alert("Google Calendar", sessionError.message || "No se pudo obtener la sesión");
@@ -315,14 +329,30 @@ export default function OrganizadorHorarios() {
                 return;
             }
 
-            const eventosExistentes = [...(horarios || [])].map(h => `${h.fecha_hora_inicio}|${h.titulo}`);
+            // Consultamos nuevamente la base antes de insertar: las fechas de Postgres y
+            // Google pueden tener formatos distintos aunque representen el mismo instante.
+            const { data: horariosActuales, error: horariosError } = await getHorariosUsuario(userId);
+            if (horariosError) {
+                Alert.alert("Google Calendar", horariosError.message || "No se pudieron verificar los horarios existentes.");
+                return;
+            }
+
+            const claveHorario = (inicio, titulo) => {
+                const fecha = new Date(inicio);
+                const instante = Number.isFinite(fecha.getTime()) ? fecha.getTime() : inicio;
+                return `${instante}|${String(titulo || "").trim().toLocaleLowerCase()}`;
+            };
+
+            const eventosExistentes = new Set((horariosActuales || []).map((horario) =>
+                claveHorario(horario.fecha_hora_inicio, horario.titulo)
+            ));
             let importados = 0;
             let duplicados = 0;
 
             for (const evento of eventos) {
-                const clave = `${evento.fechaHoraInicio}|${evento.titulo}`;
+                const clave = claveHorario(evento.fechaHoraInicio, evento.titulo);
                 
-                if (eventosExistentes.includes(clave)) {
+                if (eventosExistentes.has(clave)) {
                     duplicados += 1;
                     continue;
                 }
@@ -337,7 +367,7 @@ export default function OrganizadorHorarios() {
 
                 if (!insertError) {
                     importados += 1;
-                    eventosExistentes.push(clave);
+                    eventosExistentes.add(clave);
                 }
             }
 
@@ -553,10 +583,13 @@ export default function OrganizadorHorarios() {
                     )}
                     <View style={styles.footerActions}>
                         <TouchableOpacity
-                            style={styles.googleButton}
+                            style={[styles.googleButton, googleCalendarImportado && styles.googleButtonDisabled]}
                             onPress={handleGoogleCalendar}
+                            disabled={googleCalendarImportado}
                         >
-                            <Text style={styles.googleButtonText}>Conectar con Google Calendar</Text>
+                            <Text style={styles.googleButtonText}>
+                                {googleCalendarImportado ? "Google Calendar conectado" : "Conectar con Google Calendar"}
+                            </Text>
                         </TouchableOpacity>
                     </View>
                 </View>
@@ -645,6 +678,10 @@ const styles = StyleSheet.create({
         borderRadius: 12,
         paddingVertical: 12,
         paddingHorizontal: 16,
+    },
+    googleButtonDisabled: {
+        backgroundColor: "#374151",
+        opacity: 0.65,
     },
     googleButtonText: {
         color: "#FFFFFF",

@@ -1,9 +1,10 @@
 import { NavigationContainer } from '@react-navigation/native'
 import { useFonts } from 'expo-font'
 import * as SplashScreen from 'expo-splash-screen'
+import * as Linking from 'expo-linking'
 import { useEffect, useState } from 'react'
 
-import { getSession, onAuthStateChange } from './src/services/authService'
+import { completeGoogleOAuth, getSession, onAuthStateChange } from './src/services/authService'
 import AuthStack from './src/navigation/AuthStack'
 import AppTabs from './src/navigation/AppTabs'
 import { ThemeProvider } from './src/context/ThemeContext'
@@ -46,6 +47,24 @@ export default function App() {
     return () => {
       authListener?.subscription?.unsubscribe()
     }
+  }, [])
+
+  useEffect(() => {
+    const completarCallbackDeGoogle = async (url) => {
+      if (!url?.includes('auth/callback')) return
+
+      const { error } = await completeGoogleOAuth(url)
+      if (error) {
+        console.warn('No se pudo completar el callback de Google:', error.message)
+      }
+    }
+
+    Linking.getInitialURL().then(completarCallbackDeGoogle)
+    const subscription = Linking.addEventListener('url', ({ url }) => {
+      completarCallbackDeGoogle(url)
+    })
+
+    return () => subscription.remove()
   }, [])
 
   if (!fontsLoaded || !sessionReady) {

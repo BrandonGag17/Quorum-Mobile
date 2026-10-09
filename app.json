@@ -2,6 +2,7 @@
   "expo": {
     "name": "Quórum",
     "slug": "Quórum",
+    "scheme": "quorum",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/img/Logos/IsotipoSinFondo.png",
@@ -38,7 +39,8 @@
       ],
       "@react-native-community/datetimepicker",
       "expo-notifications",
-      "expo-status-bar"
+      "expo-status-bar",
+      "expo-web-browser"
     ]
   }
 }
