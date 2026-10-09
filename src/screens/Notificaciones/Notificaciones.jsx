@@ -23,6 +23,7 @@ const ACTION_LABELS = {
   evento_creado: 'Ir al evento',
   sugerencia_fecha_hora: 'Ir a la propuesta',
   votacion_cerrada: 'Ver propuesta',
+  propuesta_sin_quorum: 'Ir al grupo',
   recordatorio_juntada: 'Ir a la juntada',
   juntada_cancelada: 'Ver juntada',
 }

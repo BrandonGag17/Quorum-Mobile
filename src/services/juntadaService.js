@@ -175,14 +175,31 @@ export async function finalizeJuntadaSurvey({ eventId, survey }) {
   const quorumReached = quorumRequired > 0 && goingUserIds.length >= quorumRequired
 
   if (!quorumReached) {
-    const { data: encuestaCerrada, error: closeError } = await supabase
-      .from('encuesta')
-      .update({ activa: false })
-      .eq('id', survey.id)
-      .select('id, id_evento, pregunta, activa, cierre_en')
-      .single()
-    if (closeError) return { data: null, error: closeError }
-    return { data: { event: null, survey: encuestaCerrada, quorumReached: false, goingCount: goingUserIds.length, quorumRequired, winners: null }, error: null }
+    const { data: deleted, error: deleteError } = await supabase.rpc(
+      'eliminar_propuesta_sin_quorum',
+      { p_evento_id: eventId, p_encuesta_id: survey.id }
+    )
+
+    if (deleteError) return { data: null, error: deleteError }
+    if (deleted) {
+      return {
+        data: {
+          event: null,
+          survey: null,
+          deleted: true,
+          quorumReached: false,
+          goingCount: goingUserIds.length,
+          quorumRequired,
+          winners: null,
+        },
+        error: null,
+      }
+    }
+
+    return {
+      data: null,
+      error: { message: 'La propuesta cambió mientras se cerraba. Actualizá la pantalla e intentá de nuevo.' },
+    }
   }
 
   const opciones = survey.opcion_encuesta ?? []

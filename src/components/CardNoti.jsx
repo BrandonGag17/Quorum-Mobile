@@ -38,6 +38,8 @@ function notificationCopy(notification, actorName) {
       return { before: `${name} añadió una sugerencia a `, emphasis: title, after: '.' }
     case 'votacion_cerrada':
       return { before: `${name} cerró la votación de `, emphasis: title, after: '.' }
+    case 'propuesta_sin_quorum':
+      return { before: notification?.descripcion || 'La propuesta finalizó sin alcanzar el quórum.', emphasis: '', after: '' }
     case 'recordatorio_juntada': {
       const days = notification?.recordatorio_dias_antes
       const lead = days === 0 ? 'Hoy tenés una juntada: ' : `En ${days} días tenés una juntada: `

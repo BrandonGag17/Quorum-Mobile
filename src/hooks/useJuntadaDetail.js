@@ -177,13 +177,18 @@ export function useJuntadaDetail(eventId) {
           setEvent(finalizado.event)
         }
 
+        if (finalizado?.deleted) {
+          setEvent(null)
+          setSurvey(null)
+        }
+
         if (finalizado?.survey) {
           setSurvey(finalizado.survey)
         } else {
           setSurvey(prev => prev ? { ...prev, activa: false } : prev)
         }
 
-        if (finalizado?.event || finalizado?.survey) {
+        if (finalizado?.event || finalizado?.survey || finalizado?.deleted) {
           autoFinalizedRef.current = true
         }
       }
@@ -291,6 +296,11 @@ export function useJuntadaDetail(eventId) {
 
       if (data?.event) {
         setEvent(data.event)
+      }
+
+      if (data?.deleted) {
+        setEvent(null)
+        setSurvey(null)
       }
 
       if (data?.survey) {
