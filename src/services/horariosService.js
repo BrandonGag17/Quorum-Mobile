@@ -237,7 +237,7 @@ export async function buscarSugerenciasFechasPorGrupo({
     })
 
     return {
-        data: sugerencias.slice(0, 15),
+        data: sugerencias.slice(0, 5),
         error: null,
     }
 }
