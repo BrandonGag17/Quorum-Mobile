@@ -281,12 +281,18 @@ function InfoGrupo() {
           />
 
           <View style={styles.popupMiembro}>
+            <TouchableOpacity
+              style={styles.popupCerrar}
+              onPress={() => setMostrarPopupMiembro(false)}
+              hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+            >
+              <Text style={styles.popupCerrarTexto}>✕</Text>
+            </TouchableOpacity>
+
             {miembroSeleccionado && (
               <>
                 <Image
-                  source={{
-                    uri: miembroSeleccionado.usuario?.foto_perfil,
-                  }}
+                  source={{ uri: miembroSeleccionado.usuario?.foto_perfil }}
                   style={styles.popupFotoPerfil}
                 />
 
@@ -539,6 +545,16 @@ const styles = StyleSheet.create({
     fontFamily: "CashMarket",
     fontSize: 16,
   },
+  popupCerrar: {
+  position: "absolute",
+  top: 22,
+  right: 24,
+  zIndex: 10,
+},
+popupCerrarTexto: {
+  color: "#FFFFFF",
+  fontSize: 22,
+},  
 });
 
 export default InfoGrupo;

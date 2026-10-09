@@ -162,7 +162,6 @@ const styles = StyleSheet.create({
         marginBottom: 24,
         flexGrow: 0,
     },
-    // No aparece en el Figma, por eso se oculta
     nombreJuntada: {
         fontFamily: 'CashMarket',
         color: '#fff',
@@ -196,7 +195,7 @@ const styles = StyleSheet.create({
         fontFamily: 'Utendo',
         fontSize: 11,
         textAlign: 'right',
-        marginTop: 10
+        marginTop: 10,
     },
     error: {
         color: '#FF6B6B',
@@ -205,12 +204,12 @@ const styles = StyleSheet.create({
         marginTop: 18,
         textAlign: 'center',
     },
-
     contenedorBotones: {
         alignItems: 'center',
         justifyContent: 'center',
     },
     envolturaBoton: {
-        width: 200
+        width: 200,
+        marginTop: -10
     },
 })

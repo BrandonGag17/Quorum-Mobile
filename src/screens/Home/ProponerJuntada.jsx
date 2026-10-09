@@ -226,15 +226,10 @@ export default function ProponerJuntada() {
 
     const { data, error: errorCreacion } = await crearPropuesta({
       idGrupo,
-
       nombre: nombreJuntada,
-
       descripcion,
-
       opcionesFechas,
-
       opcionesLugares,
-
       fechaCierre,
     });
 
@@ -312,23 +307,25 @@ export default function ProponerJuntada() {
             grupo vote.
           </Text>
 
-          <Text style={styles.seccion}>Fechas y horarios</Text>
+          <View style={styles.tituloFechas}>
+            <Text style={styles.seccion}>Fechas y horarios</Text>
 
-          <Pressable
-            style={styles.botonRecomendar}
-            onPress={() => setMostrarBuscadorFechas(true)}
-            disabled={cargando || !idGrupo}
-          >
-            <MaterialCommunityIcons
-              name="lightbulb-on"
-              size={18}
-              color="#FFFFFF"
-            />
+            <Pressable
+              style={styles.botonRecomendar}
+              onPress={() => setMostrarBuscadorFechas(true)}
+              disabled={cargando || !idGrupo}
+            >
+              <MaterialCommunityIcons
+                name="lightbulb-on"
+                size={18}
+                color="#FFFFFF"
+              />
 
-            <Text style={styles.textoRecomendar}>
-              Sugerir!
-            </Text>
-          </Pressable>
+              <Text style={styles.textoRecomendar}>
+                Sugerir!
+              </Text>
+            </Pressable>
+          </View>
 
           <BuscadorFechas
             visible={mostrarBuscadorFechas}
@@ -558,13 +555,12 @@ const styles = StyleSheet.create({
 
   contenedorIndicador: {
     position: "absolute",
-    top: 25,
     left: 25,
     right: 25,
   },
 
   formulario: {
-    marginTop: 110,
+    marginTop: 95,
   },
 
   titulo: {
@@ -587,7 +583,7 @@ const styles = StyleSheet.create({
     color: "#FFFFFF",
     fontFamily: "CashMarket",
     fontSize: 16,
-    marginBottom: 8,
+    marginBottom: 2,
     marginTop: 10,
   },
 
@@ -677,7 +673,7 @@ const styles = StyleSheet.create({
     position: "absolute",
     left: 25,
     right: 25,
-    bottom: 80,
+    bottom: 90,
   },
 
   tituloLugares: {
@@ -687,7 +683,12 @@ const styles = StyleSheet.create({
     marginTop: 25,
     marginBottom: 5,
   },
-
+  tituloFechas: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    marginBottom: 5,
+  },
   botonRecomendar: {
     flexDirection: "row",
     alignItems: "center",

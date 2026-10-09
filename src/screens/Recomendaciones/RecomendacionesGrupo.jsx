@@ -49,15 +49,6 @@ export default function RecomendacionesGrupo() {
   return (
     <SafeAreaView style={styles.fondo}>
       <View style={styles.encabezado}>
-        <Pressable
-          onPress={() => navigation.goBack()}
-          style={styles.botonVolver}
-          accessibilityRole="button"
-          accessibilityLabel="Volver a la propuesta"
-        >
-          <Feather name="arrow-left" size={25} color="#FFFFFF" />
-        </Pressable>
-
         <View style={styles.titulos}>
           <Text style={styles.titulo}>Recomendaciones del grupo</Text>
           <Text style={styles.subtitulo}>
@@ -184,17 +175,8 @@ export default function RecomendacionesGrupo() {
 const styles = StyleSheet.create({
   fondo: { flex: 1, backgroundColor: "#15151C", paddingHorizontal: 25 },
   encabezado: { flexDirection: "row", marginTop: 12, marginBottom: 18 },
-  botonVolver: {
-    width: 42,
-    height: 42,
-    borderRadius: 12,
-    backgroundColor: "#2B2B35",
-    alignItems: "center",
-    justifyContent: "center",
-    marginRight: 12,
-  },
   titulos: { flex: 1 },
-  titulo: { color: "#FFFFFF", fontFamily: "CashMarket", fontSize: 24 },
+  titulo: { color: "#FFFFFF", fontFamily: "CashMarket", fontSize: 20, marginTop: 15 },
   subtitulo: {
     color: "#BDBDC7",
     fontFamily: "Utendo",
@@ -272,6 +254,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     paddingHorizontal: 14,
+        marginBottom: 85,
   },
   botonDeshabilitado: { opacity: 0.45 },
   textoBoton: {
