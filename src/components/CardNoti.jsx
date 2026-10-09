@@ -109,8 +109,8 @@ export default function CardNoti({
             <Text style={styles.messageBefore}>{copy.before}</Text>
             {copy.emphasis ? <Text style={styles.emphasis}>{copy.emphasis}</Text> : null}
             <Text style={styles.messageBefore}>{copy.after}</Text>
+            <Text style={styles.time}>{'  '}{formatTime(notification?.creada_en)}</Text>
           </Text>
-          <Text style={styles.time}>{formatTime(notification?.creada_en)}</Text>
           {unread ? <View style={styles.unreadDot} /> : null}
         </View>
 
@@ -133,90 +133,70 @@ export default function CardNoti({
 
 const styles = StyleSheet.create({
   card: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 22,
-    paddingVertical: 18,
-    backgroundColor: COLORS.background,
-  },
-  unreadCard: {
-    backgroundColor: COLORS.unread,
-  },
-  pressed: {
-    opacity: 0.88,
-  },
-  avatarImage: {
-    width: 58,
-    height: 58,
-    borderRadius: 16,
-    backgroundColor: COLORS.avatar,
-  },
-  avatarFallback: {
-    width: 58,
-    height: 58,
-    borderRadius: 16,
-    backgroundColor: COLORS.avatar,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  avatarInitial: {
-    color: COLORS.text,
-    fontSize: 23,
-    fontFamily: 'CashMarket',
-  },
-  content: {
-    flex: 1,
-    marginLeft: 15,
-    alignItems: 'flex-start',
-  },
-  messageRow: {
-    flexDirection: 'row',
-    alignItems: 'flex-end',
-    flexWrap: 'wrap',
-  },
-  message: {
-    flexShrink: 1,
-    color: COLORS.text,
-    fontSize: 16,
-    lineHeight: 22,
-    fontFamily: 'Utendo',
-  },
-  messageBefore: {
-    color: COLORS.text,
-    fontFamily: 'Utendo',
-  },
-  emphasis: {
-    color: COLORS.text,
-    fontFamily: 'CashMarket',
-  },
-  time: {
-    color: COLORS.muted,
-    fontSize: 12,
-    marginLeft: 8,
-    marginBottom: 2,
-    fontFamily: 'Utendo',
-  },
-  unreadDot: {
-    width: 7,
-    height: 7,
-    borderRadius: 4,
-    marginLeft: 7,
-    marginBottom: 7,
-    backgroundColor: COLORS.green,
-  },
-  action: {
-    backgroundColor: COLORS.green,
-    borderRadius: 9,
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    marginTop: 7,
-  },
-  actionPressed: {
-    opacity: 0.8,
-  },
-  actionText: {
-    color: COLORS.text,
-    fontFamily: 'CashMarket',
-    fontSize: 14,
-  },
+  flexDirection: 'row',
+  alignItems: 'center',
+  paddingHorizontal: 18,
+  paddingVertical: 14,
+  backgroundColor: COLORS.background,
+},
+avatarImage: {
+  width: 50,
+  height: 50,
+  borderRadius: 14,
+  backgroundColor: COLORS.avatar,
+},
+avatarFallback: {
+  width: 50,
+  height: 50,
+  borderRadius: 14,
+  backgroundColor: COLORS.avatar,
+  alignItems: 'center',
+  justifyContent: 'center',
+},
+avatarInitial: {
+  color: COLORS.text,
+  fontSize: 20,
+  fontFamily: 'CashMarket',
+},
+content: {
+  flex: 1,
+  marginLeft: 12,
+  alignItems: 'flex-start',
+},
+messageRow: {
+  flexDirection: 'row',
+  alignItems: 'flex-start',
+},
+message: {
+  flexShrink: 1,
+  color: COLORS.text,
+  fontSize: 14,
+  lineHeight: 19,
+  fontFamily: 'Utendo',
+},
+time: {
+  color: COLORS.muted,
+  fontSize: 11,
+  fontFamily: 'Utendo',
+},
+unreadDot: {
+  width: 7,
+  height: 7,
+  borderRadius: 4,
+  marginLeft: 7,
+  marginTop: 6,
+  backgroundColor: COLORS.green,
+},
+action: {
+  backgroundColor: COLORS.green,
+  borderRadius: 8,
+  paddingHorizontal: 9,
+  paddingVertical: 3,
+  marginTop: 6,
+},
+actionText: {
+  color: COLORS.text,
+  fontFamily: 'CashMarket',
+  fontSize: 12,
+},
 })

@@ -23,7 +23,6 @@ const ACTION_LABELS = {
   evento_creado: 'Ir al evento',
   sugerencia_fecha_hora: 'Ir a la propuesta',
   votacion_cerrada: 'Ver propuesta',
-  propuesta_sin_quorum: 'Ir al grupo',
   recordatorio_juntada: 'Ir a la juntada',
   juntada_cancelada: 'Ver juntada',
 }
@@ -216,6 +215,11 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
+  panel: {
+    flex: 1,
+    borderRadius: 36,
+    overflow: 'hidden',
+  },
   list: {
     flex: 1,
   },
@@ -224,25 +228,23 @@ const styles = StyleSheet.create({
     paddingBottom: 105,
   },
   header: {
-    paddingHorizontal: 22,
-    paddingTop: 22,
-    paddingBottom: 8,
+    paddingHorizontal: 18,
+    paddingTop: 28,
+    paddingBottom: 6,
   },
   title: {
-    fontSize: 32,
+    fontSize: 30,
+    lineHeight: 36,
     fontFamily: 'CashMarket',
   },
   sectionHeader: {
-    paddingHorizontal: 22,
-    paddingTop: 16,
-    paddingBottom: 10,
+    paddingHorizontal: 18,
+    paddingTop: 10,
+    paddingBottom: 8,
   },
   sectionTitle: {
-    fontSize: 19,
+    fontSize: 15,
     fontFamily: 'CashMarket',
-  },
-  emptyListContent: {
-    flexGrow: 1,
   },
   emptyContainer: {
     flex: 1,

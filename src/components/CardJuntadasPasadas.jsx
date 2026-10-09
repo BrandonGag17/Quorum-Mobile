@@ -58,7 +58,7 @@ function CardJuntadasPasadas({ evento }) {
                                     <View style={styles.horaContainer}>
                                         <MaterialCommunityIcons
                                             name="clock"
-                                            size={15}
+                                            size={10}
                                             color="white"
                                         />
                                         <Text style={styles.horaTexto}>
@@ -69,7 +69,7 @@ function CardJuntadasPasadas({ evento }) {
                                     <View style={styles.infoRow}>
                                         <FontAwesome6
                                             name="location-dot"
-                                            size={15}
+                                            size={10}
                                             color="white"
                                         />
                                         <Text style={styles.textoInfo}>
@@ -124,7 +124,7 @@ function CardJuntadasPasadas({ evento }) {
 }
 const styles = StyleSheet.create({
     card: {
-        width: 350,
+        width: 320,
         alignSelf: 'center',
         borderRadius: 28,
         borderWidth: 2,
@@ -153,7 +153,7 @@ const styles = StyleSheet.create({
     },
     nombre: {
         color: "white",
-        fontSize: 22,
+        fontSize: 15,
         fontFamily: "CashMarket",
         marginBottom: 8,
     },
@@ -163,13 +163,13 @@ const styles = StyleSheet.create({
     },
     textoInfo: {
         color: 'white',
-        fontSize: 13,
+        fontSize: 10,
         fontFamily: 'Utendo',
         marginLeft: 5,
     },
     horaTexto: {
         color: 'white',
-        fontSize: 13,
+        fontSize: 10,
         fontFamily: 'Utendo',
         marginLeft: 5,
     },
@@ -177,25 +177,24 @@ const styles = StyleSheet.create({
         alignSelf: "flex-end",
         backgroundColor: "#66278F",
         borderRadius: 10,
-        paddingHorizontal: 14,
+        paddingHorizontal: 10,
         paddingVertical: 8,
         marginTop: 7
     },
     textoBoton: {
         color: 'white',
         fontFamily: 'Utendo',
-        fontSize: 12
+        fontSize: 10
     },
     textoDia: {
         color: 'white',
-        fontSize: 19,
+        fontSize: 17,
         fontFamily: 'CashMarket',
     },
     textoMes: {
         color: '#B514F6',
-        fontSize: 14,
+        fontSize: 12,
         fontFamily: 'CashMarket',
-        marginTop: -5,
     },
     info: {
         flex: 1,

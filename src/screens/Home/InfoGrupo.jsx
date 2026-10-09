@@ -136,13 +136,13 @@ function InfoGrupo() {
         </View>
 
         <FlatList
+          style={styles.lista}
           data={members}
           extraData={group?.id_creador}
           keyExtractor={(item, index) =>
             String(item.id ?? item.id_usuario ?? item.usuario?.id ?? index)
           }
-          showsVerticalScrollIndicator={members.length > 4}
-          scrollEnabled={members.length > 4}
+          showsVerticalScrollIndicator={false}
           contentContainerStyle={styles.listaMiembros}
           renderItem={({ item }) => (
             <TouchableOpacity
@@ -161,7 +161,7 @@ function InfoGrupo() {
                     {item.usuario?.username || "Sin usuario"}
                   </Text>
                   {group?.id_creador &&
-                  (item.id_usuario ?? item.usuario?.id) === group.id_creador ? (
+                    (item.id_usuario ?? item.usuario?.id) === group.id_creador ? (
                     <Text style={styles.etiquetaAdmin}>Admin</Text>
                   ) : null}
                 </View>
@@ -176,19 +176,19 @@ function InfoGrupo() {
           )}
         />
 
-        <View>
+        <View style={styles.footer}>
           <Button
             onPress={() => setMostrarModal(true)}
             nombre={loading ? "Cargando..." : "+ Añadir miembros"}
           />
-        </View>
 
-        <TouchableOpacity
-          style={styles.botonSalir}
-          onPress={() => setMostrarPopupSalir(true)}
-        >
-          <Text style={styles.textoBotonSalir}>Salir del grupo</Text>
-        </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.botonSalir}
+            onPress={() => setMostrarPopupSalir(true)}
+          >
+            <Text style={styles.textoBotonSalir}>Salir del grupo</Text>
+          </TouchableOpacity>
+        </View>
 
         <Modal
           visible={mostrarModal}
@@ -297,10 +297,10 @@ function InfoGrupo() {
                 <Text style={styles.popupInfo}>Cumpleaños</Text>
 
                 <TouchableOpacity
-                  style={styles.botonSalir}
+                  style={styles.popupBotonSacar}
                   onPress={sacarMiembroSeleccionado}
                 >
-                  <Text style={styles.textoBotonSalir}>Sacar del grupo</Text>
+                  <Text style={styles.popupTextoSacar}>Sacar del grupo</Text>
                 </TouchableOpacity>
               </>
             )}
@@ -310,7 +310,6 @@ function InfoGrupo() {
     </SafeAreaView>
   );
 }
-
 const styles = StyleSheet.create({
   sectionHeader: {
     flexDirection: "row",
@@ -333,7 +332,17 @@ const styles = StyleSheet.create({
   contenido: {
     padding: 24,
     flex: 1,
-    paddingBottom: 50,
+    paddingBottom: 0,
+  },
+  lista: {
+    flex: 1,
+  },
+  listaMiembros: {
+    paddingBottom: 12,
+  },
+  footer: {
+    paddingTop: 8,
+    paddingBottom: 90, // alto de la barra de tabs flotante
   },
   miembroCard: {
     backgroundColor: "#4A216F",
@@ -378,24 +387,20 @@ const styles = StyleSheet.create({
     color: "#d5d5d5",
     fontSize: 12,
     marginTop: 2,
-    fontFamily: "Utendo ",
+    fontFamily: "Utendo",
   },
   botonSalir: {
     backgroundColor: "#d30909",
-    borderRadius: 14,
-    paddingVertical: 10,
+    borderRadius: 15,
+    paddingVertical: 12,
+    marginBottom: 0,
     alignItems: "center",
-    marginTop: 4,
-    bottom: 60,
   },
   textoBotonSalir: {
     color: "white",
     fontWeight: "bold",
     fontSize: 16,
     fontFamily: "CashMarket",
-  },
-  listaMiembros: {
-    paddingBottom: 120,
   },
   loadingContainer: {
     flex: 1,
@@ -490,39 +495,49 @@ const styles = StyleSheet.create({
 
   popupMiembroOverlay: {
     flex: 1,
-    backgroundColor: "rgba(0, 0, 0, 0.55)",
+    backgroundColor: "rgba(0,0,0,0.6)",
   },
   popupZonaCerrar: {
     flex: 1,
   },
   popupMiembro: {
-    backgroundColor: "#6240A0",
-    paddingTop: 10,
-    paddingBottom: 14,
-    paddingHorizontal: 16,
+    backgroundColor: "#5E3F9A",
+    paddingTop: 20,
+    paddingBottom: 24,
+    paddingHorizontal: 20,
     alignItems: "center",
-    borderTopLeftRadius: 24,
-    borderTopRightRadius: 24,
+    borderTopLeftRadius: 40,
+    borderTopRightRadius: 40,
   },
   popupFotoPerfil: {
-    width: 64,
-    height: 64,
-    borderRadius: 32,
-    borderWidth: 2,
-    borderColor: "#FFE600",
-    marginBottom: 8,
+    width: 72,
+    height: 72,
+    borderRadius: 36,
+    marginBottom: 14,
   },
   popupNombre: {
     color: "#FFFFFF",
-    fontSize: 15,
+    fontSize: 17,
     fontFamily: "CashMarket",
-    marginBottom: 3,
+    marginBottom: 4,
   },
   popupInfo: {
     color: "#FFFFFF",
-    fontSize: 11,
+    fontSize: 12,
     fontFamily: "Utendo",
-    marginBottom: 10,
+    marginBottom: 18,
+  },
+  popupBotonSacar: {
+    alignSelf: "stretch",
+    backgroundColor: "#d30909",
+    borderRadius: 15,
+    paddingVertical: 10,
+    alignItems: "center",
+  },
+  popupTextoSacar: {
+    color: "white",
+    fontFamily: "CashMarket",
+    fontSize: 16,
   },
 });
 

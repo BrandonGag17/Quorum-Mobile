@@ -23,7 +23,7 @@ const styles = StyleSheet.create({
     fontFamily: "CashMarket",
     textAlign: "center",
     color: "white",
-    fontSize: 19,
+    fontSize: 16,
     padding: 10,
     marginTop: 10,
     marginBottom: 10,
