@@ -41,8 +41,19 @@ function getDiaSemanaNumero(date) {
     return (date.getDay() + 6) % 7 + 1
 }
 
-function horarioSolapa(inicioA, finA, inicioB, finB) {
-    return inicioA < finB && inicioB < finA
+const MARGEN_ANTES_COMPROMISO_MS = 3 * 60 * 60 * 1000
+const MARGEN_DESPUES_COMPROMISO_MS = 1 * 60 * 60 * 1000
+
+function horarioDentroDelMargen(horario, candidatoInicio) {
+    const inicioCompromiso = horario.inicio.getTime()
+    const finCompromiso = horario.fin.getTime()
+    const inicioCandidato = candidatoInicio.getTime()
+
+    if (inicioCandidato < inicioCompromiso) {
+        return inicioCompromiso - inicioCandidato < MARGEN_ANTES_COMPROMISO_MS
+    }
+
+    return inicioCandidato < finCompromiso + MARGEN_DESPUES_COMPROMISO_MS
 }
 
 export async function buscarSugerenciasFechasPorGrupo({
@@ -202,12 +213,9 @@ export async function buscarSugerenciasFechasPorGrupo({
 
             for (const idUsuario of usuariosConHorario) {
                 const horarios = horariosPorUsuario.get(idUsuario) ?? []
-                const tieneConflicto = horarios.some((horario) => horarioSolapa(
-                    horario.inicio.getTime(),
-                    horario.fin.getTime(),
-                    candidatoInicio.getTime(),
-                    candidatoFin.getTime(),
-                ))
+                const tieneConflicto = horarios.some((horario) =>
+                    horarioDentroDelMargen(horario, candidatoInicio)
+                )
 
                 if (tieneConflicto) {
                     conflictos.push(nombresPorUsuario[idUsuario] || 'Integrante')
@@ -225,6 +233,7 @@ export async function buscarSugerenciasFechasPorGrupo({
                 nombresDisponibles: disponibles,
                 conflictos: [...new Set(conflictos)],
                 totalConHorario: usuariosConHorario.length,
+                totalIntegrantes: idsMiembros.length,
             })
         }
     }
@@ -236,8 +245,18 @@ export async function buscarSugerenciasFechasPorGrupo({
         return new Date(a.fechaHoraInicio).getTime() - new Date(b.fechaHoraInicio).getTime()
     })
 
+    const diasConMejorHorario = []
+    const diasIncluidos = new Set()
+    for (const sugerencia of sugerencias) {
+        const fecha = new Date(sugerencia.fechaHoraInicio)
+        const claveDia = `${fecha.getFullYear()}-${fecha.getMonth()}-${fecha.getDate()}`
+        if (diasIncluidos.has(claveDia)) continue
+        diasIncluidos.add(claveDia)
+        diasConMejorHorario.push(sugerencia)
+    }
+
     return {
-        data: sugerencias.slice(0, 5),
+        data: diasConMejorHorario.slice(0, 5),
         error: null,
     }
 }

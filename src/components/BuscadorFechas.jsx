@@ -155,15 +155,17 @@ export default function BuscadorFechas({
                   <View style={styles.cardHeader}>
                     <Text style={styles.cardFecha}>{sugerencia.fecha}</Text>
                     <Text style={styles.cardCantidad}>
-                      {sugerencia.personasDisponibles === 1
-                        ? '1 persona coincide'
-                        : `${sugerencia.personasDisponibles} personas coinciden`}
+                      {sugerencia.personasDisponibles === sugerencia.totalIntegrantes
+                        ? 'Todo el grupo está disponible'
+                        : sugerencia.totalConHorario === sugerencia.totalIntegrantes
+                          ? `${sugerencia.personasDisponibles} de ${sugerencia.totalIntegrantes} disponibles`
+                          : `${sugerencia.personasDisponibles} disponibles · ${sugerencia.totalConHorario} de ${sugerencia.totalIntegrantes} cargaron horarios`}
                     </Text>
                   </View>
 
                   {Array.isArray(sugerencia.conflictos) && sugerencia.conflictos.length > 0 && (
                     <Text style={styles.aviso}>
-                      Este horario se cruza con un horario de {sugerencia.conflictos.join(', ')}.
+                      Este horario queda demasiado cerca de un compromiso de {sugerencia.conflictos.join(', ')}.
                     </Text>
                   )}
 
