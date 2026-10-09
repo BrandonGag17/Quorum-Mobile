@@ -5,6 +5,7 @@ const ROUTES_BY_TYPE = {
   propuesta_creada: { screen: 'VotacionJuntada', idKey: 'event' },
   sugerencia_fecha_hora: { screen: 'VotacionJuntada', idKey: 'event' },
   votacion_cerrada: { screen: 'VotacionJuntada', idKey: 'event' },
+  propuesta_sin_quorum: { screen: 'Grupo', idKey: 'group' },
   evento_creado: { screen: 'Juntada', idKey: 'event' },
   recordatorio_juntada: { screen: 'Juntada', idKey: 'event' },
   juntada_cancelada: { screen: 'Juntada', idKey: 'event' },

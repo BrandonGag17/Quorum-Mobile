@@ -111,7 +111,6 @@ export async function buscarSugerenciasFechasPorGrupo({
         .from('horario_usuario')
         .select('id_usuario, fecha_hora_inicio, fecha_hora_fin')
         .in('id_usuario', idsMiembros)
-        .eq('origen', 'manual')
 
     if (puntualesError) {
         return { data: [], error: puntualesError }
@@ -121,7 +120,6 @@ export async function buscarSugerenciasFechasPorGrupo({
         .from('horario_recurrente')
         .select('id_usuario, hora_inicio, hora_fin, fecha_inicio, fecha_fin, dia_horario_recurrente (dia_semana)')
         .in('id_usuario', idsMiembros)
-        .eq('origen', 'manual')
 
     if (recurrentesError) {
         return { data: [], error: recurrentesError }
@@ -239,7 +237,7 @@ export async function buscarSugerenciasFechasPorGrupo({
     })
 
     return {
-        data: sugerencias.slice(0, 15),
+        data: sugerencias.slice(0, 5),
         error: null,
     }
 }
