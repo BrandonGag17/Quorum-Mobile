@@ -30,7 +30,7 @@ export default function useGroupRecommendations(groupId) {
     try {
       const recomendaciones = await obtenerRecomendacionesGrupo({
         groupId,
-        limit: 5,
+        limit: 6,
         excluirIds: [...idsMostradosRef.current],
       })
 
