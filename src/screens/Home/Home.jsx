@@ -75,7 +75,7 @@ export default function Home() {
 
       <View style={styles.grupoInfo}>
         <Text style={styles.grupoNombre}>{item.grupo?.nombre}</Text>
-        <Text style={styles.grupoIntegrantes}>
+        <Text style={styles.grupoIntegrantes} numberOfLines={1} ellipsizeMode="tail">
           {item.integrantes || "Grupo"}
         </Text>
       </View>

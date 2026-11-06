@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
 	View,
 	Text,
@@ -32,6 +32,14 @@ function CrearEvento({ route, onCreado }) {
 	const [mensaje, setMensaje] = useState('');
 
 	const [paso, setPaso] = useState('paso1');
+	const creacionCompletadaRef = useRef(false);
+
+	useEffect(() => navigation.addListener('beforeRemove', (event) => {
+		if (creacionCompletadaRef.current || paso === 'paso1') return;
+		event.preventDefault();
+		setMensaje('');
+		setPaso('paso1');
+	}), [navigation, paso]);
 
 	const [nombreJuntada, setNombreJuntada] = useState(eventoBase?.nombre || '');
 	const [descripcion, setDescripcion] = useState(eventoBase?.descripcion || '');
@@ -110,7 +118,8 @@ function CrearEvento({ route, onCreado }) {
 
 		if (onCreado) onCreado();
 
-		navigation.navigate('Juntada', { idEvento: data.id });
+		creacionCompletadaRef.current = true;
+		navigation.replace('Juntada', { idEvento: data.id });
 	};
 
 	if (paso === 'paso1') {

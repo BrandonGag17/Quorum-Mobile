@@ -193,7 +193,10 @@ export async function getGroupsForUser(userId) {
         id,
         nombre,
         descripcion,
-        foto_perfil
+        foto_perfil,
+        usuario_grupo (
+          usuario (username)
+        )
       )
     `
     )
@@ -204,5 +207,13 @@ export async function getGroupsForUser(userId) {
     return { data: [], error }
   }
 
-  return { data: data ?? [], error: null }
+  const groups = (data ?? []).map((membership) => ({
+    ...membership,
+    integrantes: membership.grupo?.usuario_grupo
+      ?.map((member) => member.usuario?.username)
+      .filter(Boolean)
+      .join(', '),
+  }))
+
+  return { data: groups, error: null }
 }

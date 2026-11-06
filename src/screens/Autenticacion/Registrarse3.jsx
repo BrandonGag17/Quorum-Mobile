@@ -13,7 +13,7 @@ function Registrarse3() {
   const navigation = useNavigation();
   const route = useRoute();
 
-  const { email, username, password, nombre, apellido } = route.params || {};
+  const { email, username, password, oauthUserId, nombre, apellido } = route.params || {};
 
   const [fechaNacimiento, setFechaNacimiento] = useState("");
   const [foto, setFoto] = useState(null);
@@ -112,6 +112,7 @@ function Registrarse3() {
       email,
       username,
       password,
+      oauthUserId,
       nombre,
       apellido,
       fecha_nacimiento: fechaNacimiento,

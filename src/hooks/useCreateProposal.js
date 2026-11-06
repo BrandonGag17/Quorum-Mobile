@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useCallback, useState } from 'react'
 import { getCurrentUser } from '../services/authService'
 import { createProposalJuntada } from '../services/propuestaService'
 
@@ -74,9 +74,9 @@ export default function useCreateProposal() {
         }
     }
 
-    const limpiarError = () => {
+    const limpiarError = useCallback(() => {
         setError('')
-    }
+    }, [])
 
     return {
         crearPropuesta,

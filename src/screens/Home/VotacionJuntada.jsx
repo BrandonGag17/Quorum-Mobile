@@ -21,6 +21,7 @@ import ErrorMessage from "../../components/MensajeError";
 import { useVotacionDetail } from "../../hooks/useVotacionDetail";
 import InputApp from "../../components/Input";
 import ButtonApp from "../../components/Botones";
+import { useNotificationBack } from "../../hooks/useNotificationBack";
 
 const DateTimePicker =
   Platform.OS !== "web"
@@ -52,6 +53,7 @@ function OptionCard({ option, votes, selected, onPress, disabled }) {
 }
 
 export default function VotacionJuntada({ route, navigation }) {
+  useNotificationBack(navigation, route);
   const eventId = route?.params?.idEvento;
 
   const {

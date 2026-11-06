@@ -1,6 +1,6 @@
 import { useState } from 'react'
 
-import { signUp } from '../services/authService'
+import { refreshCurrentSession, setCurrentUserPassword, signUp } from '../services/authService'
 import {
   checkEmailAvailable,
   checkUsernameAvailable,
@@ -13,7 +13,7 @@ export function useRegistration() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
 
-  const validateStepOne = async ({ email, username, password, termsAccepted }) => {
+  const validateStepOne = async ({ email, username, password, termsAccepted, oauthUserId }) => {
     if (!email?.trim()) {
       return { valid: false, message: 'Ingresá un email' }
     }
@@ -44,9 +44,11 @@ export function useRegistration() {
       return { valid: false, message: usernameError?.message || 'Ese nombre de usuario ya está en uso' }
     }
 
-    const { available: emailAvailable, error: emailError } = await checkEmailAvailable(email)
-    if (!emailAvailable) {
-      return { valid: false, message: emailError?.message || 'Ese email ya está registrado' }
+    if (!oauthUserId) {
+      const { available: emailAvailable, error: emailError } = await checkEmailAvailable(email)
+      if (!emailAvailable) {
+        return { valid: false, message: emailError?.message || 'Ese email ya está registrado' }
+      }
     }
 
     return { valid: true }
@@ -72,12 +74,19 @@ export function useRegistration() {
         throw new Error('La fecha de nacimiento no es válida.')
       }
 
-      const { data: authData, error: signUpError } = await signUp(preparedData)
-      if (signUpError) {
-        throw new Error(signUpError.message)
+      let userId
+      if (registrationData.oauthUserId) {
+        const { data: authData, error: passwordError } = await setCurrentUserPassword(
+          preparedData.password,
+          registrationData.oauthUserId,
+        )
+        if (passwordError) throw new Error(passwordError.message)
+        userId = authData?.user?.id
+      } else {
+        const { data: authData, error: signUpError } = await signUp(preparedData)
+        if (signUpError) throw new Error(signUpError.message)
+        userId = authData?.user?.id
       }
-
-      const userId = authData?.user?.id
       if (!userId) {
         throw new Error('No se pudo crear la cuenta. Intentá nuevamente.')
       }
@@ -105,6 +114,8 @@ export function useRegistration() {
       if (gustosError) {
         throw new Error(gustosError.message || 'No se pudieron guardar los gustos.')
       }
+
+      await refreshCurrentSession()
 
       return { ok: true }
     } catch (err) {

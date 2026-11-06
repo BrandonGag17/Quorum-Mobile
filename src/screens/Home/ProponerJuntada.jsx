@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
   View,
   Text,
@@ -32,6 +32,14 @@ export default function ProponerJuntada() {
   const { crearPropuesta, cargando, error, limpiarError } = useCreateProposal();
 
   const [paso, setPaso] = useState(1);
+  const creacionCompletadaRef = useRef(false);
+
+  useEffect(() => navigation.addListener("beforeRemove", (event) => {
+    if (creacionCompletadaRef.current || paso === 1) return;
+    event.preventDefault();
+    limpiarError();
+    setPaso((pasoActual) => Math.max(1, pasoActual - 1));
+  }), [navigation, paso, limpiarError]);
 
   const [nombreJuntada, setNombreJuntada] = useState("");
 
@@ -237,7 +245,8 @@ export default function ProponerJuntada() {
       return;
     }
 
-    navigation.navigate("Juntada", {
+    creacionCompletadaRef.current = true;
+    navigation.replace("Juntada", {
       idEvento: data.evento.id,
     });
   };

@@ -67,6 +67,18 @@ export async function getCurrentUser() {
     return { data: data?.user ?? null, error }
 }
 
+export async function setCurrentUserPassword(password, expectedUserId) {
+    const { data: user, error: userError } = await getCurrentUser()
+    if (userError || !user?.id || user.id !== expectedUserId) {
+        return { data: null, error: userError || new Error('La sesión de Google no coincide con este registro.') }
+    }
+    return supabase.auth.updateUser({ password })
+}
+
+export async function refreshCurrentSession() {
+    return supabase.auth.refreshSession()
+}
+
 export function onAuthStateChange(callback) {
     return supabase.auth.onAuthStateChange(callback)
 }

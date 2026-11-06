@@ -15,8 +15,10 @@ import Loading from '../../components/Loading'
 import ErrorMessage from '../../components/MensajeError'
 import { useJuntadaDetail } from '../../hooks/useJuntadaDetail'
 import GroupNavigationHeader from '../../components/GroupNavigationHeader'
+import { useNotificationBack } from '../../hooks/useNotificationBack'
 
 export default function Juntada({ route, navigation }) {
+  useNotificationBack(navigation, route)
   const eventId = route?.params?.idEvento;
 
   const {

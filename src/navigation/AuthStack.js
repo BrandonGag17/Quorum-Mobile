@@ -10,10 +10,10 @@ import Exito from '../screens/Autenticacion/Exito'
 
 const Stack = createNativeStackNavigator()
 
-export default function AuthStack() {
+export default function AuthStack({ registrationDraft }) {
   return (
     <Stack.Navigator
-      initialRouteName="Introduccion"
+      initialRouteName={registrationDraft ? 'Registrarse1' : 'Introduccion'}
       screenOptions={{
         headerShown: true,
         headerTitle: '',
@@ -25,7 +25,7 @@ export default function AuthStack() {
     >
       <Stack.Screen name="Introduccion" component={Introduccion} options={{ headerShown: false }} />
       <Stack.Screen name="IniciarSesion" component={IniciarSesion} />
-      <Stack.Screen name="Registrarse1" component={Registrarse1} />
+      <Stack.Screen name="Registrarse1" component={Registrarse1} initialParams={registrationDraft || undefined} />
       <Stack.Screen name="Registrarse2" component={Registrarse2} />
       <Stack.Screen name="Registrarse3" component={Registrarse3} />
       <Stack.Screen name="Registrarse4" component={Registrarse4} />

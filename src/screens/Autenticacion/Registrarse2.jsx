@@ -10,7 +10,7 @@ import ErrorMessage from "../../components/MensajeError";
 function Registrarse2() {
   const navigation = useNavigation();
   const route = useRoute();
-  const { email, username, password } = route.params || {};
+  const { email, username, password, oauthUserId } = route.params || {};
 
   const [nombre, setNombre] = useState("");
   const [apellido, setApellido] = useState("");
@@ -34,6 +34,7 @@ function Registrarse2() {
       email,
       username,
       password,
+      oauthUserId,
       nombre: nombre.trim(),
       apellido: apellido.trim(),
     });

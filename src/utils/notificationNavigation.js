@@ -33,13 +33,13 @@ export function getNotificationNavigationTarget(notification) {
   if (route.idKey === 'group') {
     const groupId = notification?.id_grupo ?? payload?.grupo_id ?? payload?.idGrupo
     return isIdentifier(groupId)
-      ? { tab: HOME_TAB, screen: route.screen, params: { idGrupo: groupId } }
+      ? { tab: HOME_TAB, screen: route.screen, params: { idGrupo: groupId, fromNotification: true } }
       : null
   }
 
   const eventId = notification?.id_evento ?? payload?.evento_id ?? payload?.idEvento
   return isIdentifier(eventId)
-    ? { tab: HOME_TAB, screen: route.screen, params: { idEvento: eventId } }
+    ? { tab: HOME_TAB, screen: route.screen, params: { idEvento: eventId, fromNotification: true } }
     : null
 }
 

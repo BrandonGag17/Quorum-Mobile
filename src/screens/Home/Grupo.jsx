@@ -21,6 +21,7 @@ import Ionicons from "@expo/vector-icons/Ionicons";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 
 import { useGroupDetail } from "../../hooks/useGroupDetail";
+import { useNotificationBack } from "../../hooks/useNotificationBack";
 import GroupHeader from "../../components/GroupHeader";
 
 import ErrorMessage from "../../components/MensajeError";
@@ -30,6 +31,7 @@ import CardJuntadasPasadas from "../../components/CardJuntadasPasadas";
 
 export default function Grupo({ navigation }) {
   const route = useRoute();
+  useNotificationBack(navigation, route);
   const { idGrupo } = route.params;
 
   const {

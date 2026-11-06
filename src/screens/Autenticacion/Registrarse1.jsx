@@ -15,19 +15,20 @@ import {
   IconLockFilled,
   IconUserFilled,
 } from "@tabler/icons-react-native";
-import { useNavigation, useFocusEffect } from "@react-navigation/native";
+import { useNavigation, useFocusEffect, useRoute } from "@react-navigation/native";
 
 import Input from "../../components/Input";
 import ErrorMessage from "../../components/MensajeError";
 import { useRegistration } from "../../hooks/useRegistration";
 import Button from "../../components/BotonesIntro";
-import { useCallback } from "react";
+import { useCallback, useEffect } from "react";
 
 import { useForm, Controller } from "react-hook-form";
 import { signInWithGoogle } from "../../services/authService";
 
 function Registrarse1() {
   const navigation = useNavigation();
+  const route = useRoute();
   const { validateStepOne, error, setError } = useRegistration();
 
   const {
@@ -35,6 +36,7 @@ function Registrarse1() {
     handleSubmit,
     formState: { errors, isSubmitting },
     reset,
+    setValue,
   } = useForm({
     defaultValues: {
       email: "",
@@ -43,6 +45,11 @@ function Registrarse1() {
       termsAccepted: false,
     },
   });
+  const oauthUserId = route.params?.oauthUserId || "";
+
+  useEffect(() => {
+    if (route.params?.email) setValue("email", route.params.email);
+  }, [route.params?.email, setValue]);
   useFocusEffect(
     useCallback(() => {
       reset(undefined, { keepValues: true });
@@ -58,6 +65,7 @@ function Registrarse1() {
       username,
       password,
       termsAccepted,
+      oauthUserId,
     });
 
     if (!result.valid) {
@@ -69,19 +77,27 @@ function Registrarse1() {
       email: email.trim(),
       username: username.trim(),
       password,
+      oauthUserId,
     });
   };
 
   const handleGoogle = async () => {
     setError("");
 
-    const { error } = await signInWithGoogle();
+    const { data, error } = await signInWithGoogle();
 
     if (error) {
       Alert.alert(
         "Google",
         error.message || "No se pudo iniciar sesión con Google",
       );
+      return;
+    }
+
+    const oauthUser = data?.user || data?.session?.user;
+    if (oauthUser?.id && oauthUser?.email) {
+      setValue("email", oauthUser.email, { shouldValidate: true });
+      navigation.setParams({ oauthUserId: oauthUser.id, email: oauthUser.email });
     }
   };
 
@@ -121,6 +137,7 @@ function Registrarse1() {
               autoCapitalize="none"
               autoComplete="email"
               textContentType="emailAddress"
+              editable={!oauthUserId}
             />
           )}
         />

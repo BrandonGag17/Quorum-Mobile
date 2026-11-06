@@ -3,6 +3,7 @@ import { useFonts } from 'expo-font'
 import * as SplashScreen from 'expo-splash-screen'
 import * as Linking from 'expo-linking'
 import { useEffect, useState } from 'react'
+import supabase from './src/services/supabaseClient'
 
 import { completeGoogleOAuth, getSession, onAuthStateChange } from './src/services/authService'
 import AuthStack from './src/navigation/AuthStack'
@@ -14,6 +15,37 @@ SplashScreen.preventAutoHideAsync()
 export default function App() {
   const [sessionReady, setSessionReady] = useState(false)
   const [isLoggedIn, setIsLoggedIn] = useState(false)
+  const [registrationDraft, setRegistrationDraft] = useState(null)
+
+  const resolveSession = async (session) => {
+    const user = session?.user
+    if (!user?.id) {
+      setIsLoggedIn(false)
+      setRegistrationDraft(null)
+      return
+    }
+
+    const { data: profile, error: profileError } = await supabase
+      .from('usuario')
+      .select('id')
+      .eq('id', user.id)
+      .maybeSingle()
+
+    if (profileError) {
+      // Preserve access for existing sessions when the profile lookup is temporarily unavailable.
+      setIsLoggedIn(true)
+      setRegistrationDraft(null)
+      return
+    }
+
+    const hasProfile = Boolean(profile?.id)
+    setIsLoggedIn(hasProfile)
+    const isGoogleUser = user.app_metadata?.provider === 'google'
+      || user.identities?.some((identity) => identity.provider === 'google')
+    setRegistrationDraft(!hasProfile && isGoogleUser
+      ? { oauthUserId: user.id, email: user.email || '' }
+      : null)
+  }
 
   const [fontsLoaded] = useFonts({
     Utendo: require('./assets/fonts/Utendo-Regular.ttf'),
@@ -29,7 +61,7 @@ export default function App() {
           data: { session },
         } = await getSession()
 
-        setIsLoggedIn(Boolean(session))
+        await resolveSession(session)
       } finally {
         setSessionReady(true)
         await SplashScreen.hideAsync()
@@ -40,8 +72,9 @@ export default function App() {
   }, [fontsLoaded])
 
   useEffect(() => {
-    const { data: authListener } = onAuthStateChange((event, session) => {
-      setIsLoggedIn(Boolean(session))
+    const { data: authListener } = onAuthStateChange((_event, session) => {
+      // Defer database reads until Supabase has released its auth callback lock.
+      setTimeout(() => { void resolveSession(session) }, 0)
     })
 
     return () => {
@@ -74,7 +107,7 @@ export default function App() {
   return (
     <ThemeProvider>
       <NavigationContainer>
-        {isLoggedIn ? <AppTabs /> : <AuthStack />}
+        {isLoggedIn ? <AppTabs /> : <AuthStack registrationDraft={registrationDraft} />}
       </NavigationContainer>
     </ThemeProvider>
   )
