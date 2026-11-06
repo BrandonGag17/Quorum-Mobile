@@ -46,12 +46,13 @@ test('la zona explícita reemplaza la ubicación del perfil', async () => {
     groq({ ...plan, zona: 'Rosario, Santa Fe' }),
     { results: [{ lat: -32.95, lon: -60.65, formatted: 'Rosario, Santa Fe', rank: { confidence: 1 } }] },
     { features: [] },
+    { features: [] },
   ])
   const result = await buscarQBot(perfil, env)
   assert.equal(new URL(env.llamadas[2].url).searchParams.get('filter'), 'circle:-60.65,-32.95,3000')
   assert.deepEqual(result.lugares, [])
   assert.match(result.mensaje, /No encontré/)
-  assert.equal(env.llamadas.length, 3)
+  assert.equal(env.llamadas.length, 4)
 })
 
 test('zona ambigua requiere aclaración y no vuelve a la del perfil', async () => {
@@ -68,10 +69,10 @@ test('conserva provincia guardada como texto y rechaza geocodificación poco con
   assert.deepEqual(result.lugares, [])
 })
 
-test('sin resultados no consume una segunda llamada a Groq', async () => {
-  const env = entorno([groq(plan), { features: [] }])
+test('sin resultados amplía el catálogo sin consumir una segunda llamada a Groq', async () => {
+  const env = entorno([groq(plan), { features: [] }, { features: [] }])
   assert.deepEqual((await buscarQBot(perfil, env)).lugares, [])
-  assert.equal(env.llamadas.length, 2)
+  assert.equal(env.llamadas.length, 3)
 })
 
 test('rechaza IDs inventados o repetidos', async () => {
@@ -120,20 +121,23 @@ test('lee formatos de coordenadas válidos y rechaza valores ausentes o fuera de
 })
 
 test('Villa Crespo escrita reutiliza la localidad guardada sin volver a preguntar', async () => {
-  const env = entorno([groq({ ...plan, zona: 'villa crespo', pregunta: '¿En qué ciudad?' }), { features: [lugar] }, groq(recomendacion)])
+  const villaCrespo = { ...lugar, properties: { ...lugar.properties, formatted: 'Calle 123, Villa Crespo, Buenos Aires' } }
+  const env = entorno([groq({ ...plan, zona: 'villa crespo', pregunta: '¿En qué ciudad?' }),
+    { results: [{ suburb: 'Villa Crespo', result_type: 'suburb', place_id: 'villa-crespo', lat: -34.6, lon: -58.44, rank: { confidence: 1 } }] },
+    { features: [villaCrespo] }, groq(recomendacion)])
   const result = await buscarQBot(perfil, env)
   assert.equal(result.lugares.length, 1)
-  assert.equal(new URL(env.llamadas[1].url).pathname, '/v2/places')
+  assert.equal(new URL(env.llamadas[2].url).pathname, '/v2/places')
 })
 
 test('dos resultados del mismo barrio con confianza igual no son ambigüedad', async () => {
   const env = entorno([groq({ ...plan, zona: 'Villa Crespo' }), { results: [
     { suburb: 'Villa Crespo', lat: -34.6, lon: -58.44, rank: { confidence: 0.9 } },
     { suburb: 'Villa Crespo', lat: -34.601, lon: -58.441, rank: { confidence: 0.9 } },
-  ] }, { features: [] }])
+  ] }, { features: [] }, { features: [] }, { features: [] }])
   const result = await buscarQBot({ pedido: 'pizzerías por Villa Crespo' }, env)
   assert.match(result.mensaje, /No encontré lugares/)
-  assert.equal(env.llamadas.length, 3)
+  assert.equal(env.llamadas.length, 5)
 })
 
 test('usa cercanía al perfil para desambiguar pero no elige entre ciudades lejanas', () => {
@@ -162,6 +166,8 @@ test('verifica Villa Crespo completada por IA en Geoapify antes de buscar pizzer
     groq({ ...plan, categorias: ['catering.restaurant.pizza'], zona: 'Villa Crespo', zonaBusqueda: 'Villa Crespo, Ciudad Autónoma de Buenos Aires, Argentina' }),
     { results: [{ suburb: 'Villa Crespo', formatted: 'Villa Crespo, Buenos Aires, Argentina', lat: -34.6, lon: -58.44, rank: { confidence: 1 } }] },
     { features: [] },
+    { features: [] },
+    { features: [] },
   ])
   await buscarQBot({ pedido: 'pizzerías cercanas por villa crespo' }, env)
   assert.equal(new URL(env.llamadas[1].url).searchParams.get('text'), 'Villa Crespo, Ciudad Autónoma de Buenos Aires, Argentina')
@@ -177,10 +183,11 @@ test('una interpretación de IA sin coincidencia geográfica no produce lugares'
 })
 
 test('CABA usa el límite de la ciudad y no un círculo o el centro del perfil', async () => {
+  const lugarCaba = { ...lugar, properties: { ...lugar.properties, formatted: 'Calle 123, Ciudad Autónoma de Buenos Aires, Argentina' } }
   const env = entorno([
     groq({ ...plan, zona: 'CABA', zonaBusqueda: 'CABA', alcance: 'zona' }),
     { results: [{ city: 'Autonomous City of Buenos Aires', result_type: 'city', place_id: 'limite-caba', lat: -34.61, lon: -58.39, rank: { confidence: 1 } }] },
-    { features: [lugar] }, groq(recomendacion),
+    { features: [lugarCaba] }, groq(recomendacion),
   ])
   const result = await buscarQBot({ ...perfil, pedido: 'lugares por CABA' }, env)
   const geo = new URL(env.llamadas[1].url)
@@ -194,10 +201,11 @@ test('CABA usa el límite de la ciudad y no un círculo o el centro del perfil',
 })
 
 test('CABA escrita en el pedido se busca aunque la IA omita la zona y el perfil no tenga localidad', async () => {
+  const lugarCaba = { ...lugar, properties: { ...lugar.properties, formatted: 'Calle 123, Ciudad Autónoma de Buenos Aires, Argentina' } }
   const env = entorno([
     groq(plan),
     { results: [{ city: 'Autonomous City of Buenos Aires', result_type: 'city', place_id: 'limite-caba', lat: -34.61, lon: -58.39, rank: { confidence: 1 } }] },
-    { features: [lugar] },
+    { features: [lugarCaba] },
     groq(recomendacion),
   ])
   const result = await buscarQBot({ pedido: 'un café en CABA' }, env)
@@ -206,19 +214,77 @@ test('CABA escrita en el pedido se busca aunque la IA omita la zona y el perfil 
   assert.equal(result.lugares.length, 1)
 })
 
-test('si el límite de un barrio no devuelve POIs, reintenta por radio antes de informar que no hay lugares', async () => {
+test('sala de juegos en Palermo amplía categorías sin salir del límite del barrio', async () => {
+  const arcade = { properties: {
+    place_id: 'arcade-palermo', name: 'Arcade Palermo', formatted: 'Palermo, Buenos Aires',
+    categories: ['entertainment.amusement_arcade'], lat: -34.58, lon: -58.42,
+  } }
+  const env = entorno([
+    groq({ ...plan, categorias: [], zona: '', alcance: 'zona' }),
+    { results: [{ suburb: 'Palermo', result_type: 'suburb', place_id: 'limite-palermo',
+      formatted: 'Palermo, Buenos Aires, Comuna 14, Argentina', lat: -34.58, lon: -58.42,
+      rank: { confidence: 1 } }] },
+    { features: [] }, { features: [] }, { features: [] }, { features: [] }, { features: [] },
+    { features: [arcade] },
+    groq({ mensaje: 'No se encontraron resultados exactos al pedido, pero pude encontrar estos lugares:',
+      recomendaciones: [{ id: 'arcade-palermo', motivo: 'Está clasificado como arcade.' }] }),
+  ])
+  const result = await buscarQBot({ pedido: 'Sala de juegos en palermo' }, env)
+  assert.deepEqual(result.lugares.map((item) => item.id), ['arcade-palermo'])
+  assert.equal(new URL(env.llamadas[1].url).searchParams.get('text'), 'palermo, Ciudad Autónoma de Buenos Aires, Argentina')
+  assert.equal(new URL(env.llamadas[2].url).searchParams.get('categories'), 'entertainment.amusement_arcade')
+  assert.equal(new URL(env.llamadas[7].url).searchParams.get('filter'), 'place:limite-palermo')
+  assert.ok(JSON.parse(env.llamadas[8].options.body).messages[0].content.includes('No se encontraron resultados exactos al pedido'))
+})
+
+test('descarta un resultado de Palermo cuando el pedido explícito es en Villa Crespo', async () => {
+  const beatFlow = { properties: {
+    place_id: 'beat-flow', name: 'Beat Flow', formatted: 'Avenida Córdoba, Palermo, Buenos Aires',
+    suburb: 'Palermo', categories: ['adult.nightclub'], lat: -34.59, lon: -58.42,
+  } }
+  const env = entorno([
+    groq({ ...plan, categorias: ['adult.nightclub'], zona: 'Villa Crespo', alcance: 'zona' }),
+    { results: [{ suburb: 'Villa Crespo', result_type: 'suburb', place_id: 'limite-villa-crespo',
+      formatted: 'Villa Crespo, Buenos Aires', lat: -34.6, lon: -58.44, rank: { confidence: 1 } }] },
+    { features: [beatFlow] }, { features: [] },
+  ])
+  const result = await buscarQBot({ pedido: 'Boliche para bailar en Villa Crespo' }, env)
+  assert.deepEqual(result.lugares, [])
+  assert.match(result.mensaje, /No encontré lugares/)
+  assert.equal(new URL(env.llamadas[2].url).searchParams.get('filter'), 'place:limite-villa-crespo')
+})
+
+test('el catálogo ampliado de sala de juegos descarta centros culturales', async () => {
+  const paseo = { properties: {
+    place_id: 'paseo-buen-pastor', name: 'Paseo del Buen Pastor',
+    formatted: 'Nueva Córdoba, Córdoba, Argentina', categories: ['entertainment.culture.arts_centre'],
+  } }
+  const env = entorno([
+    groq({ ...plan, categorias: [], zona: 'Córdoba', alcance: 'zona' }),
+    { results: [{ city: 'Córdoba', result_type: 'city', place_id: 'cordoba',
+      formatted: 'Córdoba, Argentina', lat: -31.42, lon: -64.18, rank: { confidence: 1 } }] },
+    { features: [] }, { features: [] }, { features: [] }, { features: [] }, { features: [] },
+    { features: [paseo] },
+  ])
+  const result = await buscarQBot({ pedido: 'Sala de juegos en Córdoba' }, env)
+  assert.deepEqual(result.lugares, [])
+  assert.match(result.mensaje, /No encontré lugares/)
+})
+
+test('si el límite de un barrio no devuelve POIs, la ampliación sigue dentro del barrio', async () => {
+  const cafeAlmagro = { ...lugar, properties: { ...lugar.properties, formatted: 'Calle 123, Almagro, Buenos Aires' } }
   const env = entorno([
     groq({ ...plan, zona: 'Almagro', zonaBusqueda: 'Almagro, Ciudad Autónoma de Buenos Aires, Argentina', alcance: 'zona' }),
     { results: [{ suburb: 'Almagro', result_type: 'suburb', place_id: 'limite-almagro', formatted: 'Almagro, Buenos Aires, Argentina', lat: -34.61, lon: -58.42, rank: { confidence: 1 } }] },
     { features: [] },
-    { features: [lugar] },
+    { features: [cafeAlmagro] },
     groq(recomendacion),
   ])
   const result = await buscarQBot({ pedido: 'un café por Almagro' }, env)
   const respaldo = new URL(env.llamadas[3].url)
   assert.equal(new URL(env.llamadas[2].url).searchParams.get('filter'), 'place:limite-almagro')
-  assert.equal(respaldo.searchParams.get('filter'), 'circle:-58.42,-34.61,3000')
-  assert.equal(respaldo.searchParams.get('bias'), 'proximity:-58.42,-34.61')
+  assert.equal(respaldo.searchParams.get('filter'), 'place:limite-almagro')
+  assert.equal(respaldo.searchParams.has('bias'), false)
   assert.equal(result.lugares.length, 1)
 })
 
@@ -237,14 +303,12 @@ test('agotados los candidatos nuevos lo informa sin reciclar los anteriores', as
   assert.match(result.mensaje, /nuevos/)
 })
 
-test('consulta arte y cafés por separado para preservar variedad', async () => {
-  const arte = { properties: { ...lugar.properties, place_id: 'arte', categories: ['entertainment.culture.arts_centre'] } }
-  const env = entorno([groq({ ...plan, categorias: ['catering.cafe', 'entertainment.culture.arts_centre'] }), { features: [lugar] }, { features: [arte] }, groq(recomendacion)])
+test('un pedido concreto de café prioriza cafeterías y no se desvía a centros culturales', async () => {
+  const env = entorno([groq({ ...plan, categorias: ['catering.cafe', 'entertainment.culture.arts_centre'] }), { features: [lugar] }, groq(recomendacion)])
   await buscarQBot(perfil, env)
   assert.equal(new URL(env.llamadas[1].url).searchParams.get('categories'), 'catering.cafe')
-  assert.equal(new URL(env.llamadas[2].url).searchParams.get('categories'), 'entertainment.culture.arts_centre')
-  const contexto = JSON.parse(JSON.parse(env.llamadas[3].options.body).messages[1].content)
-  assert.equal(contexto.lugaresDisponibles.length, 2)
+  const contexto = JSON.parse(JSON.parse(env.llamadas[2].options.body).messages[1].content)
+  assert.equal(contexto.lugaresDisponibles.length, 1)
 })
 
 test('rechaza una lista de exclusión excesiva antes de consultar', async () => {
@@ -269,8 +333,8 @@ test('sin clave web no falla el flujo ni informa que no existan lugares', async 
   assert.match(result.mensaje, /No pude ubicar|No encontré|resultados consultados|catálogo/)
 })
 
-test('cuando el mapa no ofrece candidatos informa un vacío claro sin depender de web externa', async () => {
-  const env = entorno([groq(plan), { features: [] }])
+test('cuando el catálogo ampliado no ofrece candidatos informa un vacío claro', async () => {
+  const env = entorno([groq(plan), { features: [] }, { features: [] }])
   const result = await buscarQBot(perfil, env)
   assert.deepEqual(result.lugares, [])
   assert.match(result.mensaje, /No encuentré|No encontré|resultados consultados|catálogo/)
@@ -285,4 +349,64 @@ test('si el pedido pide actividad específica y no marca web, no se rompe el flu
   assert.equal(env.llamadas.length, 2)
   assert.deepEqual(result.lugares, [])
   assert.match(result.mensaje, /No pude ubicar|No encontré|resultados consultados|catálogo/)
+})
+
+test('boliche para bailar se clasifica como adult.nightclub y no incluye atracciones turisticas', async () => {
+  const club = { properties: {
+    place_id: 'club-villa-crespo', name: 'Club de Baile', formatted: 'Villa Crespo, Buenos Aires',
+    categories: ['adult.nightclub'], description: 'Club nocturno con pista de baile.', lat: -34.6, lon: -58.44,
+  } }
+  const env = entorno([
+    groq({ ...plan, categorias: [], zona: '', alcance: 'zona' }),
+    { results: [{ suburb: 'Villa Crespo', result_type: 'suburb', place_id: 'limite-villa-crespo',
+      formatted: 'Villa Crespo, Buenos Aires, Argentina', lat: -34.6, lon: -58.44,
+      rank: { confidence: 1 } }] },
+    { features: [club] },
+    groq({ mensaje: 'Un lugar para salir a bailar.', recomendaciones: [{ id: 'club-villa-crespo', motivo: 'Club nocturno con pista de baile.' }] }),
+  ])
+  const result = await buscarQBot({ pedido: 'Boliche para bailar en Villa Crespo' }, env)
+  assert.equal(new URL(env.llamadas[2].url).searchParams.get('categories'), 'adult.nightclub')
+  assert.equal(result.lugares[0].categoria[0], 'adult.nightclub')
+  assert.equal(result.lugares[0].descripcion, 'Club nocturno con pista de baile.')
+})
+
+test('todas las sugerencias predeterminadas buscan su tipo con localidad de perfil y con barrio explícito', async () => {
+  const casos = [
+    ['Restaurante elegante', 'catering.restaurant'],
+    ['Bar tranquilo', 'catering.bar'],
+    ['Lugar para salir con amigos', 'catering.restaurant'],
+    ['Boliche para bailar', 'adult.nightclub'],
+    ['Sala de juegos', 'entertainment.amusement_arcade'],
+  ]
+
+  for (const [sugerencia, categoria] of casos) {
+    for (const zonaExplicita of ['', 'Recoleta']) {
+      let llamadasGroq = 0
+      const fetcher = async (url) => {
+        const parsed = new URL(url)
+        if (parsed.hostname === 'api.groq.com') {
+          llamadasGroq += 1
+          const data = llamadasGroq === 1
+            ? { ...plan, categorias: [categoria], zona: zonaExplicita, alcance: 'zona' }
+            : { mensaje: 'Encontré opciones compatibles.', recomendaciones: [{ id: `lugar-${categoria}`, motivo: 'Coincide con el tipo pedido.' }] }
+          return new Response(JSON.stringify(groq(data)), { status: 200 })
+        }
+        if (parsed.pathname.includes('/geocode/search')) {
+          return new Response(JSON.stringify({ results: [{ suburb: 'Recoleta', result_type: 'suburb', place_id: 'limite-recoleta',
+            formatted: 'Recoleta, Buenos Aires, Argentina', lat: -34.59, lon: -58.39, rank: { confidence: 1 } }] }), { status: 200 })
+        }
+        const categoriaConsultada = parsed.searchParams.get('categories')
+        return new Response(JSON.stringify({ features: [{ properties: {
+          place_id: `lugar-${categoria}`, name: `Lugar ${categoria}`,
+          formatted: zonaExplicita ? 'Recoleta, Buenos Aires' : 'Buenos Aires, Argentina',
+          categories: [categoriaConsultada],
+        } }] }), { status: 200 })
+      }
+      const result = await buscarQBot({
+        pedido: `${sugerencia}${zonaExplicita ? ` en ${zonaExplicita}` : ''}`,
+        localidad: { nombre: 'Recoleta', centroide: { lat: -34.59, lon: -58.39 } },
+      }, { groqKey: 'test-groq', geoapifyKey: 'test-geo', fetcher })
+      assert.equal(result.lugares[0]?.id, `lugar-${categoria}`, `${sugerencia} con zona=${zonaExplicita || 'perfil'}`)
+    }
+  }
 })

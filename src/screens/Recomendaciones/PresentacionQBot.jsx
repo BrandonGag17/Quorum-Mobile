@@ -1,11 +1,8 @@
 import React, { useEffect, useRef } from 'react'
 import { ActivityIndicator, Alert, Keyboard, KeyboardAvoidingView, Linking, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native'
 import Svg, { Path } from 'react-native-svg'
+import { descripcionLugarQBot, SUGERENCIAS_QBOT } from '../../services/qbotFallback.mjs'
 
-const EJEMPLOS = [
-  'Restaurante elegante', 'Bar tranquilo', 'Café temático',
-  'Boliche para bailar', 'Sala de juegos',
-]
 
 export default function PresentacionQBot({ mensaje, onChangeMensaje, onEnviar, loading, error, resultado, onAbrirDetalle }) {
   const inputRef = useRef(null)
@@ -25,6 +22,11 @@ export default function PresentacionQBot({ mensaje, onChangeMensaje, onEnviar, l
     try { await Linking.openURL(lugar.fuenteUrl) } catch {
       Alert.alert('No pudimos abrir la fuente', 'Intentá nuevamente en unos momentos.')
     }
+  }
+
+  function textoAccesoLugar(lugar) {
+    if (lugar.id?.startsWith('qbot-maps-')) return 'Abrir búsqueda en Google Maps ↗'
+    return lugar.origen === 'web' ? 'Ver fuente y reservas ↗' : 'Ver detalle →'
   }
 
   return (
@@ -54,7 +56,7 @@ export default function PresentacionQBot({ mensaje, onChangeMensaje, onEnviar, l
         Contame qué lugar buscás. Podés indicar una zona o usar la localidad de tu perfil.
       </Text>
       <View style={styles.ejemplosIniciales}>
-        {EJEMPLOS.map((ejemplo) => (
+        {SUGERENCIAS_QBOT.map((ejemplo) => (
           <Pressable
             key={ejemplo}
             style={({ pressed }) => [styles.ejemploInicial, pressed && styles.ejemploPresionado]}
@@ -80,12 +82,12 @@ export default function PresentacionQBot({ mensaje, onChangeMensaje, onEnviar, l
               style={styles.lugar}
               onPress={() => abrirLugar(lugar)}
               accessibilityRole="button"
-              accessibilityLabel={`${lugar.origen === 'web' ? 'Ver fuente de' : 'Ver detalle de'} ${lugar.nombre}`}
+              accessibilityLabel={`${lugar.id?.startsWith('qbot-maps-') ? 'Abrir búsqueda' : lugar.origen === 'web' ? 'Ver fuente de' : 'Ver detalle de'} ${lugar.nombre}`}
             >
               <Text style={styles.nombre}>{lugar.nombre}</Text>
               <Text style={styles.direccion}>{lugar.direccion}</Text>
-              <Text style={styles.respuesta}>{lugar.motivo}</Text>
-              <Text style={styles.verDetalle}>{lugar.origen === 'web' ? 'Ver fuente y reservas ↗' : 'Ver detalle →'}</Text>
+              <Text style={styles.descripcionLugar}>{descripcionLugarQBot(lugar)}</Text>
+              <Text style={styles.verDetalle}>{textoAccesoLugar(lugar)}</Text>
             </Pressable>
           ))}
         </View>
@@ -93,7 +95,7 @@ export default function PresentacionQBot({ mensaje, onChangeMensaje, onEnviar, l
     </ScrollView>
     <View style={styles.controles}>
       {!mostrarInicio ? <ScrollView horizontal showsHorizontalScrollIndicator={false} keyboardShouldPersistTaps="handled" style={styles.carrusel} contentContainerStyle={styles.ejemplos}>
-        {EJEMPLOS.map((ejemplo) => (
+        {SUGERENCIAS_QBOT.map((ejemplo) => (
           <Pressable
             key={ejemplo}
             style={({ pressed }) => [styles.ejemplo, pressed && styles.ejemploPresionado]}
@@ -147,6 +149,7 @@ const styles = StyleSheet.create({
   lugar: { backgroundColor: '#373749', borderRadius: 12, padding: 16, marginTop: 14 },
   nombre: { color: '#FFFFFF', fontFamily: 'CashMarket', fontSize: 18, marginBottom: 6 },
   direccion: { color: '#BDBDC7', fontFamily: 'Utendo', marginBottom: 10 },
+  descripcionLugar: { color: '#FFFFFF', fontFamily: 'Utendo', fontSize: 14, lineHeight: 20, marginBottom: 8 },
   verDetalle: { color: '#D9C4FF', fontFamily: 'Utendo', marginTop: 12 },
   panel: { flex: 1 },
   areaResultados: { flex: 1 },

@@ -9,6 +9,7 @@ export default function useQBot() {
   const ocupado = useRef(false)
   const montado = useRef(true)
   const lugaresVistos = useRef([])
+  const ultimoPedido = useRef('')
   useEffect(() => {
     montado.current = true
     return () => { montado.current = false }
@@ -16,14 +17,19 @@ export default function useQBot() {
 
   async function enviar() {
     if (ocupado.current || !mensaje.trim()) return
+    const pedido = mensaje.trim()
+    if (ultimoPedido.current !== pedido) {
+      lugaresVistos.current = []
+      ultimoPedido.current = pedido
+    }
     ocupado.current = true
     setLoading(true)
     setError('')
     setResultado(null)
     try {
-      const data = await consultarQBot(mensaje.trim(), lugaresVistos.current)
+      const data = await consultarQBot(pedido, lugaresVistos.current)
       lugaresVistos.current = [...new Set([...lugaresVistos.current, ...data.lugares.map((lugar) => lugar.id)])].slice(-30)
-      if (montado.current) setResultado({ ...data, pedido: mensaje.trim() })
+      if (montado.current) setResultado({ ...data, pedido })
     } catch (err) {
       if (montado.current) setError(err.message || 'No pudimos buscar lugares.')
     } finally {
