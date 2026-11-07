@@ -154,7 +154,7 @@ function CrearEvento({ route, onCreado }) {
 				<IndicadorPasos pasoActual={2} totalPasos={2} />
 			</View>
 
-			<ScrollView style={{ marginTop: 40 }}>
+			<ScrollView style={{ marginTop: 85 }}>
 				<Text style={styles.text}>Fecha del evento</Text>
 
 				{Platform.OS === 'web' ? (

@@ -5,6 +5,7 @@ import {
   TouchableOpacity,
   StyleSheet,
   FlatList,
+  ScrollView,
   Modal,
   Pressable,
   Animated,
@@ -209,7 +210,10 @@ export default function Grupo({ navigation }) {
 
   return (
     <SafeAreaView style={styles.container}>
-      <View style={styles.content}>
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={styles.content}
+      >
         <View style={styles.sectionRow}>
           <View style={styles.sectionTitleContainer}>
             <MaterialCommunityIcons
@@ -224,6 +228,7 @@ export default function Grupo({ navigation }) {
         {upcomingEvents.length > 0 ? (
           <FlatList
             horizontal
+            nestedScrollEnabled
             data={upcomingEvents}
             renderItem={({ item }) => (
               <CardJuntadas evento={item} navigation={navigation} />
@@ -272,6 +277,7 @@ export default function Grupo({ navigation }) {
         {proposals.length > 0 ? (
           <FlatList
             horizontal
+            nestedScrollEnabled
             data={proposals}
             keyExtractor={(item) => item.id.toString()}
             showsHorizontalScrollIndicator={false}
@@ -326,12 +332,9 @@ export default function Grupo({ navigation }) {
         {mostrarJuntadasPasadas && (
           <>
             {pastEvents.length > 0 ? (
-              <FlatList
-                data={pastEvents}
-                keyExtractor={(item) => item.id.toString()}
-                scrollEnabled={false}
-                renderItem={({ item }) => <CardJuntadasPasadas evento={item} />}
-              />
+              pastEvents.map((evento) => (
+                <CardJuntadasPasadas key={evento.id.toString()} evento={evento} />
+              ))
             ) : (
               <View style={styles.emptyState}>
                 <Text style={styles.emptyText}>No hay juntadas pasadas.</Text>
@@ -339,7 +342,7 @@ export default function Grupo({ navigation }) {
             )}
           </>
         )}
-      </View>
+      </ScrollView>
 
       <Modal
         visible={mostrarCrear}
